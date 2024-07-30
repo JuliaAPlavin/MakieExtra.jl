@@ -23,7 +23,7 @@ end
 @testitem "macro" begin
     const TT = Vector
     MakieExtra.@define_plotfunc scatter TT
-    MakieExtra.axis_attributes(::Type{Scatter}, ::Vector) = (;)
+    MakieExtra.default_axis_attributes(::Type{Scatter}, ::Vector) = (;)
 
     scatter([1,2,3])
 end
