@@ -31,3 +31,36 @@ _symlog_ticks(x) = x
 
 _symlog_formatter(::Makie.Automatic) = Base.Broadcast.BroadcastFunction(x -> Makie.showoff_minus([x])[])
 _symlog_formatter(x) = x
+
+
+@kwdef struct EngTicks
+    kind::Symbol = :number
+    digits::Int = 0
+end
+
+EngTicks(kind; kwargs...) = EngTicks(; kind, kwargs...)
+
+Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
+    iszero(v) && return string(v)
+    pow = log10(abs(v))
+    pow3 = @modify(x -> floor(Int, x), $pow / 3)
+    suffix = if t.kind == :number
+        rich("×10", superscript(string(pow3)))
+    elseif t.kind == :symbol
+        " " * Dict(
+            -15 => "f",
+            -12 => "p",
+            -9 => "n",
+            -6 => "μ",
+            -3 => "m",
+            0 => "",
+            3 => "k",
+            6 => "M",
+            9 => "G",
+            12 => "T",
+            15 => "P",
+            18 => "E",
+        )[pow3]
+    end
+    rich(f"{v / 10.0^pow3:.{t.digits}f}", suffix)
+end
