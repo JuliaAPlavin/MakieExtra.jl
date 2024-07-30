@@ -1,21 +1,21 @@
 function multiplot!(plts, args...; kwargs...)
 	map(plts) do plt
-		plotfunc!(plt)(args...; keep_attrs(plt, kwargs)...)
+		plotfunc!(plt)(args...; keep_attrs(plt, kwargs, args...)...)
 	end
 end
 
 function multiplot(plts, args...; kwargs...)
 	plt = first(plts)
-	firstres = plotfunc(plt)(args...; keep_attrs(plt, kwargs)...)
+	firstres = plotfunc(plt)(args...; keep_attrs(plt, kwargs, args...)...)
 	
 	tailres = map(Base.tail(plts)) do plt
-		plotfunc!(plt)(args...; keep_attrs(plt, kwargs)...)
+		plotfunc!(plt)(args...; keep_attrs(plt, kwargs, args...)...)
 	end
     return (firstres, tailres...)
 end
 
-keep_attrs(plt::Type{<:Plot}, kwargs) = kwargs[collect(keys(kwargs) ∩ Makie.attribute_names(plt))]
-keep_attrs(plt::Function, kwargs) = keep_attrs(Plot{plt}, kwargs)
+keep_attrs(plt::Type{<:Plot}, kwargs, args...) = kwargs[collect(keys(kwargs) ∩ (Makie.attribute_names(plt) ∪ used_attributes(plt, args...)))]
+keep_attrs(plt::Function, kwargs, args...) = keep_attrs(Plot{plt}, kwargs)
 
 plotfunc(::Type{<:Plot{F}}) where {F} = F
 plotfunc(F::Function) = F
