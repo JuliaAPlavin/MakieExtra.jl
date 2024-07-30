@@ -166,9 +166,11 @@ end
     # @test plt.linewidth[]
     plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
     plt = lines!(FPlot(1:10, Ref(1), (@o _^2), color=sqrt, axis=true))
-    plt = lines!(FPlot(1:10, x->x+1, (@o _^2), color=sqrt, axis=true), linewidth=15)
+    plt = lines!(FPlot(1:10, x->x+1, (@o _^2), color=sqrt), linewidth=15)
+    @test plt.linewidth[] == 15
+    plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt), linewidth=15)
     @test ax.xlabel[] == ""
-    # @test Makie.get_plots(ax) #[:linewidth][]
+    @test plt.linewidth[] == 15
 
     struct MyObj end
     Makie.used_attributes(T::Type{<:Plot}, ::MyObj) = Tuple(Makie.attribute_names(T))
