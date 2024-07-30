@@ -29,8 +29,8 @@ function Makie.plot!(p::Scalebar)
         length_data = 1 / units_in_data * mul
 
         length_ax = length_data / width(xlims)
-        avgpos = $(p.position)
-        points = [avgpos - Point2(length_ax/2, 0), avgpos + Point2(length_ax/2, 0)]
+        avgpos = convert(Point2, $(p.position))
+        points = [avgpos - Vec2(length_ax/2, 0), avgpos + Vec2(length_ax/2, 0)]
         (; points, text=_scalebar_str($(p.scale), mul), textpos=avgpos)
     end
 
