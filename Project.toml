@@ -13,7 +13,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 [compat]
 Accessors = "0.1.36"
 InverseFunctions = "0.1.14"
-Makie = "0.20.9, 0.21"
+Makie = "0.21"
 PyFormattedStrings = "0.1"
 Reexport = "1.2.2"
 julia = "1.9"
