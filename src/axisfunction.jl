@@ -5,7 +5,7 @@ for plotf in (:scatter, :lines, :scatterlines, :band, :errorbars, :rangebars, :s
 
 	@eval function Makie.$plotf_excl(ax, f::Union{Function,Observable{<:Function}}; kwargs...)
 		interval = lift(xint, ax.finallimits)
-		$plotf_excl(ax, interval, f; kwargs...)
+		$plotf_excl(ax, interval, f; merge((; xautolimits=false), kwargs)...)
 	end
 end
 
