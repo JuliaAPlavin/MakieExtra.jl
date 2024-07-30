@@ -188,7 +188,7 @@ end
     @test plt.linewidth[] == 15
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
 
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10)
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
     ax = content(fig[1,1])
     @test ax.xlabel[] == "Abcdef"
     @test ax.ylabel[] == "^(_, 2)"
