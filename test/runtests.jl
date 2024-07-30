@@ -156,7 +156,7 @@ end
     @test_broken (to_x_attrs(attrs); true)
 end
 
-@testitem "fplot" begin
+@testitem "fplot structure" begin
     using Accessors
 
     fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
@@ -173,6 +173,10 @@ end
     @test (@delete values(fp)) === FPlot(nothing, (@o _+1), (@o _^2), color=sqrt)
     fp_nov = FPlot(nothing, (@o _+1), (@o _^2), color=sqrt)
     @test (@insert values(fp_nov) = 1:10) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
+end
+
+@testitem "fplot basic" begin
+    using Accessors
 
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
     @test content(fig[1,1]).xlabel[] == "+(_, 1)"
@@ -187,12 +191,24 @@ end
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 15
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
+end
 
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
-    ax = content(fig[1,1])
-    @test ax.xlabel[] == "Abcdef"
-    @test ax.ylabel[] == "^(_, 2)"
-    @test ax.yscale[] == log10
+@testitem "flipped xy" begin
+    using Accessors
+
+    barplot(FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
+    @test current_axis().xlabel[] == "identity"
+    @test current_axis().ylabel[] == "^(_, 2)"
+    barplot(FPlot(1:10, (@o _), (@o _^2)), direction=:x, doaxis=true)
+    @test current_axis().xlabel[] == "^(_, 2)"
+    @test current_axis().ylabel[] == "identity"
+end
+
+    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
+    # ax = content(fig[1,1])
+    # @test ax.xlabel[] == "Abcdef"
+    # @test ax.ylabel[] == "^(_, 2)"
+    # @test ax.yscale[] == log10
     # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true, axis=(ylabel="Def",))
     # ax = content(fig[1,1])
     # @test ax.xlabel[] == "Abcdef"
@@ -207,6 +223,9 @@ end
     # @test ax.xlabel[] == ""
     # @test ax.ylabel[] == ""
     # @test ax.yscale[] == identity
+
+@testitem "conversion to FPlot" begin
+    using Accessors
 
     struct MyObj end
     Makie.used_attributes(T::Type{<:Plot}, ::MyObj) = Tuple(Makie.attribute_names(T))
