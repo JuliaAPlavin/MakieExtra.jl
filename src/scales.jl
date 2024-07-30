@@ -37,7 +37,7 @@ end
     vmax::Float32 = Inf32
 
     _a::Float32 = 0.5f0 * linthresh
-    _f::F = @o _a * setinverse(asinh, sinh)(_/_a)
+    _f::F = @o _a * asinh(_/_a)
 end
 
 AsinhScale(linthresh; kwargs...) = AsinhScale(; linthresh=Float32(linthresh), map(Float32, values(kwargs))...)
