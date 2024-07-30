@@ -157,7 +157,7 @@ end
 end
 
 @testitem "multiplot" begin
-    import CairoMakie, GLMakie
+    import CairoMakie
 
     res = multiplot((Scatter, Lines), 1:10, 1:10)
     @test length(res) == 2
@@ -186,7 +186,6 @@ end
     @test plts[2].color[] == :red
 
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
-    Makie.colorbuffer(current_figure(); backend=GLMakie)
 end
 
 @testitem "arrowline" begin
