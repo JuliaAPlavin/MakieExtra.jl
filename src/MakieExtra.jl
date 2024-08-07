@@ -23,7 +23,8 @@ export
 	marker_lw,
 	to_x_attrs, to_y_attrs, to_xy_attrs,
 	multiplot, multiplot!,
-	FPlot
+	FPlot,
+	with_backend, render_plot
 
 include("lift.jl")
 include("scales.jl")
@@ -39,6 +40,7 @@ include("bandstroke.jl")
 include("fplot.jl")
 include("arrowline.jl")
 include("multiplot.jl")
+include("with_backend.jl")
 
 
 to_x_attrs(attrs) = @modify(k -> Symbol(:x, k), keys(attrs)[∗])
