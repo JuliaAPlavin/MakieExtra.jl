@@ -94,7 +94,7 @@ function with_backend(plot!, gridpos, backend ;
     layout = GridLayout(gridpos)
     bbox = layout.layoutobservables.computedbbox
 
-    img = Observable(render_plot(plot!, backend, bbox[].widths * scalefactor))
+    img = @lift render_plot($plot!, backend, bbox[].widths * scalefactor)
 
     refit_observable = Observable(false)
     on(refit_observable) do _
