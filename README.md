@@ -7,4 +7,4 @@ The included features are either not fleshed out enough to be included into `Mak
 
 Everyone is welcome to suggest new features and convenience utilities to include into `MakieExtra`! This package aims to have a lower entry barrier than `Makie` itself.
 
-See [the Pluto notebook](https://aplavin.github.io/MakieExtra.jl/test/examples.html) for details and examples.
+See [the Pluto notebook](https://juliaaplavin.github.io/MakieExtra.jl/test/examples.html) for details and examples.
