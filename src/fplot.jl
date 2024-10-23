@@ -56,8 +56,6 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	end
 end
 
-# Makie.plot!(ax::Axis, plot::Plot{plot, Tuple{Makie.GridLayoutSpec}}) = plotlist!(ax, plot.converted[][].content[].second.plots[])
-
 axis_attributes(ct, X::FPlot, kwargs) = (; xlabel=_xlabel(ct, X, kwargs), ylabel=_ylabel(ct, X, kwargs), X.axis...)
 
 @inline getval(f, data) = convert_to_makie(map(f, data))
@@ -92,3 +90,6 @@ end
 
 _stripidentity(o::ComposedFunction) = @delete Accessors.decompose(o) |> filter(==(identity))
 _stripidentity(o) = o
+
+# XXX: upstream cleaner version!
+Makie.plot!(ax::Axis, plot::Plot{plot, Tuple{Makie.GridLayoutSpec}}) = plotlist!(ax, plot.converted[][].content[].second.plots[])
