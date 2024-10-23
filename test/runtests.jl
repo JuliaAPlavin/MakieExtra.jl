@@ -245,6 +245,7 @@ end
     arrowlines!([(0, 0), (1, 0.5)], arrowstyle="<-|>")
     arrowlines!([(0, 0), (10, -2), (1, 0.5)], arrowstyle="<-|>")
     arrowlines!(1:10, sin)
+    arrowlines(1:10, sin; axis=(;xscale=log10))
 end
 
 @testitem "@define_plotfunc" begin
