@@ -119,6 +119,7 @@ end
     lines(sin)
     lines(sin; color=:black)
     scatter!(sin)
+    scatter!(current_axis(), sin)
     scatter!(Observable(sin))
     scatter!(Observable(sin); markersize=2)
     band(x -> sin(x)..2sin(x); alpha=0.5)
