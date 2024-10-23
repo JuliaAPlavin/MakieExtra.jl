@@ -65,6 +65,8 @@ end
 
 # XXX: should upstream all of these!
 
+Makie.project(s, r::Makie.GeometryBasics.HyperRectangle) = Makie.GeometryBasics.HyperRectangle(Makie.project(s, r.origin), Makie.project(s, r.origin + r.widths) - Makie.project(s, r.origin))
+
 fullproject(ax, p) = Makie.project(Makie.get_scene(ax), Makie.apply_transform(Makie.transform_func(ax), p)) + viewport(ax)[].origin
 
 Makie.inverse_transform(f::Function) = inverse(f)

@@ -19,8 +19,8 @@ function zoom_lines!(ax1, ax2; strokewidth=1.5, strokecolor=:black, color=(:blac
 	        elseif bottom(vps[1]) > top(vps[2])
 	            (bottomleft, bottomright, leftline, rightline)
 	        end
-			line1 = fullproject.(Ref(axs[2]), fs[3](axs[1].finallimits[]))
-			line2 = fullproject.(Ref(axs[2]), fs[4](axs[1].finallimits[]))
+			line1 = fs[3](fullproject(axs[2], axs[1].finallimits[]))
+			line2 = fs[4](fullproject(axs[2], axs[1].finallimits[]))
 		end
         (
             rect1=ax2.finallimits[],
