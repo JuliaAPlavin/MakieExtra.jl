@@ -132,13 +132,25 @@ end
     @test xint(current_axis().targetlimits[]) ≈ -4..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ 0..10  rtol=0.2
     @test current_axis().xlabel[] == "_ ^ 2"
-    @test current_axis().ylabel[] == "_ ^ 3"
+    @test current_axis().ylabel[] == ""
 
     hlines(FPlot(1:10, (@o _^2 ± 0.5), (@o _^3 ± 5)), doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -50..1050  rtol=0.2
-    @test current_axis().xlabel[] == "_ ^ 2 ± 0.5"
+    @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == "_ ^ 3 ± 5"
+    
+    hist(FPlot(1:10, (@o _^2), (@o _^3)), doaxis=true)
+    @test xint(current_axis().targetlimits[]) ≈ 0..105  rtol=0.2
+    @test yint(current_axis().targetlimits[]) ≈ -0.1..2.1  rtol=0.2
+    @test current_axis().xlabel[] == "_ ^ 2"
+    @test current_axis().ylabel[] == ""
+    
+    hist(FPlot(1:10, nothing, (@o _^3)), doaxis=true, direction=:x)
+    @test xint(current_axis().targetlimits[]) ≈ -0.2..4.2  rtol=0.2
+    @test yint(current_axis().targetlimits[]) ≈ -49..1050  rtol=0.2
+    @test current_axis().xlabel[] == ""
+    @test current_axis().ylabel[] == "_ ^ 3"
 end
 
 @testitem "multiplot" begin

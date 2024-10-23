@@ -76,7 +76,11 @@ convert_to_makie(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
 _xlabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 1)
 _ylabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 2)
 function _xylabel(ct, X::FPlot, kwargs, i)
-	argix = kwargs.reorder_args ? i : get(argixs_xy_axes(ct, X, kwargs), i, i)
+	argixs = argixs_xy_axes(ct, X, kwargs)
+	argix = kwargs.reorder_args ?
+		(isnothing(argixs) || i ∈ argixs ? i : nothing) :
+		get(argixs, i, nothing)
+	isnothing(argix) && return shortlabel(nothing)
 	shortlabel(get(X.argfuncs, argix, nothing))
 end
 
@@ -84,6 +88,8 @@ argixs_xy_axes(ct, X::FPlot, kwargs) = nothing
 argixs_xy_axes(::Type{<:VLines}, X::FPlot, kwargs) = (1,)
 argixs_xy_axes(::Type{<:HLines}, X::FPlot, kwargs) = (2,)
 argixs_xy_axes(::Type{<:Union{BarPlot,Errorbars,Rangebars}}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
+argixs_xy_axes(::Type{<:Hist},    X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2,) : (1,)
+argixs_xy_axes(::Type{<:Density}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (1,) : (2,)
 
 shortlabel(::Nothing) = ""
 function shortlabel(f)
