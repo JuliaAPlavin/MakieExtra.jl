@@ -3,7 +3,7 @@
 for plotf in (:scatter, :lines, :scatterlines, :band, :errorbars, :rangebars, :stairs, :stem, :barplot)
 	plotf_excl = Symbol(plotf, :!)
 
-	@eval function Makie.$plotf_excl(ax, f::Union{Function,Observable{<:Function}}; kwargs...)
+	@eval function Makie.$plotf_excl(ax::Axis, f::Union{Function,Observable{<:Function}}; kwargs...)
 		interval = lift(xint, ax.finallimits)
 		$plotf_excl(ax, interval, f; merge((; xautolimits=false), kwargs)...)
 	end
