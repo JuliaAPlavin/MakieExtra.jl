@@ -4,18 +4,29 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ bb711dab-bb26-4a76-9610-2ce43a4d6984
+using PlutoUI; TableOfContents()
+
 # ╔═╡ 9b4134d6-2755-11ef-08c1-03239a8c3986
 using MakieExtra, CairoMakie
 
 # ╔═╡ 824db806-4a98-44fc-95a1-d0692647eca6
 using DataManipulation
 
-# ╔═╡ bb711dab-bb26-4a76-9610-2ce43a4d6984
-using PlutoUI; TableOfContents()
+# ╔═╡ 986cb3d3-0a26-4235-9931-d58ba828c490
+using Makie.IntervalSets
+
+# ╔═╡ ae124cf3-1552-4d1f-9d26-105230ba9f5b
+using Unitful
+
+# ╔═╡ 11e2cd0f-9948-4097-bf2b-009a3614ea55
+md"""
+# New recipes
+"""
 
 # ╔═╡ 04d07684-0c2d-4551-a915-5c3134f67cf7
 md"""
-# Plot function over the full x-limits
+## Plot function over the full x-limits
 """
 
 # ╔═╡ d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
@@ -51,9 +62,60 @@ let
 	end
 end
 
+# ╔═╡ 8e65e21e-c28b-4b60-b6d1-de8a53ad5f3c
+md"""
+## Scalebar
+"""
+
+# ╔═╡ 8ecb3eda-9a1e-4cf5-86ef-b653cae097a7
+md"""
+`scalebar!(pixsize)` adds a scalebar that automatically decides on the optimal size and tracks axis limits changes:
+"""
+
+# ╔═╡ 8f2c815b-bf62-4359-9dad-b8ead84caafd
+let
+	n = 100
+	lim = Observable{Float64}(n)
+	fig, ax, plt = heatmap(rand(n, n), axis=(aspect=DataAspect(), limits=(@lift (0.5..$lim,0.5..$lim))), alpha=0.3)
+	hidedecorations!(ax)
+	scalebar!(0.15u"m", color=:black)
+	
+	Record(fig, (@p maprange(log, 100, 5, length=200) [__; reverse(__)])) do x
+		lim[] = x
+	end
+end
+
+# ╔═╡ 3526c688-aea9-411b-a837-dc02ff81a7ee
+md"""
+## Zoom lines
+"""
+
+# ╔═╡ bd7e6900-e660-4a10-b810-0ad2a66c3ea5
+md"""
+Whenever one axes is a zoomed-in version of another _(they can have different content)_, it may be useful to display zoom lines and rectangle to guide the eye. This is done with `zoom_lines!(ax1, ax2)` function. It uses axes relative positions and their limits to properly draw lines and rectangles:
+"""
+
+# ╔═╡ 9f008eee-6986-4ae4-9945-d854f75b7ed1
+let
+	w = Observable(5.)
+	fig, ax1, plt = heatmap(rand(100, 100), alpha=0.3, axis=(limits=(@lift (45±$w, 80±$w)),))
+	ax2, plt = heatmap(fig[1,2], rand(100, 100), alpha=0.3)
+
+	zoom_lines!(ax1, ax2)
+	
+	Record(fig, (@p maprange(log, 150, 0.5, length=200) [__; reverse(__)])) do x
+		w[] = x
+	end
+end
+
+# ╔═╡ e8f92e7f-371d-4451-82a4-1ef5bf2e9295
+md"""
+# Scales, ticks
+"""
+
 # ╔═╡ 43e63ef3-7883-4989-81d4-212e3d9843b0
 md"""
-# Symlog and related scales
+## `SymLog` and `asinh` scales
 """
 
 # ╔═╡ 40da1797-a79f-45d1-9efe-9b8def36b636
@@ -100,7 +162,7 @@ end
 
 # ╔═╡ e67e857b-a57e-458e-adbc-eb4b1fa3cd56
 md"""
-# Ticks helpers
+## Tick locators and formatters
 """
 
 # ╔═╡ 57384e49-c43b-4294-8338-92356bea96e1
@@ -123,19 +185,26 @@ let
 	fig
 end
 
+# ╔═╡ 4b0b6723-0ef7-4e66-909b-05f9aec0323a
+
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataManipulation = "38052440-ad76-4236-8414-61389b2c5143"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 MakieExtra = "54e234d5-9986-40d8-815f-a5e42de435f6"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
-CairoMakie = "~0.12.2"
+CairoMakie = "~0.12.3"
 DataManipulation = "~0.1.16"
-MakieExtra = "~0.1.8"
+Makie = "~0.21.3"
+MakieExtra = "~0.1.10"
 PlutoUI = "~0.7.59"
+Unitful = "~1.20.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -187,9 +256,9 @@ version = "0.1.36"
 
 [[AccessorsExtra]]
 deps = ["Accessors", "CompositionsBase", "ConstructionBase", "DataPipes", "InverseFunctions", "Reexport"]
-git-tree-sha1 = "a7c2045bba89253644b36933f169745ee8142a6f"
+git-tree-sha1 = "347ceade87b396742f7191a587055dcb1df13706"
 uuid = "33016aad-b69d-45be-9359-82a41f556fd4"
-version = "0.1.70"
+version = "0.1.71"
 
     [AccessorsExtra.extensions]
     ColorTypesExt = "ColorTypes"
@@ -299,10 +368,10 @@ uuid = "159f3aea-2a34-519c-b102-8c37f9878175"
 version = "1.0.5"
 
 [[CairoMakie]]
-deps = ["CRC32c", "Cairo", "Colors", "FileIO", "FreeType", "GeometryBasics", "LinearAlgebra", "Makie", "PrecompileTools"]
-git-tree-sha1 = "9e8eaaff3e5951d8c61b7c9261d935eb27e0304b"
+deps = ["CRC32c", "Cairo", "Cairo_jll", "Colors", "FileIO", "FreeType", "GeometryBasics", "LinearAlgebra", "Makie", "PrecompileTools"]
+git-tree-sha1 = "3441d68ea63944a2b9b6de76603ec1c8b0fd4e3e"
 uuid = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-version = "0.12.2"
+version = "0.12.3"
 
 [[Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
@@ -576,9 +645,9 @@ version = "0.8.5"
 
 [[FlexiGroups]]
 deps = ["AccessorsExtra", "Combinatorics", "DataPipes", "Dictionaries", "FlexiMaps"]
-git-tree-sha1 = "bb0f495a3048a64a7bb9e7c34b7d6f152c8e0ac2"
+git-tree-sha1 = "d4cd4a4e52b938fa6000ef5cad8f2a8afcd5eaa9"
 uuid = "1e56b746-2900-429a-8028-5ec1f00612ec"
-version = "0.1.24"
+version = "0.1.25"
 
     [FlexiGroups.extensions]
     AxisKeysExt = "AxisKeys"
@@ -720,9 +789,9 @@ version = "0.9.5"
 
 [[IOCapture]]
 deps = ["Logging", "Random"]
-git-tree-sha1 = "8b72179abc660bfab5e28472e019392b97d0985c"
+git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
-version = "0.2.4"
+version = "0.2.5"
 
 [[ImageAxes]]
 deps = ["AxisArrays", "ImageBase", "ImageCore", "Reexport", "SimpleTraits"]
@@ -1024,21 +1093,21 @@ version = "0.5.13"
 
 [[Makie]]
 deps = ["Animations", "Base64", "CRC32c", "ColorBrewer", "ColorSchemes", "ColorTypes", "Colors", "Contour", "Dates", "DelaunayTriangulation", "Distributions", "DocStringExtensions", "Downloads", "FFMPEG_jll", "FileIO", "FilePaths", "FixedPointNumbers", "Format", "FreeType", "FreeTypeAbstraction", "GeometryBasics", "GridLayoutBase", "ImageIO", "InteractiveUtils", "IntervalSets", "Isoband", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "MacroTools", "MakieCore", "Markdown", "MathTeXEngine", "Observables", "OffsetArrays", "Packing", "PlotUtils", "PolygonOps", "PrecompileTools", "Printf", "REPL", "Random", "RelocatableFolders", "Scratch", "ShaderAbstractions", "Showoff", "SignedDistanceFields", "SparseArrays", "Statistics", "StatsBase", "StatsFuns", "StructArrays", "TriplotBase", "UnicodeFun", "Unitful"]
-git-tree-sha1 = "ec3a60c9de787bc6ef119d13e07d4bfacceebb83"
+git-tree-sha1 = "e11b0666b457e3bb60119f2ed4d063d2b68954d3"
 uuid = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-version = "0.21.2"
+version = "0.21.3"
 
 [[MakieCore]]
 deps = ["ColorTypes", "GeometryBasics", "IntervalSets", "Observables"]
-git-tree-sha1 = "c1c9da1a69f6c635a60581c98da252958c844d70"
+git-tree-sha1 = "638bc817096742e8302f7b0b972ee5701fe00e97"
 uuid = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
-version = "0.8.2"
+version = "0.8.3"
 
 [[MakieExtra]]
-deps = ["Accessors", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport"]
-git-tree-sha1 = "652ecac8f57455467ad54f85dfd41b5f886bf5e8"
+deps = ["Accessors", "DataManipulation", "DataPipes", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport"]
+git-tree-sha1 = "c082c5a92c857da998017ac9fb5d579ce9a4686c"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
-version = "0.1.8"
+version = "0.1.10"
 
 [[MappedArrays]]
 git-tree-sha1 = "2dab0221fe2b0f2cb6754eaa743cc266339f527e"
@@ -1391,19 +1460,21 @@ uuid = "45858cf5-a6b0-47a3-bbea-62219f50df47"
 version = "0.1.3"
 
 [[Skipper]]
-git-tree-sha1 = "57a0b3c04151a75fff86545af4b49223cbf0f328"
+git-tree-sha1 = "735fc729f4ff1940c3b3436ff6de6598af8b1603"
 uuid = "fc65d762-6112-4b1c-b428-ad0792653d81"
-version = "0.1.12"
+version = "0.1.13"
 
     [Skipper.extensions]
     AccessorsExt = "Accessors"
     AxisKeysExt = "AxisKeys"
     DictionariesExt = "Dictionaries"
+    MakieExt = "Makie"
 
     [Skipper.weakdeps]
     Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
     AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
     Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
+    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 
 [[SnoopPrecompile]]
 deps = ["Preferences"]
@@ -1746,8 +1817,7 @@ version = "3.5.0+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═9b4134d6-2755-11ef-08c1-03239a8c3986
-# ╠═824db806-4a98-44fc-95a1-d0692647eca6
+# ╟─11e2cd0f-9948-4097-bf2b-009a3614ea55
 # ╟─04d07684-0c2d-4551-a915-5c3134f67cf7
 # ╟─d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
 # ╠═9529f2de-82ec-44fb-b45e-45424dbca177
@@ -1755,6 +1825,13 @@ version = "3.5.0+0"
 # ╠═007b2ac4-d5c6-4e71-8c50-09a3130f8abb
 # ╟─0dc4e2d1-f74b-4d40-a271-220b42243f09
 # ╠═55be0296-4cc2-47f1-9578-866e4cdd2edd
+# ╟─8e65e21e-c28b-4b60-b6d1-de8a53ad5f3c
+# ╟─8ecb3eda-9a1e-4cf5-86ef-b653cae097a7
+# ╠═8f2c815b-bf62-4359-9dad-b8ead84caafd
+# ╟─3526c688-aea9-411b-a837-dc02ff81a7ee
+# ╟─bd7e6900-e660-4a10-b810-0ad2a66c3ea5
+# ╠═9f008eee-6986-4ae4-9945-d854f75b7ed1
+# ╟─e8f92e7f-371d-4451-82a4-1ef5bf2e9295
 # ╟─43e63ef3-7883-4989-81d4-212e3d9843b0
 # ╟─40da1797-a79f-45d1-9efe-9b8def36b636
 # ╠═3c0742fa-6a95-41bf-b1cd-4e2b5a07f10e
@@ -1764,5 +1841,10 @@ version = "3.5.0+0"
 # ╟─57384e49-c43b-4294-8338-92356bea96e1
 # ╠═01d80794-c229-46c6-b2fb-db4f7e54ad9c
 # ╟─bb711dab-bb26-4a76-9610-2ce43a4d6984
+# ╟─4b0b6723-0ef7-4e66-909b-05f9aec0323a
+# ╠═9b4134d6-2755-11ef-08c1-03239a8c3986
+# ╠═824db806-4a98-44fc-95a1-d0692647eca6
+# ╠═986cb3d3-0a26-4235-9931-d58ba828c490
+# ╠═ae124cf3-1552-4d1f-9d26-105230ba9f5b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
