@@ -370,6 +370,11 @@ end
     @test func2type(Lines) == Lines
 end
 
+@testitem "inverse" begin
+    @test ReversibleScale(identity) === ReversibleScale(identity, identity)
+    @test ReversibleScale(cbrt) === ReversibleScale(cbrt, Base.Fix2(^, 3))
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=false, undefined_exports=false, piracies=false, persistent_tasks=false)

@@ -59,7 +59,9 @@ function __init__()
     end
 end
 
-# XXX: should upstream these!
+# XXX: should upstream all of these!
+
+Makie.inverse_transform(f::Function) = inverse(f)
 
 func2type(x) = Makie.MakieCore.func2type(x)
 func2type(f::Function) =
