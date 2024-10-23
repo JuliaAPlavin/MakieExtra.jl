@@ -76,6 +76,6 @@ shift_range(p::T, (r1, r2)::Pair{<:Rect2,<:Rect2}) where {T<:Point2} = T(
 # XXX: hack, ignore kwargs that Makie erroneously propagates
 # this is very low-specificity method that should only trigger when no kwargs-accepting methods exist
 # this method is relied upon in, for example, VLBIPlots.jl
-Makie.convert_arguments(args...; kwargs...) = convert_arguments(args...)
+Makie.convert_arguments(args...; kwargs...) = isempty(kwargs) ? throw(MethodError(convert_arguments, args)) : convert_arguments(args...)
 
 end
