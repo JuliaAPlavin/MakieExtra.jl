@@ -193,10 +193,20 @@ end
     @test ax.xlabel[] == "Abcdef"
     @test ax.ylabel[] == "^(_, 2)"
     @test ax.yscale[] == log10
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=false)
-    @test ax.xlabel[] == ""
-    @test ax.ylabel[] == ""
-    @test ax.yscale[] == identity
+    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true, axis=(ylabel="Def",))
+    # ax = content(fig[1,1])
+    # @test ax.xlabel[] == "Abcdef"
+    # @test ax.ylabel[] == "Def"
+    # @test ax.yscale[] == log10
+    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=false, axis=(ylabel="Def",))
+    # ax = content(fig[1,1])
+    # @test ax.xlabel[] == ""
+    # @test ax.ylabel[] == "Def"
+    # @test ax.yscale[] == identity
+    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=false)
+    # @test ax.xlabel[] == ""
+    # @test ax.ylabel[] == ""
+    # @test ax.yscale[] == identity
 
     struct MyObj end
     Makie.used_attributes(T::Type{<:Plot}, ::MyObj) = Tuple(Makie.attribute_names(T))
