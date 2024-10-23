@@ -361,6 +361,15 @@ end
     @test yupds == [1, 2, 1]
 end
 
+@testitem "func2type" begin
+    using MakieExtra: func2type
+    @test func2type(scatter) == Scatter
+    @test func2type(scatter!) == Scatter
+    @test func2type(scatterlines) == ScatterLines
+    @test func2type(scatterlines!) == ScatterLines
+    @test func2type(Lines) == Lines
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=false, undefined_exports=false, piracies=false, persistent_tasks=false)
