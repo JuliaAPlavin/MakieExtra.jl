@@ -10,7 +10,7 @@ macro define_plotfunc(plotfuncs, Ts)
 
     exprs = map(plotfuncs) do plotf
         plotf_excl = Symbol(plotf, :!)
-		plottype = :($Plot{$plotf})
+        plottype = :($Plot{$plotf})
         argnames = map(i -> Symbol(:x, i) |> esc, 1:length(Ts))
         args_obs = map((n, T) -> :($n::Observable{<:$T}), argnames, Ts)
         args_any = map((n, T) -> :($n::Union{$T,Observable{<:$T}}), argnames, Ts)
@@ -49,40 +49,40 @@ macro define_plotfunc_conv(plotfuncs, Ts)
 
     exprs = map(plotfuncs) do plotf
         plotf_excl = Symbol(plotf, :!)
-		plottype = :($Plot{$plotf})
+        plottype = :($Plot{$plotf})
         argnames = map(i -> Symbol(:x, i) |> esc, 1:length(Ts))
         args_any = map((n, T) -> :($n::Union{$T,Observable{<:$T}}), argnames, Ts)
-		@assert length(argnames) == 1
-		argname = only(argnames)
+        @assert length(argnames) == 1
+        argname = only(argnames)
         axis = esc(:axis)  # otherwise it gensyms
         quote
             function Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_any...); axis=(;), kwargs...)
-				used_attrs = used_attributes($plottype, Makie.to_value($argname))
+                used_attrs = used_attributes($plottype, Makie.to_value($argname))
                 $axis = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), $axis)
-				$plotf(
-					pos,
-					_lift(
-						x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
-						$argname);
-					axis, _unselect_kwargs(kwargs, used_attrs)...
-				)
-			end
+                $plotf(
+                    pos,
+                    _lift(
+                        x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
+                        $argname);
+                    axis, _unselect_kwargs(kwargs, used_attrs)...
+                )
+            end
 
             function Makie.$plotf($(args_any...); axis=(;), kwargs...)
-				used_attrs = used_attributes($plottype, Makie.to_value($argname))
+                used_attrs = used_attributes($plottype, Makie.to_value($argname))
                 $axis = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), $axis)
-				$plotf(
-					_lift(
-						x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
-						$argname);
-					axis, _unselect_kwargs(kwargs, used_attrs)...
-				)
-			end
+                $plotf(
+                    _lift(
+                        x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
+                        $argname);
+                    axis, _unselect_kwargs(kwargs, used_attrs)...
+                )
+            end
 
             Makie.$plotf_excl($(args_any...); kwargs...) = $plotf_excl(current_axis(), $(argnames...); kwargs...)
             
             function Makie.$plotf_excl(ax::Makie.Block, $(args_any...); kwargs...)
-				used_attrs = used_attributes($plottype, Makie.to_value($argname))
+                used_attrs = used_attributes($plottype, Makie.to_value($argname))
                 $plotf_excl(ax, 
                     _lift(
                         x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
@@ -90,8 +90,8 @@ macro define_plotfunc_conv(plotfuncs, Ts)
                     ); _unselect_kwargs(kwargs, used_attrs)...)
             end
 
-			Makie.convert_arguments(ct::Type{<:$plottype}, $(args_any...); kwargs...) =
-				convert_arguments(ct, _convert_arguments_singlestep(ct, $(argnames...); kwargs...)...)
+            Makie.convert_arguments(ct::Type{<:$plottype}, $(args_any...); kwargs...) =
+                convert_arguments(ct, _convert_arguments_singlestep(ct, $(argnames...); kwargs...)...)
         end
     end
     Expr(:block, exprs...)

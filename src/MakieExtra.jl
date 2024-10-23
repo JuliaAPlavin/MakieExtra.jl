@@ -17,14 +17,14 @@ using StructHelpers
 export Makie
 
 export 
-	SymLog, AsinhScale,
-	BaseMulTicks, EngTicks,
-	zoom_lines!,
-	marker_lw,
-	to_x_attrs, to_y_attrs, to_xy_attrs,
-	multiplot, multiplot!,
-	FPlot,
-	changes
+    SymLog, AsinhScale,
+    BaseMulTicks, EngTicks,
+    zoom_lines!,
+    marker_lw,
+    to_x_attrs, to_y_attrs, to_xy_attrs,
+    multiplot, multiplot!,
+    FPlot,
+    changes
 
 include("lift.jl")
 include("scales.jl")
@@ -48,14 +48,14 @@ to_xy_attrs(attrs) = merge(to_x_attrs(attrs), to_y_attrs(attrs))
 
 
 function __init__()
-	if ccall(:jl_generating_output, Cint, ()) != 1
-		# to support SpecApi
-		Core.eval(Makie, Expr(:global, :BandStroke))
-		Makie.BandStroke = BandStroke
+    if ccall(:jl_generating_output, Cint, ()) != 1
+        # to support SpecApi
+        Core.eval(Makie, Expr(:global, :BandStroke))
+        Makie.BandStroke = BandStroke
 
-		Core.eval(Makie, Expr(:global, :LinesGlow))
-		Makie.LinesGlow = LinesGlow
-	end
+        Core.eval(Makie, Expr(:global, :LinesGlow))
+        Makie.LinesGlow = LinesGlow
+    end
 end
 
 # XXX: should upstream these!
@@ -71,8 +71,8 @@ func2type(f::Function) =
 
 
 Makie.GeometryBasics.HyperRectangle{N}(ints::Vararg{<:Interval, N}) where {N} = Makie.HyperRectangle{N}(
-	Point(leftendpoint.(ints)),
-	Point(rightendpoint.(ints) .- leftendpoint.(ints))
+    Point(leftendpoint.(ints)),
+    Point(rightendpoint.(ints) .- leftendpoint.(ints))
 )
 
 # https://github.com/MakieOrg/Makie.jl/pull/4090
@@ -91,37 +91,37 @@ end
 Returns an `Observable` that only forwards `obs` updates when its value changes.
 """
 function changes(obs::Makie.AbstractObservable{T}) where {T}
-	result = Observable{T}(obs[])
+    result = Observable{T}(obs[])
     oldobs = Observable{T}(obs[])
-	on(obs) do val
-		if val != oldobs[]
-			result[] = val
-			oldobs[] = val
-		end
-	end
-	return result
+    on(obs) do val
+        if val != oldobs[]
+            result[] = val
+            oldobs[] = val
+        end
+    end
+    return result
 end
 
 
 # https://github.com/MakieOrg/Makie.jl/pull/4037
 # Base.setindex(x::Attributes, value, key::Symbol) = merge(Attributes(; NamedTuple{(key,)}((value,))...), x)
 function Base.setindex(x::Attributes, value::Observable, key::Symbol)
-	y = copy(x)
-	y[key] = value
-	return y
+    y = copy(x)
+    y[key] = value
+    return y
 end
 Base.setindex(x::Attributes, value, key::Symbol) = Base.setindex(x, Observable(value), key)
 
 function Accessors.insert(attrs::Attributes, il::IndexLens, val)
-	res = copy(attrs)
-	res[only(il.indices)] = val
-	return res
+    res = copy(attrs)
+    res[only(il.indices)] = val
+    return res
 end
 
 function Accessors.delete(attrs::Attributes, il::IndexLens)
-	res = copy(attrs)
-	delete!(res, only(il.indices))
-	return res
+    res = copy(attrs)
+    delete!(res, only(il.indices))
+    return res
 end
 
 
@@ -134,8 +134,8 @@ end
 Base.:(⊆)(a::Rect2, b::Rect2) = xint(a) ⊆ xint(b) && yint(a) ⊆ yint(b)
 
 shift_range(p::T, (r1, r2)::Pair{<:Rect2,<:Rect2}) where {T<:Point2} = T(
-	shift_range(p[1], xint(r1) => xint(r2)),
-	shift_range(p[2], yint(r1) => yint(r2)),
+    shift_range(p[1], xint(r1) => xint(r2)),
+    shift_range(p[2], yint(r1) => yint(r2)),
 )
 
 

@@ -43,43 +43,43 @@ end
 
 
 const marker_l_to_r = Dict(
-	"" => "",
-	"<" => ">",
-	"<|" => "|>",
-	">" => "<",
-	"|>" => "<|",
+    "" => "",
+    "<" => ">",
+    "<|" => "|>",
+    ">" => "<",
+    "|>" => "<|",
 )
 
 const marker_rs = Dict(
-	"" => nothing,
-	">" => Makie.Polygon(Point2f[(0, 0), (-1, 0.5), (-0.5, 0), (-1, -0.5)]),
-	"|>" => Makie.Polygon(Point2f[(0, 0), (-1, 0.5), (-1, -0.5)]),
-	"<" => Makie.Polygon(Point2f[(-1, 0), (0, 0.5), (-0.5, 0), (0, -0.5)]),
-	"<|" => Makie.Polygon(Point2f[(-1, 0), (0, 0.5), (0, -0.5)]),
+    "" => nothing,
+    ">" => Makie.Polygon(Point2f[(0, 0), (-1, 0.5), (-0.5, 0), (-1, -0.5)]),
+    "|>" => Makie.Polygon(Point2f[(0, 0), (-1, 0.5), (-1, -0.5)]),
+    "<" => Makie.Polygon(Point2f[(-1, 0), (0, 0.5), (-0.5, 0), (0, -0.5)]),
+    "<|" => Makie.Polygon(Point2f[(-1, 0), (0, 0.5), (0, -0.5)]),
 )
 
 function split_arrowstyle(s)
-	lmks = filter(mk -> startswith(s, mk), keys(marker_l_to_r))
-	rmks = filter(mk -> endswith(s, mk), keys(marker_rs))
-	lmk = isempty(lmks) ? nothing : argmax(length, lmks)
-	rmk = isempty(rmks) ? nothing : argmax(length, rmks)
-	linek = @p s chopprefix(__, lmk) chopsuffix(__, rmk)
-	(
-		lmk=lmk,
-		rmk=rmk,
-		linek,
-	)
+    lmks = filter(mk -> startswith(s, mk), keys(marker_l_to_r))
+    rmks = filter(mk -> endswith(s, mk), keys(marker_rs))
+    lmk = isempty(lmks) ? nothing : argmax(length, lmks)
+    rmk = isempty(rmks) ? nothing : argmax(length, rmks)
+    linek = @p s chopprefix(__, lmk) chopsuffix(__, rmk)
+    (
+        lmk=lmk,
+        rmk=rmk,
+        linek,
+    )
 end
 
 function parse_arrowstyle(s::AbstractString)
-	(;lmk, rmk, linek) = split_arrowstyle(s)
-	(
-		lm=marker_rs[marker_l_to_r[lmk]],
-		rm=marker_rs[rmk],
-		linestyle=Dict(
-			"-" => nothing,
-			"--" => :dash,
-			".." => :dot,
-		)[linek],
-	)
+    (;lmk, rmk, linek) = split_arrowstyle(s)
+    (
+        lm=marker_rs[marker_l_to_r[lmk]],
+        rm=marker_rs[rmk],
+        linestyle=Dict(
+            "-" => nothing,
+            "--" => :dash,
+            ".." => :dot,
+        )[linek],
+    )
 end
