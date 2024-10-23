@@ -62,9 +62,13 @@ using TestItemRunner
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 100) == [0, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
     @test Makie.get_tickvalues(bmt, SymLog(1), -10, 100) == [-10.0, -5.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
     @test Makie.get_tickvalues(bmt, SymLog(1), 3, 100) == [5.0, 10.0, 20.0, 50.0, 100.0]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 1) == [0, 0.5, 1.0]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 0.2) == [0, 0.1, 0.2]
 
     @test Makie.get_minor_tickvalues(bmt, identity, nothing, 3, 100) == Makie.get_tickvalues(bmt, identity, 3, 100)
     @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, -3, 100) == [-2.0, -1.0, -0.5, -0.2, -0.1, 0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
+    @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, 0, 1) == [0, 0.1, 0.2, 0.5, 1.0]
+    @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, 0, 0.2) == [0, 0.1, 0.2]
 end
 
 @testitem "scalebar" begin
