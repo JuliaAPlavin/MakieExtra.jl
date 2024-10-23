@@ -4,11 +4,12 @@ using Reexport
 using AccessorsExtra
 using InverseFunctions
 using PyFormattedStrings
-using Makie: left, right, bottom, top, bottomleft, topleft, bottomright, topright
+using Makie: left, right, bottom, top, bottomleft, topleft, bottomright, topright, topline, bottomline, leftline, rightline
 using Makie.MakieCore: documented_attributes
 using Makie.IntervalSets
 using Makie.IntervalSets: width
 using Makie.Unitful
+using Makie.LinearAlgebra: norm
 using DataPipes
 import DataManipulation: shift_range, filteronly, mapinsert
 using StructHelpers
@@ -63,6 +64,8 @@ function __init__()
 end
 
 # XXX: should upstream all of these!
+
+fullproject(ax, p) = Makie.project(Makie.get_scene(ax), Makie.apply_transform(Makie.transform_func(ax), p)) + viewport(ax)[].origin
 
 Makie.inverse_transform(f::Function) = inverse(f)
 
