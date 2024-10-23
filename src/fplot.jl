@@ -66,11 +66,29 @@ axis_attributes(ct, X::FPlot, kwargs) = (; xlabel=_xlabel(ct, X, kwargs), ylabel
 convert_to_makie(x) = x
 convert_to_makie(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
 
-_xlabel(ct, X::FPlot, kwargs) = shortlabel(get(X.argfuncs, funcix_xy_axes(ct, X, kwargs)[1], nothing))
-_ylabel(ct, X::FPlot, kwargs) = shortlabel(get(X.argfuncs, funcix_xy_axes(ct, X, kwargs)[2], nothing))
+_xlabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 1)
+_ylabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 2)
+function _xylabel(ct, X::FPlot, kwargs, i)
+	argix = argixs_xy_axes(ct, X, kwargs)[i]
+	shortlabel(get(X.argfuncs, argix, nothing))
+end
 
-funcix_xy_axes(ct, X::FPlot, kwargs) = (1, 2)
-funcix_xy_axes(::Type{<:BarPlot}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
+argixs_xy_axes(ct, X::FPlot, kwargs) = (1, 2)
+argixs_xy_axes(::Type{<:BarPlot}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
 
-shortlabel(f) = AccessorsExtra.barebones_string(f)
 shortlabel(::Nothing) = ""
+function shortlabel(f)
+	o, unit = _split_unit(f)
+	ostr = AccessorsExtra.barebones_string(o)
+	isnothing(unit) ? ostr : "$ostr ($unit)"
+end
+
+_split_unit(o) = (o, nothing)
+_split_unit(::typeof(rad2deg)) = (identity, "°")
+function _split_unit(o::ComposedFunction)
+    oshow, unit = _split_unit(o.outer)
+    (_stripidentity(oshow ∘ o.inner), unit)
+end
+
+_stripidentity(o::ComposedFunction) = @delete Accessors.decompose(o) |> filter(==(identity))
+_stripidentity(o) = o

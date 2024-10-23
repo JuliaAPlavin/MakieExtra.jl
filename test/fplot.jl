@@ -42,6 +42,14 @@ end
     @test current_axis().xlabel[] == "string"
 end
 
+@testitem "unitful" begin
+    using Accessors, Unitful
+
+    lines(FPlot((1:10)u"m", (@o ustrip(u"cm", 2*_)), (@o ustrip(_^2))), doaxis=true)
+    @test current_axis().xlabel[] == "*(2, _) (cm)"
+    @test_broken current_axis().ylabel[] == "^(_, 2) (m^2)"
+end
+
 @testitem "flipped xy" begin
     using Accessors
 
