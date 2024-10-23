@@ -13,6 +13,9 @@ using MakieExtra, CairoMakie
 # ╔═╡ 824db806-4a98-44fc-95a1-d0692647eca6
 using DataManipulation
 
+# ╔═╡ 6dd746f4-2c68-472b-94a7-b3357025ce01
+using AxisKeysExtra, RectiGrids
+
 # ╔═╡ 986cb3d3-0a26-4235-9931-d58ba828c490
 using Makie.IntervalSets
 
@@ -23,51 +26,6 @@ using Unitful
 md"""
 # New recipes
 """
-
-# ╔═╡ 04d07684-0c2d-4551-a915-5c3134f67cf7
-md"""
-## Plot function over the full x-limits
-"""
-
-# ╔═╡ d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
-md"""
-Similar to `Makie.ablines`, now we can plot arbitrary functions covering the full x-limits of axes. Just pass a function to plots like `lines`, `band`, `scatter`, etc!
-"""
-
-# ╔═╡ 9529f2de-82ec-44fb-b45e-45424dbca177
-lines(sin)
-
-# ╔═╡ 60a9dad0-0b74-465b-8972-dc1b24af7f3b
-let
-	fig, ax, plt = scatter(rand(100), color=Cycled(2))
-	scatterlines!(sin, color=Cycled(1))
-	fig
-end
-
-# ╔═╡ f2e8836b-d608-49c7-aa62-39594eea7697
-let
-	fig, ax, plt = scatter(range(0, 0.01, length=100), rand(100), color=Cycled(2))
-	scatterlines!(sin, color=Cycled(1))
-	fig
-end
-
-# ╔═╡ 007b2ac4-d5c6-4e71-8c50-09a3130f8abb
-band(x -> sin(x)..2abs(sin(x)))
-
-# ╔═╡ 0dc4e2d1-f74b-4d40-a271-220b42243f09
-md"""
-It's fully reactive, equipped to handle even the most complicated functions for any limit changes:
-"""
-
-# ╔═╡ 55be0296-4cc2-47f1-9578-866e4cdd2edd
-let
-	xlims = Observable(0. .. 10.)
-	fig,ax,plt = lines(x -> sin(1/x), axis=(limits=(@lift ($xlims, nothing)),))
-
-	Record(fig, (@p maprange(log, 10, 0.01, length=200) [__; reverse(__)])) do r
-		xlims[] = 0..r
-	end
-end
 
 # ╔═╡ 8e65e21e-c28b-4b60-b6d1-de8a53ad5f3c
 md"""
@@ -112,6 +70,97 @@ let
 	
 	Record(fig, (@p maprange(log, 150, 0.5, length=200) [__; reverse(__)])) do x
 		w[] = x
+	end
+end
+
+# ╔═╡ d7bc9e8c-a208-47e5-bb06-0faa1a9c2463
+md"""
+## Fast contourf
+"""
+
+# ╔═╡ dc93b904-81df-4a68-8936-938a9b095e5b
+md"""
+Uses `image` under the hood, produces almost the same results as `contourf` but much faster.
+"""
+
+# ╔═╡ ced6cd2b-eedb-4024-985d-662b7572a731
+Y = map(grid(range(-1..1, 1000), range(-1..1, 1000))) do (x, y)
+	x^2 + 3y^2 + 0.01*randn()  # the more noise, the slower contourf() is
+end;
+
+# ╔═╡ 7daaf5c0-fa53-4c87-a2f2-cf2641958232
+let
+	fig = Figure()
+	ax, plt = contourf(fig[1,1], AxisKeys.keyless_unname(Y), axis=(width=350,))
+	Colorbar(fig[1,2], plt)
+	ax, plt = contourf(fig[1,3], Y, axis=(width=350,))
+	Colorbar(fig[1,4], plt)
+	ax, plt = contourf(fig[1,5], Y, levels=[0.25, 0.5, 1, 2, 3, 4], axis=(width=350,))
+	Colorbar(fig[1,6], plt)
+	ax, plt = contourf(fig[1,7], Y, levels=[0.25, 0.5, 1, 2, 3, 4], axis=(width=350,), extendlow=:auto)
+	Colorbar(fig[1,8], plt)
+	resize_to_layout!(fig)
+	fig
+end
+
+# ╔═╡ 6a05f9cd-bdbc-4a04-b4b3-309a721c0b18
+let
+	fig = Figure()
+	ax, plt = contourf_fast(fig[1,1], AxisKeys.keyless_unname(Y), axis=(width=350,))
+	Colorbar(fig[1,2], plt)
+	ax, plt = contourf_fast(fig[1,3], Y, axis=(width=350,))
+	Colorbar(fig[1,4], plt)
+	ax, plt = contourf_fast(fig[1,5], Y, levels=[0.25, 0.5, 1, 2, 3, 4], axis=(width=350,))
+	Colorbar(fig[1,6], plt)
+	ax, plt = contourf_fast(fig[1,7], Y, levels=[0.25, 0.5, 1, 2, 3, 4], axis=(width=350,), extendlow=:auto)
+	# ax.xlabel[] = "OLOLO"
+	Colorbar(fig[1,8], plt)
+	resize_to_layout!(fig)
+	fig
+end
+
+# ╔═╡ 04d07684-0c2d-4551-a915-5c3134f67cf7
+md"""
+## Plot function over the full x-limits
+"""
+
+# ╔═╡ d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
+md"""
+Similar to `Makie.ablines`, now we can plot arbitrary functions covering the full x-limits of axes. Just pass a function to plots like `lines`, `band`, `scatter`, etc!
+"""
+
+# ╔═╡ 9529f2de-82ec-44fb-b45e-45424dbca177
+lines(sin)
+
+# ╔═╡ 60a9dad0-0b74-465b-8972-dc1b24af7f3b
+let
+	fig, ax, plt = scatter(rand(100), color=Cycled(2))
+	scatterlines!(sin, color=Cycled(1))
+	fig
+end
+
+# ╔═╡ f2e8836b-d608-49c7-aa62-39594eea7697
+let
+	fig, ax, plt = scatter(range(0, 0.01, length=100), rand(100), color=Cycled(2))
+	scatterlines!(sin, color=Cycled(1))
+	fig
+end
+
+# ╔═╡ 007b2ac4-d5c6-4e71-8c50-09a3130f8abb
+band(x -> sin(x)..2abs(sin(x)))
+
+# ╔═╡ 0dc4e2d1-f74b-4d40-a271-220b42243f09
+md"""
+It's fully reactive, equipped to handle even the most complicated functions for any limit changes:
+"""
+
+# ╔═╡ 55be0296-4cc2-47f1-9578-866e4cdd2edd
+let
+	xlims = Observable(0. .. 10.)
+	fig,ax,plt = lines(x -> sin(1/x), axis=(limits=(@lift ($xlims, nothing)),))
+
+	Record(fig, (@p maprange(log, 10, 0.01, length=200) [__; reverse(__)])) do r
+		xlims[] = 0..r
 	end
 end
 
@@ -198,19 +247,23 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+AxisKeysExtra = "b7a0d2b7-1990-46dc-b5dd-87820ecd1b09"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataManipulation = "38052440-ad76-4236-8414-61389b2c5143"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 MakieExtra = "54e234d5-9986-40d8-815f-a5e42de435f6"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+RectiGrids = "8ac6971d-971d-971d-971d-971d5ab1a71a"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
+AxisKeysExtra = "~0.1.11"
 CairoMakie = "~0.12.3"
 DataManipulation = "~0.1.16"
 Makie = "~0.21.3"
-MakieExtra = "~0.1.11"
+MakieExtra = "~0.1.12"
 PlutoUI = "~0.7.59"
+RectiGrids = "~0.1.18"
 Unitful = "~1.20.0"
 """
 
@@ -245,6 +298,7 @@ deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "Li
 git-tree-sha1 = "c0d491ef0b135fd7d63cbc6404286bc633329425"
 uuid = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
 version = "0.1.36"
+weakdeps = ["AxisKeys", "IntervalSets", "Requires", "StaticArrays", "StructArrays", "Unitful"]
 
     [Accessors.extensions]
     AccessorsAxisKeysExt = "AxisKeys"
@@ -253,19 +307,11 @@ version = "0.1.36"
     AccessorsStructArraysExt = "StructArrays"
     AccessorsUnitfulExt = "Unitful"
 
-    [Accessors.weakdeps]
-    AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
-    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
-    Requires = "ae029012-a4dd-5104-9daa-d747884805df"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-    StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
-    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
-
 [[AccessorsExtra]]
-deps = ["Accessors", "CompositionsBase", "ConstructionBase", "DataPipes", "InverseFunctions", "Reexport"]
-git-tree-sha1 = "347ceade87b396742f7191a587055dcb1df13706"
+deps = ["Accessors", "CompositionsBase", "ConstructionBase", "DataPipes", "InverseFunctions", "LinearAlgebra", "Reexport", "Test"]
+git-tree-sha1 = "00e29911b476d7bd30a5419e4b691f319ea31d77"
 uuid = "33016aad-b69d-45be-9359-82a41f556fd4"
-version = "0.1.71"
+version = "0.1.73"
 
     [AccessorsExtra.extensions]
     ColorTypesExt = "ColorTypes"
@@ -275,12 +321,10 @@ version = "0.1.71"
     DomainSetsExt = "DomainSets"
     FlexiMapsExt = "FlexiMaps"
     FlexiMapsStructArraysExt = ["FlexiMaps", "StructArrays"]
-    LinearAlgebraExt = "LinearAlgebra"
     SkipperExt = "Skipper"
     StaticArraysExt = "StaticArrays"
     StructArraysExt = "StructArrays"
     TablesExt = "Tables"
-    TestExt = "Test"
     URIsExt = "URIs"
 
     [AccessorsExtra.weakdeps]
@@ -290,12 +334,10 @@ version = "0.1.71"
     Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
     DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
     FlexiMaps = "6394faf6-06db-4fa8-b750-35ccc60383f7"
-    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
     Skipper = "fc65d762-6112-4b1c-b428-ad0792653d81"
     StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
     StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
     Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-    Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
     URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
 
 [[Adapt]]
@@ -344,6 +386,52 @@ deps = ["Dates", "IntervalSets", "IterTools", "RangeArrays"]
 git-tree-sha1 = "16351be62963a67ac4083f748fdb3cca58bfd52f"
 uuid = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
 version = "0.4.7"
+
+[[AxisKeys]]
+deps = ["IntervalSets", "LinearAlgebra", "NamedDims", "Tables"]
+git-tree-sha1 = "2404d61946c5d17a120101dbc753739ef216b0de"
+uuid = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
+version = "0.2.14"
+
+    [AxisKeys.extensions]
+    AbstractFFTsExt = "AbstractFFTs"
+    ChainRulesCoreExt = "ChainRulesCore"
+    CovarianceEstimationExt = "CovarianceEstimation"
+    InvertedIndicesExt = "InvertedIndices"
+    LazyStackExt = "LazyStack"
+    OffsetArraysExt = "OffsetArrays"
+    StatisticsExt = "Statistics"
+    StatsBaseExt = "StatsBase"
+
+    [AxisKeys.weakdeps]
+    AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    CovarianceEstimation = "587fd27a-f159-11e8-2dae-1979310e6154"
+    InvertedIndices = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
+    LazyStack = "1fad7336-0346-5a1a-a56f-a06ba010965b"
+    OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
+    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+    StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
+[[AxisKeysExtra]]
+deps = ["AxisKeys", "Reexport", "StructArrays"]
+git-tree-sha1 = "6b533fa97b6fdc3d48006b8a410df439aeb14ab9"
+uuid = "b7a0d2b7-1990-46dc-b5dd-87820ecd1b09"
+version = "0.1.11"
+
+    [AxisKeysExtra.extensions]
+    DimensionalDataExt = "DimensionalData"
+    GeoMakieExt = "GeoMakie"
+    MakieExt = "Makie"
+    RectiGridsExt = "RectiGrids"
+    UnitfulExt = "Unitful"
+
+    [AxisKeysExtra.weakdeps]
+    DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
+    GeoMakie = "db073c08-6b98-4ee5-b6a4-5efafb3259c6"
+    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+    RectiGrids = "8ac6971d-971d-971d-971d-971d5ab1a71a"
+    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -673,6 +761,7 @@ deps = ["Accessors", "DataPipes", "InverseFunctions"]
 git-tree-sha1 = "f76187f46bca3cce99bdea910e4e14f8fa2fff31"
 uuid = "6394faf6-06db-4fa8-b750-35ccc60383f7"
 version = "0.1.26"
+weakdeps = ["AxisKeys", "Dictionaries", "IntervalSets", "StructArrays", "Unitful"]
 
     [FlexiMaps.extensions]
     AxisKeysExt = "AxisKeys"
@@ -680,13 +769,6 @@ version = "0.1.26"
     IntervalSetsExt = "IntervalSets"
     StructArraysExt = "StructArrays"
     UnitfulExt = "Unitful"
-
-    [FlexiMaps.weakdeps]
-    AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
-    Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
-    StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
-    Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [[Fontconfig_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Expat_jll", "FreeType2_jll", "JLLWrappers", "Libdl", "Libuuid_jll", "Zlib_jll"]
@@ -1112,9 +1194,9 @@ version = "0.8.3"
 
 [[MakieExtra]]
 deps = ["Accessors", "DataManipulation", "DataPipes", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport"]
-git-tree-sha1 = "b5d0f05a7667b6d0c1ad5baba5e8633f1d4d3c08"
+git-tree-sha1 = "02dafbaf8d675ab68cdf42d6db1b952002ba9af7"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
-version = "0.1.11"
+version = "0.1.12"
 
 [[MappedArrays]]
 git-tree-sha1 = "2dab0221fe2b0f2cb6754eaa743cc266339f527e"
@@ -1160,6 +1242,25 @@ deps = ["OpenLibm_jll"]
 git-tree-sha1 = "0877504529a3e5c3343c6f8b4c0381e57e4387e4"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.2"
+
+[[NamedDims]]
+deps = ["LinearAlgebra", "Pkg", "Statistics"]
+git-tree-sha1 = "90178dc801073728b8b2d0d8677d10909feb94d8"
+uuid = "356022a1-0364-5f58-8944-0da4b18d706f"
+version = "1.2.2"
+
+    [NamedDims.extensions]
+    AbstractFFTsExt = "AbstractFFTs"
+    ChainRulesCoreExt = "ChainRulesCore"
+    CovarianceEstimationExt = "CovarianceEstimation"
+    TrackerExt = "Tracker"
+
+    [NamedDims.weakdeps]
+    AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    CovarianceEstimation = "587fd27a-f159-11e8-2dae-1979310e6154"
+    Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 
 [[Netpbm]]
 deps = ["FileIO", "ImageCore", "ImageMetadata"]
@@ -1379,6 +1480,12 @@ weakdeps = ["FixedPointNumbers"]
     [Ratios.extensions]
     RatiosFixedPointNumbersExt = "FixedPointNumbers"
 
+[[RectiGrids]]
+deps = ["AxisKeys", "ConstructionBase", "Random"]
+git-tree-sha1 = "ce3a813e8ddbfc0c7516e440a8c18464f6b7a5d0"
+uuid = "8ac6971d-971d-971d-971d-971d5ab1a71a"
+version = "0.1.18"
+
 [[Reexport]]
 git-tree-sha1 = "45e428421666073eab6f2da5c9d310d99bb12f9b"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
@@ -1470,18 +1577,13 @@ version = "0.1.3"
 git-tree-sha1 = "b18148264375368f6b9c1a7743913a11706b8698"
 uuid = "fc65d762-6112-4b1c-b428-ad0792653d81"
 version = "0.1.13"
+weakdeps = ["Accessors", "AxisKeys", "Dictionaries", "Makie"]
 
     [Skipper.extensions]
     AccessorsExt = "Accessors"
     AxisKeysExt = "AxisKeys"
     DictionariesExt = "Dictionaries"
     MakieExt = "Makie"
-
-    [Skipper.weakdeps]
-    Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
-    AxisKeys = "94b1ba4f-4ee9-5380-92f1-94cde586c3c5"
-    Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 
 [[SnoopPrecompile]]
 deps = ["Preferences"]
@@ -1825,6 +1927,17 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─11e2cd0f-9948-4097-bf2b-009a3614ea55
+# ╟─8e65e21e-c28b-4b60-b6d1-de8a53ad5f3c
+# ╟─8ecb3eda-9a1e-4cf5-86ef-b653cae097a7
+# ╠═8f2c815b-bf62-4359-9dad-b8ead84caafd
+# ╟─3526c688-aea9-411b-a837-dc02ff81a7ee
+# ╟─bd7e6900-e660-4a10-b810-0ad2a66c3ea5
+# ╠═9f008eee-6986-4ae4-9945-d854f75b7ed1
+# ╟─d7bc9e8c-a208-47e5-bb06-0faa1a9c2463
+# ╟─dc93b904-81df-4a68-8936-938a9b095e5b
+# ╠═ced6cd2b-eedb-4024-985d-662b7572a731
+# ╠═7daaf5c0-fa53-4c87-a2f2-cf2641958232
+# ╠═6a05f9cd-bdbc-4a04-b4b3-309a721c0b18
 # ╟─04d07684-0c2d-4551-a915-5c3134f67cf7
 # ╟─d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
 # ╠═9529f2de-82ec-44fb-b45e-45424dbca177
@@ -1833,12 +1946,6 @@ version = "3.5.0+0"
 # ╠═007b2ac4-d5c6-4e71-8c50-09a3130f8abb
 # ╟─0dc4e2d1-f74b-4d40-a271-220b42243f09
 # ╠═55be0296-4cc2-47f1-9578-866e4cdd2edd
-# ╟─8e65e21e-c28b-4b60-b6d1-de8a53ad5f3c
-# ╟─8ecb3eda-9a1e-4cf5-86ef-b653cae097a7
-# ╠═8f2c815b-bf62-4359-9dad-b8ead84caafd
-# ╟─3526c688-aea9-411b-a837-dc02ff81a7ee
-# ╟─bd7e6900-e660-4a10-b810-0ad2a66c3ea5
-# ╠═9f008eee-6986-4ae4-9945-d854f75b7ed1
 # ╟─e8f92e7f-371d-4451-82a4-1ef5bf2e9295
 # ╟─43e63ef3-7883-4989-81d4-212e3d9843b0
 # ╟─40da1797-a79f-45d1-9efe-9b8def36b636
@@ -1852,6 +1959,7 @@ version = "3.5.0+0"
 # ╟─4b0b6723-0ef7-4e66-909b-05f9aec0323a
 # ╠═9b4134d6-2755-11ef-08c1-03239a8c3986
 # ╠═824db806-4a98-44fc-95a1-d0692647eca6
+# ╠═6dd746f4-2c68-472b-94a7-b3357025ce01
 # ╠═986cb3d3-0a26-4235-9931-d58ba828c490
 # ╠═ae124cf3-1552-4d1f-9d26-105230ba9f5b
 # ╟─00000000-0000-0000-0000-000000000001
