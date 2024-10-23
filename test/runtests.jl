@@ -16,7 +16,7 @@ using TestItemRunner
         for mul in [1, 3, 10, 100]
     ], axis=(yscale=AsinhScale(1),))
     
-    ax, _ = lines(fig[1,3], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks()))
+    ax, _ = lines(fig[1,3], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks(), ytickformat=EngTicks(:symbol)))
     lines!(ax, [Point(0, 0), Point(1, 1)], color=:black, linestyle=:dash, space=:relative)
 end
 
@@ -31,6 +31,7 @@ end
 
     scatter([1,2,3])
     image([1,2,3])
+    image(Observable([1,2,3]))
 end
 
 @testitem "_" begin
