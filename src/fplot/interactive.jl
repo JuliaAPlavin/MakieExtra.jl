@@ -4,7 +4,7 @@ add!(addon::FPlotAddon, fplt::FPlot, plt::Type{<:Plot}; kwargs...) = add!(curren
 
 with_widgets(plotf, ws) = function (args...; kwargs...)
     result = plotf(args...; kwargs...)
-    fplt = filteronly(a -> a isa FPlot, args)
+    fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
     plt = func2type(plotf)
     for w in ws
         add!(w, fplt, plt; kwargs...)
