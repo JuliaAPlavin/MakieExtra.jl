@@ -5,6 +5,11 @@ using TestItemRunner
 @testitem "scales, ticks" begin
     fig = Figure(size=(1200, 300))
     xs = range(-10, 10, length=1000)
+
+    @test string(SymLog(1)) == "SymLog(1.0)"
+    @test string(SymLog(1; vmin=0, vmax=Inf)) == "SymLog(1.0; vmin = 0.0)"
+    @test string(SymLog(1; linscale=2)) == "SymLog(1.0; linscale = 2.0)"
+    @test string(AsinhScale(1)) == "AsinhScale(1.0)"
     
     series(fig[1,1], [
         (xs, mul .* xs)
