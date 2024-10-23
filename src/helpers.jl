@@ -49,25 +49,28 @@ macro define_plotfunc_conv(plotfuncs, Ts)
         args_any = map((n, T) -> :($n::Union{$T,Observable{<:$T}}), argnames, Ts)
 		@assert length(argnames) == 1
 		argname = only(argnames)
+        axis = esc(:axis)  # otherwise it gensyms
         quote
-            function Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_any...); kwargs...)
+            function Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_any...); axis=(;), kwargs...)
 				used_attrs = used_attributes($plottype, Makie.to_value($argname))
+                axis = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), axis)
 				$plotf(
 					pos,
 					_lift(
 						x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
 						$argname);
-					_unselect_kwargs(kwargs, used_attrs)...
+					axis..., _unselect_kwargs(kwargs, used_attrs)...
 				)
 			end
 
-            function Makie.$plotf($(args_any...); kwargs...)
+            function Makie.$plotf($(args_any...); axis=(;), kwargs...)
 				used_attrs = used_attributes($plottype, Makie.to_value($argname))
+                $axis = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), $axis)
 				$plotf(
 					_lift(
 						x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
 						$argname);
-					_unselect_kwargs(kwargs, used_attrs)...
+					axis..., _unselect_kwargs(kwargs, used_attrs)...
 				)
 			end
 
