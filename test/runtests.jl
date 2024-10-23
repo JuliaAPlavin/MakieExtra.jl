@@ -34,6 +34,13 @@ using TestItemRunner
     Makie.ReversibleScale(AsinhScale(1))
 end
 
+@testitem "axis-wide function" begin
+    lines(sin)
+    scatter!(sin)
+    scatter!(Observable(sin))
+    band(x -> sin(x)..2sin(x))
+end
+
 @testitem "@define_plotfunc" begin
     struct MyType end
     struct MyTypeVec <: AbstractVector{Float64} end
