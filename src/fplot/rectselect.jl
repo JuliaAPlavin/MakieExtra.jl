@@ -82,21 +82,24 @@ normalized_selints(rs::RectSelection) = @lift modify(eps -> minmax(eps...), $(rs
 
 selected_data(data, rs::RectSelection) = @lift let
     selints = Tuple($(normalized_selints(rs)))
-    filter(data) do r
+    sdata = filter(data) do r
         all(map(selints) do (o, int)
             o(r) ∈ int
         end)
     end
+    isempty(sdata) ? filter(Returns(true), data) : sdata
 end
 
 function mark_selected_data(data, rs::RectSelection)
     eltype(data) <: NamedTuple || error("mark_selected is only supported for NamedTuples, got eltype <: $(nameof(eltype(data)))")
     @lift let
         selints = Tuple($(normalized_selints(rs)))
-        mapinsert(data; RectSel_isselected_FJNRQT=function (r)
+        mdata = mapinsert(data; RectSel_isselected_FJNRQT=function (r)
             all(map(selints) do (o, int)
                 o(r) ∈ int
             end)
         end)
+        mdata = sort(mdata, by=x -> x.RectSel_isselected_FJNRQT)
+        any(x -> x.RectSel_isselected_FJNRQT, mdata) ? mdata : mapinsert(data; RectSel_isselected_FJNRQT=Returns(true))
     end
 end
