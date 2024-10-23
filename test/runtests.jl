@@ -167,10 +167,11 @@ end
 @testitem "multiplot" begin
     import CairoMakie
 
-    res = multiplot((Scatter, Lines), 1:10, 1:10)
+    res = multiplot((Scatter, Lines), 1:10, 1:10, axis=(xlabel="x",))
     @test length(res) == 2
     @test res[1] isa Makie.FigureAxisPlot
     @test res[2] isa Plot
+    @test res[1].axis.xlabel[] == "x"
     res = multiplot!((Scatter, Lines), 1:10, 1:10)
     @test length(res) == 2
     @test res[1] isa Plot
@@ -178,7 +179,8 @@ end
     multiplot!(current_axis(), (Scatter, Lines), 1:10, 1:10)
 
     multiplot((Scatter, Lines), 1:10, 1:10, color=:red)
-    multiplot(current_figure()[1,2], (Scatter, Lines), 1:10, 1:10, markersize=5)
+    (ax, _), _ = multiplot(current_figure()[1,2], (Scatter, Lines), 1:10, 1:10, markersize=5, axis=(;xlabel="x"))
+    @test ax.xlabel[] == "x"
     multiplot((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2)
     plts = multiplot!((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2, color=:red)
     @test plts[1].markersize[] == 5

@@ -12,7 +12,7 @@ end
 
 function multiplot(plts, args...; kwargs...)
 	plt = first(plts)
-	firstres = plotfunc(plt)(args...; keep_attrs(plt, kwargs, args...)...)
+	firstres = plotfunc(plt)(args...; keep_attrs(plt, kwargs, args...)..., (haskey(kwargs, :axis) ? (;axis=kwargs[:axis]) : (;))...)
 	
 	tailres = map(Base.tail(plts)) do plt
 		plotfunc!(plt)(args...; keep_attrs(plt, kwargs, args...)...)
@@ -22,7 +22,7 @@ end
 
 function multiplot(pos::Union{GridPosition, GridSubposition}, plts, args...; kwargs...)
 	plt = first(plts)
-	firstres = plotfunc(plt)(pos, args...; keep_attrs(plt, kwargs, args...)...)
+	firstres = plotfunc(plt)(pos, args...; keep_attrs(plt, kwargs, args...)..., (haskey(kwargs, :axis) ? (;axis=kwargs[:axis]) : (;))...)
 	
 	tailres = map(Base.tail(plts)) do plt
 		plotfunc!(plt)(args...; keep_attrs(plt, kwargs, args...)...)

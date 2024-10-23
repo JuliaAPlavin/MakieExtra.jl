@@ -148,14 +148,18 @@ end
     # XXX: temporary
     @eval CairoMakie Base.insert!(screen::Screen, scene::Scene, plot::Plot{plotlist}) = nothing
 
-    res = multiplot((Scatter, Lines), FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
+    res = multiplot((Scatter, Lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), doaxis=true, _axis=(;width=1234))
     @test res[1] isa Makie.FigureAxisPlot
     ax = content(res[1].figure[:,:])
-    @test ax.xlabel[] == "_"
+    @test ax.xlabel[] == "Abc"
     @test ax.ylabel[] == "_ ^ 2"
+    @test ax.width[] == 1234
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
-    res = multiplot(current_figure()[1,2], (Scatter, Lines), FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
+    res = multiplot(current_figure()[1,2], (Scatter, Lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), doaxis=true, _axis=(;width=1234))
+    @test current_axis().xlabel[] == "Abc"
+    @test current_axis().ylabel[] == "_ ^ 2"
+    @test current_axis().width[] == 1234
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 
