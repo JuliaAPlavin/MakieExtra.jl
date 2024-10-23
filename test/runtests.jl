@@ -126,6 +126,22 @@ end
     @test current_axis().xlabel[] == "a"
 end
 
+@testitem "glow" begin
+    textglow((0,1), text="Some of My Text")
+    textglow((0,1), text="Some of My Text", glowwidth=10)
+    textglow((0,1), text="Some of My Text", glowwidth=10, glowcolor=(:lightgreen, 0.8))
+
+	linesglow(0..6, x->sin(x^2), glowwidth=15)
+	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowcolor=(:green, 0.4))
+	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowalpha=0.5)
+end
+
+@testitem "markers" begin
+    scatter(rand(30), rand(30), marker=vline_lw(0.5), markersize=30)
+    scatter(rand(30), rand(30), marker=hline_lw(0.5), markersize=30)
+    scatter(rand(30), rand(30), marker=cross_lw(0.5), markersize=30)
+end
+
 @testitem "to_xy_attrs" begin
     attrs = (a=1, b=123, xyz="4")
     @test to_x_attrs(attrs) == (xa=1, xb=123, xxyz="4")
