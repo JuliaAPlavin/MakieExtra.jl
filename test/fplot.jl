@@ -153,6 +153,35 @@ end
     @test current_axis().ylabel[] == "_ ^ 3"
 end
 
+@testitem "smaller number of args" begin
+    using Accessors
+    using MakieExtra: xint, yint
+
+    barplot(FPlot(1:10, (@o _ + 1)), doaxis=true)
+    @test xint(current_axis().targetlimits[]) ≈ 0.1..11  rtol=0.2
+    @test yint(current_axis().targetlimits[]) ≈ -0.5..11.5  rtol=0.2
+    @test current_axis().xlabel[] == ""
+    @test current_axis().ylabel[] == ""
+
+    barplot(FPlot(1:10, (@o (_ + 1, _^2))), doaxis=true)
+    @test xint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
+    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test current_axis().xlabel[] == ""
+    @test current_axis().ylabel[] == ""
+
+    barplot(FPlot(1:10, (@o (_ + 1, _^2))), doaxis=true, direction=:x)
+    @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test yint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
+    @test current_axis().xlabel[] == ""
+    @test current_axis().ylabel[] == ""
+
+    scatter(FPlot(1:10, (@o (_ + 1, _^2))), doaxis=true)
+    @test xint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
+    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test_broken current_axis().xlabel[] == ""
+    @test current_axis().ylabel[] == ""
+end
+
 @testitem "multiplot" begin
     using Accessors
     using CairoMakie
