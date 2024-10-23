@@ -6,7 +6,7 @@ using InteractiveUtils
 
 # ╔═╡ eb6b2d62-0f30-43b9-bb98-6b03698008df
 md"""
-# The `MakieExtra` documentation is moved to [https://juliaaplavin.github.io/MakieExtraDocs.jl/notebooks/examples.html](https://juliaaplavin.github.io/MakieExtraDocs.jl/test/examples.html).
+# The `MakieExtra` documentation is moved to [https://juliaaplavin.github.io/MakieExtraDocs.jl/notebooks/examples.html](https://juliaaplavin.github.io/MakieExtraDocs.jl/notebooks/examples.html).
 """
 
 # ╔═╡ Cell order:
