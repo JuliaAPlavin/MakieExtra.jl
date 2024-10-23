@@ -3,13 +3,12 @@ macro define_plotfunc(plotfuncs, Ts)
                 Base.isexpr(plotfuncs, :tuple) ? plotfuncs.args :
                 error()
 
-    Ts = Ts isa Symbol ? [Ts] :
-                Base.isexpr(Ts, :tuple) ? Ts.args :
-                error()
+    Ts = Base.isexpr(Ts, :tuple) ? Ts.args : [Ts]
     Ts = esc.(Ts)
 
     exprs = map(plotfuncs) do plotf
         plotf_excl = Symbol(plotf, :!)
+		plottype = :($Plot{$plotf})
         argnames = map(i -> Symbol(:x, i) |> esc, 1:length(Ts))
         args_obs = map((n, T) -> :($n::Observable{<:$T}), argnames, Ts)
         args_any = map((n, T) -> :($n::Union{$T,Observable{<:$T}}), argnames, Ts)
@@ -24,7 +23,7 @@ macro define_plotfunc(plotfuncs, Ts)
             end
             
             function Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_obs...); axis=(;), kwargs...)
-                ax_kwargs = merge($default_axis_attributes($Plot{$plotf}, $(argnames...); kwargs...), axis)
+                ax_kwargs = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), axis)
                 ax = Axis(pos; ax_kwargs...)
                 plt = $plotf_excl(ax, $(argnames...); kwargs...)
                 Makie.AxisPlot(ax, plt)
