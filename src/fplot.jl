@@ -2,17 +2,16 @@ struct FPlot
 	data
 	argfuncs
 	kwargfuncs
-	axis::Bool
 end
 
-FPlot(data, argfuncs...; axis=false, kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs), axis)
+FPlot(data, argfuncs...; kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs))
 
-Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = Tuple(Makie.attribute_names(T))
-Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = Tuple(Makie.attribute_names(T))
+Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
+Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
 
 Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 
-function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; kwargs...)
+function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, kwargs...)
 	@assert !isnothing(X.data)
 	pargs = map(X.argfuncs) do f
 		getval(f, X.data)
@@ -21,7 +20,7 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; kwargs...)
 		getval(f, X.data)
 	end
 	pspec = Makie.to_plotspec(ct, pargs; pkws..., kwargs...)
-	if X.axis
+	if doaxis
 		S = Makie.SpecApi
 		# can set axis attributes (eg xylabels), but cannot be plotted on existing axes
 		S.GridLayout([S.Axis(plots=[pspec], xlabel=_xlabel(X), ylabel=_ylabel(X))])
