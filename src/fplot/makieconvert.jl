@@ -6,7 +6,7 @@ Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = M
 function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), reorder_args=true, kwargs...)
 	@assert !isnothing(X.data)
 	pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
-		getval(f, X.data)
+		getval(f, X.data) |> convert_to_categorical_if_needed
 	end
 	pkws_keys = Tuple(keys(X.kwargfuncs) ∩ Makie.attribute_names(ct))
 	pkws = map(X.kwargfuncs[pkws_keys]) do f
@@ -23,11 +23,11 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	end
 end
 
-@inline getval(f, data) = convert_to_makie(map(f, data))
+@inline getval(f, data) = map(f, data)
 @inline getval(f::Ref, data) = f[]
 
-convert_to_makie(x) = x
-convert_to_makie(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
+convert_to_categorical_if_needed(x) = x
+convert_to_categorical_if_needed(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
 
 axis_attributes(ct, X::FPlot, kwargs) = (; xlabel=_xlabel(ct, X, kwargs), ylabel=_ylabel(ct, X, kwargs), X.axis...)
 
