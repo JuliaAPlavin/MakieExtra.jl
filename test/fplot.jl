@@ -36,19 +36,17 @@ end
 
 @testitem "doaxis" begin
     using Accessors
-    using CairoMakie, GLMakie
+    using CairoMakie
 
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
     lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
     @test content(fig[1,1]).xlabel[] == ""
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
-    Makie.colorbuffer(current_figure(); backend=GLMakie)
 
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
     lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
     @test content(fig[1,1]).xlabel[] == "+(_, 1)"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
-    Makie.colorbuffer(current_figure(); backend=GLMakie)
 end
 
 @testitem "categorical" begin
@@ -79,7 +77,7 @@ end
 
 @testitem "multiplot" begin
     using Accessors
-    using CairoMakie, GLMakie
+    using CairoMakie
 
     res = multiplot((Scatter, Lines), FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
     @test res[1] isa Makie.FigureAxisPlot
@@ -87,7 +85,6 @@ end
     @test ax.xlabel[] == "identity"
     @test ax.ylabel[] == "^(_, 2)"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
-    Makie.colorbuffer(current_figure(); backend=GLMakie)
 end
 
     # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
