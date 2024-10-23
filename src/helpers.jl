@@ -1,3 +1,5 @@
+filter_keys(pred, d::Dict) = Dict(k => v for (k, v) in pairs(d) if pred(k))
+
 macro define_plotfunc(plotfuncs, Ts)
     plotfuncs = plotfuncs isa Symbol ? [plotfuncs] :
                 Base.isexpr(plotfuncs, :tuple) ? plotfuncs.args :
