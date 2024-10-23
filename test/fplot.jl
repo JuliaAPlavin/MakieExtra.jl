@@ -2,19 +2,32 @@
     using Accessors
 
     fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
-    @test values(fp) === 1:10
+    
+    @test fp.data === 1:10
     @test fp.color === sqrt
     @test fp[1] === @o _+1
     @test fp[2] === @o _^2
     @test fp[:color] === sqrt
-    @test (@set values(fp) = [1,2,3]) == FPlot([1,2,3], (@o _+1), (@o _^2), color=sqrt)
-    @test (@set fp.color = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sin)
-    @test (@set fp[:color] = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sin)
-    @test (@insert fp.markersize = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, markersize=sin)
-    @test (@set fp[1] = @o _+2) === FPlot(1:10, (@o _+2), (@o _^2), color=sqrt)
-    @test (@delete values(fp)) === FPlot(nothing, (@o _+1), (@o _^2), color=sqrt)
+
+    @test (@set fp.argfuncs = (identity,)) === FPlot(1:10, identity, color=sqrt)
+    @test (@set fp.kwargfuncs = (;)) === FPlot(1:10, (@o _+1), (@o _^2))
+    @test (@set fp.kwargfuncs = (;color=sin, markersize=sqrt)) === FPlot(1:10, (@o _+1), (@o _^2), color=sin, markersize=sqrt)
+
+    @test (@set fp.data = [1,2,3]) == FPlot([1,2,3], (@o _+1), (@o _^2), color=sqrt)
+    @test (@delete fp.data) === FPlot(nothing, (@o _+1), (@o _^2), color=sqrt)
     fp_nov = FPlot(nothing, (@o _+1), (@o _^2), color=sqrt)
-    @test (@insert values(fp_nov) = 1:10) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
+    @test (@insert fp_nov.data = 1:10) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
+    
+    @test (@set fp.color = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sin)
+    @test (@delete fp.color) === FPlot(1:10, (@o _+1), (@o _^2))
+    @test (@insert fp.markersize = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, markersize=sin)
+    @test (@set fp[:color] = sin) === @set fp.color = sin
+    @test (@delete fp[:color]) === @delete fp.color
+    @test (@insert fp[:markersize] = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, markersize=sin)
+    
+    @test (@set fp[1] = @o _+2) === FPlot(1:10, (@o _+2), (@o _^2), color=sqrt)
+    @test (@delete fp[1]) === FPlot(1:10, nothing, (@o _^2), color=sqrt)
+    @test (@insert fp[3] = @o _+2) === FPlot(1:10, (@o _+1), (@o _^2), (@o _+2), color=sqrt)
 end
 
 @testitem "basic" begin

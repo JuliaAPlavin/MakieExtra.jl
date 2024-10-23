@@ -8,29 +8,40 @@ end
 
 FPlot(data, argfuncs...; axis::NamedTuple=(;), kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs), axis)
 
-@accessor Base.values(X::FPlot) = X.data
-Accessors.delete(X::FPlot, ::typeof(values)) = @set X.data = nothing
-Accessors.insert(X::FPlot, ::typeof(values), v) = (@assert isnothing(X.data); @set X.data = v)
-
 Base.getindex(X::FPlot, i::Int) = X.argfuncs[i]
 Base.getindex(X::FPlot, i::Symbol) = X.kwargfuncs[i]
 Base.setindex(X::FPlot, v, i::Int) = @set X.argfuncs[i] = v
 Base.setindex(X::FPlot, v, i::Symbol) = @set X.kwargfuncs[i] = v
+Accessors.insert(X::FPlot, p::IndexLens, v) = 
+	if all(i -> i isa Integer, p.indices)
+		@insert X.argfuncs |> p = v
+	else
+		@insert X.kwargfuncs |> p = v
+	end
+Accessors.delete(X::FPlot, p::IndexLens) =
+	if all(i -> i isa Integer, p.indices)
+		@set X.argfuncs |> p = nothing
+	else
+		@delete X.kwargfuncs |> p
+	end
 
 Base.getproperty(X::FPlot, i::Symbol) = hasfield(typeof(X), i) ? getfield(X, i) : X.kwargfuncs[i]
 Base.propertynames(X::FPlot) = (fieldnames(typeof(X))..., keys(X.kwargfuncs)...)
 function Accessors.setproperties(X::FPlot, patch::NamedTuple)
-	fnames = Tuple(fieldnames(typeof(X)) ∩ keys(patch))
-	fields = (;
-		getproperties(X)...,
-		patch[fnames]...,
-		kwargfuncs = merge(X.kwargfuncs, get(patch, :kwargfuncs, (;)), @delete patch[fnames]),
-	)
-	@assert keys(fields) == fieldnames(typeof(X))
-	FPlot(fields...)
+	fnames = fieldnames(typeof(X))
+	if keys(patch) ⊆ fnames
+		FPlot(merge(getfields(X), patch)...)
+	elseif isdisjoint(keys(patch), fnames)
+		@modify(kws -> merge(kws, patch), X.kwargfuncs)
+	else
+		error("Cannot set both fields and kwarg-properties of FPlot at the same time")
+	end
 end
 Accessors.insert(X::FPlot, p::PropertyLens, v) = @insert X.kwargfuncs |> p = v
-Accessors.insert(X::FPlot, p::IndexLens, v) = @insert X.argfuncs |> p = v
+Accessors.delete(X::FPlot, p::PropertyLens) = @delete X.kwargfuncs |> p
+
+Accessors.delete(X::FPlot, ::PropertyLens{:data}) = @set X.data = nothing
+Accessors.insert(X::FPlot, ::PropertyLens{:data}, v) = (@assert isnothing(X.data); @set X.data = v)
 
 include("makieconvert.jl")
 include("axisorder.jl")
