@@ -4,12 +4,9 @@
     Makie.MakieCore.documented_attributes(Makie.Band)...
 end
 
-# to support SpecApi
-Makie.BandStroke = BandStroke
-
 # explicitly define same convert_arguments methods as Band does
 # catch-all convert_arguments(::Type{<:BandStroke}, args...) would cause many ambiguities
-for m in methodswith(Type{<:Band}, convert_arguments)
+for m in Makie.methodswith(Type{<:Band}, convert_arguments)
     @assert m.sig isa DataType
     atypes = m.sig.parameters[3:end]
     anames = [Symbol("arg", i) for i in 1:length(atypes)]
