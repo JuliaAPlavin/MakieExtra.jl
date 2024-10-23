@@ -33,5 +33,7 @@ function zoom_lines!(ax1, ax2; strokewidth=1.5, strokecolor=:black, color=(:blac
 	rectattrs = (; strokewidth, strokecolor, color, xautolimits=false, yautolimits=false)
 	poly!(ax1, (@lift $obs.rect1); rectattrs...)
 	poly!(ax2, (@lift $obs.rect2); rectattrs...)
-	linesegments!(pscene, (@lift $obs.slines), color=strokecolor, linewidth=strokewidth)
+	plt = linesegments!(pscene, (@lift $obs.slines), color=strokecolor, linewidth=strokewidth)
+	translate!(plt, 0, 0, 1000)
+	return nothing
 end
