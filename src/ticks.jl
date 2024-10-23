@@ -1,6 +1,7 @@
 @kwdef struct BaseMulTicks
     subs = [1, 2, 5]
     base = 10.
+    symlog_mul_min = 0.5
 end
 BaseMulTicks(subs; kwargs...) = BaseMulTicks(; subs, kwargs...)
 
@@ -15,12 +16,20 @@ function Makie.get_tickvalues(t::BaseMulTicks, vmin, vmax)
     ])
 end
 
-Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax) = filter!(∈((vmin..vmax) ∩ (scale.vmin..scale.vmax)), [
-    Makie.get_tickvalues(t, max(vmin, scale.linthresh/3), vmax);
-    Makie.get_tickvalues(t, vmin, min(vmax, -scale.linthresh/3));
-    0
-])
+function Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax)
+    mintick = @p let
+        scale.linthresh * t.symlog_mul_min
+        @modify(floor(_) - 0.01, log(t.base, $__))
+        max(vmin, __)
+    end
+    filter!(∈((vmin..vmax) ∩ (scale.vmin..scale.vmax)), [
+        reverse(Makie.get_tickvalues(t, vmin, -mintick));
+        0;
+        Makie.get_tickvalues(t, mintick, vmax);
+    ])
+end
 
+Makie.get_minor_tickvalues(t::BaseMulTicks, scale, tickvals, vmin, vmax) = Makie.get_tickvalues(t, scale, vmin, vmax)
 
 function Makie.get_ticks(ticks, scale::SymLogLike, formatter, vmin, vmax)
     tickvalues = Makie.get_tickvalues(_symlog_ticks(ticks), scale, vmin, vmax)
