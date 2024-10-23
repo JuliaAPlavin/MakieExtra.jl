@@ -36,14 +36,14 @@ function Makie.plot!(p::Scalebar)
 
     attrs = @p let
         Makie.shared_attributes(p, Lines)
-        @set __[:space] = :relative
+        @set __[:space] = Observable(:relative)
     end
     lines!(p, attrs, (@lift $obs.points), xautolimits=false, yautolimits=false)
     attrs = @p let
         Makie.shared_attributes(p, Makie.Text)
-        @set __[:space] = :relative
+        @set __[:space] = Observable(:relative)
         @set __[:position] = @lift $obs.textpos
-        @set __[:align] = (:center, :top)
+        @set __[:align] = Observable((:center, :top))
     end
     text!(p, attrs, (@lift $obs.text), xautolimits=false, yautolimits=false)
     return p
