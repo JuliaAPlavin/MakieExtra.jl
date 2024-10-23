@@ -14,9 +14,8 @@ macro define_plotfunc(plotfuncs, Ts)
         args_any = map((n, T) -> :($n::Union{$T,Observable{<:$T}}), argnames, Ts)
         quote
             Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_any...); kwargs...) = $plotf(pos, $(map(n -> :(_ensure_observable($n)), argnames)...); kwargs...)
-            Makie.$plotf($(args_any...); kwargs...) = $plotf($(map(n -> :(_ensure_observable($n)), argnames)...); kwargs...)
             
-            function Makie.$plotf($(args_obs...); figure=(;), kwargs...)
+            function Makie.$plotf($(args_any...); figure=(;), kwargs...)
                 fig = Figure(; figure...)
                 ax, plt = $plotf(fig[1,1], $(argnames...); kwargs...)
                 Makie.FigureAxisPlot(fig, ax, plt)
@@ -28,6 +27,8 @@ macro define_plotfunc(plotfuncs, Ts)
                 plt = $plotf_excl(ax, $(argnames...); kwargs...)
                 Makie.AxisPlot(ax, plt)
             end
+
+            Makie.$plotf_excl($(args_any...); kwargs...) = $plotf_excl(current_axis(), $(argnames...); kwargs...)
         end
     end
     Expr(:block, exprs...)
@@ -73,6 +74,8 @@ macro define_plotfunc_conv(plotfuncs, Ts)
 					axis, _unselect_kwargs(kwargs, used_attrs)...
 				)
 			end
+
+            Makie.$plotf_excl($(args_any...); kwargs...) = $plotf_excl(current_axis(), $(argnames...); kwargs...)
 
 			Makie.convert_arguments(ct::Type{<:$plottype}, $(args_any...); kwargs...) =
 				convert_arguments(ct, _convert_arguments_singlestep(ct, $(argnames...); kwargs...)...)
