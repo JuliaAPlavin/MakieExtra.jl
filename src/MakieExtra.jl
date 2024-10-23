@@ -22,6 +22,7 @@ export
 	zoom_lines!,
 	marker_lw,
 	to_x_attrs, to_y_attrs, to_xy_attrs,
+	multiplot, multiplot!,
 	FPlot
 
 include("lift.jl")
@@ -36,6 +37,7 @@ include("markers.jl")
 include("glow.jl")
 include("fplot.jl")
 include("arrowline.jl")
+include("multiplot.jl")
 
 
 to_x_attrs(attrs) = @modify(k -> Symbol(:x, k), keys(attrs)[∗])
