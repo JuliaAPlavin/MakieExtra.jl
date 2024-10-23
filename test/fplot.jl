@@ -20,19 +20,35 @@ end
 @testitem "basic" begin
     using Accessors
 
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
-    @test content(fig[1,1]).xlabel[] == "+(_, 1)"
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), linewidth=10)
+    lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
+    lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), linewidth=10)
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 10
     plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
-    plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=Ref(:black)), doaxis=true)
+    plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=Ref(:black)))
     plt = lines!(FPlot(1:10, x->x+1, (@o _^2), color=sqrt), linewidth=15)
     @test plt.linewidth[] == 15
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt), linewidth=15)
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 15
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
+end
+
+@testitem "doaxis" begin
+    using Accessors
+    using CairoMakie, GLMakie
+
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
+    lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
+    @test content(fig[1,1]).xlabel[] == ""
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+    Makie.colorbuffer(current_figure(); backend=GLMakie)
+
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
+    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
+    @test content(fig[1,1]).xlabel[] == "+(_, 1)"
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+    Makie.colorbuffer(current_figure(); backend=GLMakie)
 end
 
 @testitem "categorical" begin
@@ -63,12 +79,15 @@ end
 
 @testitem "multiplot" begin
     using Accessors
+    using CairoMakie, GLMakie
 
     res = multiplot((Scatter, Lines), FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
     @test res[1] isa Makie.FigureAxisPlot
     ax = content(res[1].figure[:,:])
     @test ax.xlabel[] == "identity"
     @test ax.ylabel[] == "^(_, 2)"
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+    Makie.colorbuffer(current_figure(); backend=GLMakie)
 end
 
     # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
