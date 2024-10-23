@@ -1,10 +1,15 @@
 @recipe(Scalebar, scale) do scene
     Attributes(
+        color=:black,
         position=Point2(0.85, 0.08),
         target_ax_frac=0.2,
-        muls=[x*p for p in Real[1e-9, 1e-8, 1e-7, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1, 10, 100, 1000, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9] for x in [1, 2, 5]]
+        muls=[x*p for p in Real[[10.0^p for p in -50:-1]; [1, 10, 100, 1000, 10000]; [10.0^p for p in 5:50]] for x in [1, 2, 5]]
     )
 end
+
+Makie.data_limits(::Scalebar) = Rect3f(Point3f(NaN), Vec3f(NaN))
+Makie.boundingbox(::Scalebar, space::Symbol=:data) = Rect3f(Point3f(NaN), Vec3f(NaN))
+
 
 function Makie.plot!(p::Scalebar)
     target_ax_frac = 0.2
@@ -33,14 +38,14 @@ function Makie.plot!(p::Scalebar)
         Makie.shared_attributes(p, Lines)
         @set __[:space] = :relative
     end
-    lines!(p, attrs, @lift $obs.points)
+    lines!(p, attrs, (@lift $obs.points), xautolimits=false, yautolimits=false)
     attrs = @p let
         Makie.shared_attributes(p, Makie.Text)
         @set __[:space] = :relative
         @set __[:position] = @lift $obs.textpos
         @set __[:align] = (:center, :top)
     end
-    text!(p, attrs, @lift $obs.text)
+    text!(p, attrs, (@lift $obs.text), xautolimits=false, yautolimits=false)
     return p
 end
 
