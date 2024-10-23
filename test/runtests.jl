@@ -61,18 +61,26 @@ using TestItemRunner
     Makie.ReversibleScale(AsinhScale(1))
 
     bmt = BaseMulTicks([1,2,5])
-    @test Makie.get_tickvalues(bmt, identity, 0.25, 100) == [0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
-    @test Makie.get_tickvalues(bmt, identity, 3, 100) == [5.0, 10.0, 20.0, 50.0, 100.0]
-    @test Makie.get_tickvalues(bmt, log10, 3, 100) == [5.0, 10.0, 20.0, 50.0, 100.0]
-    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 100) == [0, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
-    @test Makie.get_tickvalues(bmt, SymLog(1), -10, 100) == [-10.0, -5.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
-    @test Makie.get_tickvalues(bmt, SymLog(1), 3, 100) == [5.0, 10.0, 20.0, 50.0, 100.0]
-    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 1) == [0, 0.5, 1.0]
+    @test Makie.get_tickvalues(bmt, identity, 0.25, 100) == [0.5, 1, 2, 5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, identity, 3, 100) == [5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, log10, 3, 100) == [5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 100) == [0, 0.5, 1, 2, 5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, SymLog(1), -10, 100) == [-10, -5, -2, -1, -0.5, 0, 0.5, 1, 2, 5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 3, 100) == [5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 1) == [0, 0.5, 1]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 0.2) == [0, 0.1, 0.2]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 0.099) ≈ [0, 0.01, 0.02, 0.05]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0.09, 0.11) ≈ [0.1]
     @test Makie.get_tickvalues(bmt, SymLog(1), 9, 11) ≈ [10]
     @test Makie.get_tickvalues(bmt, SymLog(1), 9, 9.5) == []
+    @test Makie.get_ticks(bmt, identity, Makie.Automatic(), 0.25, 100) == (
+        [0.5, 1, 2, 5, 10, 20, 50, 100],
+        ["0.5", "1", "2", "5", "10", "20", "50", "100"]
+    )
+    @test Makie.get_ticks(bmt, SymLog(1), Makie.Automatic(), -10, 100) == (
+        [-10, -5, -2, -1, -0.5, 0, 0.5, 1, 2, 5, 10, 20, 50, 100],
+        ["−10", "−5", "−2", "−1", "−0.5", "0", "0.5", "1", "2", "5", "10", "20", "50", "100"]
+    )
 
     @test Makie.get_minor_tickvalues(bmt, identity, nothing, 3, 100) == Makie.get_tickvalues(bmt, identity, 3, 100)
     @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, -3, 100) == [-2.0, -1.0, -0.5, -0.2, -0.1, 0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
