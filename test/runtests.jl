@@ -196,6 +196,9 @@ end
     @test plts[2].linewidth[] == 2
     @test plts[2].color[] == :red
 
+    multiplot((Scatter, Lines), current_figure()[1:2,3], 1:10, 1:10)
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+
     plts = multiplot!(
         (Scatter => (;color=:red), Lines => (;color=:blue), Scatter),
         1:10, 1:10, color=:black, markersize=5, linewidth=2)
