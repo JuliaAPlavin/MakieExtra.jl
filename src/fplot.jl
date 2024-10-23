@@ -63,6 +63,6 @@ axis_attributes(X::FPlot) = (; xlabel=_xlabel(X), ylabel=_ylabel(X), X.axis...)
 @inline getval(f, data) = map(f, data)
 @inline getval(f::Ref, data) = f[]
 
-_xlabel(X::FPlot) = shortlabel(X.argfuncs[1])
-_ylabel(X::FPlot) = shortlabel(X.argfuncs[2])
+_xlabel(X::FPlot) = length(X.argfuncs) ≥ 1 ? shortlabel(X.argfuncs[1]) : ""
+_ylabel(X::FPlot) = length(X.argfuncs) ≥ 2 ? shortlabel(X.argfuncs[2]) : ""
 shortlabel(f) = AccessorsExtra.barebones_string(f)
