@@ -1,5 +1,5 @@
-Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, :_axis, :reorder_args, :direction)
-Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, :_axis, :reorder_args, :direction)
+Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, :_axis, :reorder_args, intersect(Makie.attribute_names(T), (:direction,))...)
+Makie.used_attributes(T::Type{<:Plot}, _, fplt::FPlot) = Makie.used_attributes(T, fplt)
 
 Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 

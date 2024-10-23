@@ -220,6 +220,10 @@ end
     @test current_axis().ylabel[] == "_ ^ 2"
     @test current_axis().width[] == 1234
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
+
+	fplt = FPlot(1:10, (@o _), (@o _^2))
+	multiplot((Hist, HLines => (xmin=0, xmax=0.06, linewidth=0.5)), fplt, normalization=:pdf, direction=:x)
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 
     # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
