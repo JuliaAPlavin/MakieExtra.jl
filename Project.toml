@@ -1,7 +1,7 @@
 name = "MakieExtra"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
 authors = ["Alexander Plavin <alexander@plav.in>"]
-version = "0.1.32"
+version = "0.1.33"
 
 [deps]
 AccessorsExtra = "33016aad-b69d-45be-9359-82a41f556fd4"
