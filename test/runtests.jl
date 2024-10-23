@@ -3,6 +3,8 @@ using TestItemRunner
 @run_package_tests
 
 @testitem "scales, ticks" begin
+    using PyFormattedStrings
+
     fig = Figure(size=(1200, 300))
     xs = range(-10, 10, length=1000)
 
@@ -89,6 +91,8 @@ using TestItemRunner
 
     @test Makie.get_ticks(Makie.Automatic(), identity, PercentFormatter(), -0.5, 2) == ([-0.5, 0.0, 0.5, 1.0, 1.5, 2.0], ["-50%", "0%", "50%", "100%", "150%", "200%"])
     @test Makie.get_ticks(Makie.Automatic(), identity, PercentFormatter(digits=3, sign=true), 0.5, 0.51) == ([0.5, 0.505, 0.51], ["+50.000%", "+50.500%", "+51.000%"])
+
+    @test Makie.get_ticks(Makie.Automatic(), identity, Broadcast.BroadcastFunction(ff"{_:.5f}"), 0.5, 0.51) == ([0.5, 0.505, 0.51], ["0.50000", "0.50500", "0.51000"])
 end
 
 @testitem "scalebar" begin
