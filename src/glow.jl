@@ -32,6 +32,6 @@ end
 function Makie.plot!(p::TextGlow)
     att = Makie.attributes(p)
     text!(p, (@set att[:color] = att[:glowcolor]), p.position)
-    text!(p, (@set att[:glowwidth] = Observable(0)), p.position)
+    text!(p, (@set att[:glowwidth] = 0), p.position)
     return p
 end

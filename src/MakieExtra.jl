@@ -87,7 +87,7 @@ function Base.setindex(x::Attributes, value::Observable, key::Symbol)
 	y[key] = value
 	return y
 end
-Base.setindex(x::Attributes, value, key::Symbol) = setindex(x, Observable(value), key)
+Base.setindex(x::Attributes, value, key::Symbol) = Base.setindex(x, Observable(value), key)
 
 function Accessors.insert(attrs::Attributes, il::IndexLens, val)
 	res = copy(attrs)
