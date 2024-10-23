@@ -228,7 +228,7 @@ end
     # @test ax.yscale[] == identity
 
 @testitem "datacursor" begin
-    using MakieExtra: with_widgets, DataCursor, RectSelection, cursor_vals, to_value
+    using MakieExtra: cursor_vals, to_value
     using Accessors
 
     @test isequal(cursor_vals(DataCursor(), FPlot(nothing, (@o _.a), (@o _.b)), Scatter, 1) |> to_value, [NaN])
@@ -255,7 +255,7 @@ end
 end
 
 @testitem "rectselect" begin
-    using MakieExtra: with_widgets, DataCursor, RectSelection, sel_ints, sel_poly, sel_span, to_value
+    using MakieExtra: sel_ints, sel_poly, sel_span, to_value, normalized_selints
     using Accessors
 
     @test isequal(
@@ -280,10 +280,17 @@ end
     @test isequal(
         sel_span(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2) |> to_value,
         NaN .. NaN)
+
+    rs = RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 12..10]))
+    @test to_value(normalized_selints(rs)::Observable) == [(@o _.a) => 2 .. 5, (@o _.b) => 10 .. 12]
+    data = [(a=1, b=2, c="x"), (a=4, b=5, c="y"), (a=4, b=11, c="z"), (a=5, b=10, c="w"), (a=6, b=10, c="v")]
+    @test selected_data(data, rs)::Observable |> to_value == [(a=4, b=11, c="z"), (a=5, b=10, c="w")]
+    mdata = mark_selected_data(data, rs)::Observable |> to_value
+    @test map(is_selected, mdata) == [false, false, true, true, false]
+    @test map(x -> x[(:a,:b,:c)], mdata) == data
 end
 
 @testitem "interactive smoke test" begin
-    using MakieExtra: with_widgets, DataCursor, RectSelection
     using Accessors
 
     data = [(randn(), rand(), randn()) for _ in 1:1000]
