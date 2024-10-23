@@ -140,9 +140,13 @@ end
     textglow((0,1), text="Some of My Text", glowwidth=10)
     textglow((0,1), text="Some of My Text", glowwidth=10, glowcolor=(:lightgreen, 0.8))
 
+    linesglow([1,2,3], [4,5,6])
+    linesglow([4,5,6])
+    linesglow([(1,2),(3,4)])
 	linesglow(0..6, x->sin(x^2), glowwidth=15)
 	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowcolor=(:green, 0.4))
 	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowalpha=0.5)
+	linesglow!(current_axis(), x->sin(x^2), glowwidth=70, glowalpha=0.5)
 
     linesglow(FPlot(1:5, identity, identity), glowwidth=15)
 end
