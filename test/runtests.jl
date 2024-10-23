@@ -194,6 +194,16 @@ end
     @test plts[2].linewidth[] == 2
     @test plts[2].color[] == :red
 
+    plts = multiplot!(
+        (Scatter => (;color=:red), Lines => (;color=:blue), Scatter),
+        1:10, 1:10, color=:black, markersize=5, linewidth=2)
+    @test length(plts) == 3
+    @test plts[1].markersize[] == plts[3].markersize[] == 5
+    @test plts[1].color[] == :red
+    @test plts[2].linewidth[] == 2
+    @test plts[2].color[] == :blue
+    @test plts[3].color[] == :black
+
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 

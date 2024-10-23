@@ -32,11 +32,20 @@ end
 
 keep_attrs(plt::Type{<:Plot}, kwargs, args...) = kwargs[collect(keys(kwargs) ∩ (Makie.attribute_names(plt) ∪ used_attributes(plt, args...)))]
 keep_attrs(plt::Function, kwargs, args...) = keep_attrs(Plot{plt}, kwargs)
+keep_attrs((plt, _)::Pair, kwargs, args...) = keep_attrs(plt, kwargs)
 
 plotfunc(::Type{<:Plot{F}}) where {F} = F
 plotfunc(F::Function) = F
+function plotfunc((F, kws)::Pair)
+	F = plotfunc(F)
+	(args...; newkwargs...) -> F(args...; newkwargs..., kws...)
+end
 
 function plotfunc!(P)
 	F = plotfunc(P)
 	return eval(Symbol(nameof(F), :!))
+end
+function plotfunc!((F, kws)::Pair)
+	F! = plotfunc!(F)
+	(args...; newkwargs...) -> F!(args...; newkwargs..., kws...)
 end
