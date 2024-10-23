@@ -16,10 +16,10 @@ function Makie.get_tickvalues(t::BaseMulTicks, vmin, vmax)
     ])
 end
 
-function Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax)
+function Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax; go_to_previous_base_power=false)
     mintick = @p let
         scale.linthresh * t.symlog_mul_min
-        @modify(floor(_) - 0.01, log(t.base, $__))
+        go_to_previous_base_power ? @modify(l -> floor(l) - 0.01, log(t.base, $__)) : __
         max(vmin, __)
     end
     filter!(∈((vmin..vmax) ∩ (scale.vmin..scale.vmax)), [
@@ -30,6 +30,7 @@ function Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax)
 end
 
 Makie.get_minor_tickvalues(t::BaseMulTicks, scale, tickvals, vmin, vmax) = Makie.get_tickvalues(t, scale, vmin, vmax)
+Makie.get_minor_tickvalues(t::BaseMulTicks, scale::SymLogLike, tickvals, vmin, vmax) = Makie.get_tickvalues(t, scale, vmin, vmax; go_to_previous_base_power=true)
 
 function Makie.get_ticks(ticks, scale::SymLogLike, formatter, vmin, vmax)
     tickvalues = Makie.get_tickvalues(_symlog_ticks(ticks), scale, vmin, vmax)
