@@ -20,6 +20,12 @@ using TestItemRunner
     lines!(ax, [Point(0, 0), Point(1, 1)], color=:black, linestyle=:dash, space=:relative)
 end
 
+@testitem "macro" begin
+    MakieExtra.@define_plotfunc scatter Vector
+    MakieExtra.axis_attributes(::Type{Scatter}, ::Vector) = (;)
+
+    scatter([1,2,3])
+end
 
 @testitem "_" begin
     import Aqua
