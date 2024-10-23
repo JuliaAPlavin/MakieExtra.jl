@@ -5,8 +5,9 @@ end
 BaseMulTicks(subs; kwargs...) = BaseMulTicks(; subs, kwargs...)
 
 function Makie.get_tickvalues(t::BaseMulTicks, vmin, vmax)
-    vmin < 0 && vmax < 0 && return .-Makie.get_tickvalues(t, -vmax, -vmin)
-    @assert vmin > 0 && vmax > 0
+    vmin < vmax || return []
+    vmin < 0 && vmax ≤ 0 && return .-Makie.get_tickvalues(t, -vmax, -vmin)
+    @assert vmin ≥ 0 && vmax ≥ 0
     filter!(∈(vmin..vmax), [
         mul * t.base^pow
         for pow in floor(Int, log(t.base, vmin) - 0.1):ceil(Int, log(t.base, vmax) + 0.1)
