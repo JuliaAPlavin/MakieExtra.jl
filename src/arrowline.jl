@@ -6,6 +6,8 @@
     end...
 end
 
+Makie.conversion_trait(::Type{<:ArrowLines}) = PointBased()
+
 function Makie.plot!(p::ArrowLines)
     points = p[1]
     @assert length(points[]) ≥ 2
