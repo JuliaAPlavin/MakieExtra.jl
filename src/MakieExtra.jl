@@ -66,6 +66,24 @@ function __init__()
 end
 
 
+using ObjectiveC: id, Object, NSString, NSObject, @objc, @objcwrapper
+@objcwrapper NSApplication <: NSObject
+function show_gl_icon_in_dock(show::Bool)
+    path = "/System/Library/Frameworks/AppKit.framework"
+
+	path = NSString(path)
+	bundle = @objc [NSBundle bundleWithPath:path::id{NSString}]::id{Object}
+	loaded = @objc [bundle::id{Object} load]::id{Object}
+
+    NSApp = Base.bitcast(id{Object}, cglobal(:NSApp, Ptr{Cvoid}) |> unsafe_load)
+    @objc [NSApplication sharedApplication]::id{Object}
+    NSApplicationActivationPolicyRegular   = 0
+    NSApplicationActivationPolicyAccessory = 1
+    val = show ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory
+    @objc [NSApp::id{Object} setActivationPolicy:val::Int]::id{Object}
+end
+
+
 macro rich(expr)
     @assert Base.isexpr(expr, :string)
     Expr(:call, :rich, esc.(expr.args)...)
