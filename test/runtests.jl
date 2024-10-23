@@ -113,6 +113,17 @@ end
     @test current_axis().xlabel[] == "a"
 end
 
+@testitem "to_xy_attrs" begin
+    attrs = (a=1, b=123, xyz="4")
+    @test to_x_attrs(attrs) == (xa=1, xb=123, xxyz="4")
+    @test to_y_attrs(attrs) == (ya=1, yb=123, yxyz="4")
+    @test to_xy_attrs(attrs) == (xa=1, xb=123, xxyz="4", ya=1, yb=123, yxyz="4")
+
+    attrs = Attributes(attrs)
+    @test NamedTuple(attrs).b[] == 123
+    @test_broken (to_x_attrs(attrs); true)
+end
+
 @testitem "@define_plotfunc" begin
     struct MyType end
     struct MyTypeVec <: AbstractVector{Float64} end

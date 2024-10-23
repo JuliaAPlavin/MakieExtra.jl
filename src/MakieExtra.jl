@@ -14,7 +14,7 @@ import DataManipulation: shift_range
 @reexport using Makie
 export Makie
 
-export SymLog, AsinhScale, BaseMulTicks, EngTicks, zoom_lines!
+export SymLog, AsinhScale, BaseMulTicks, EngTicks, zoom_lines!, to_x_attrs, to_y_attrs, to_xy_attrs
 
 include("scales.jl")
 include("ticks.jl")
@@ -24,6 +24,10 @@ include("helpers.jl")
 include("axisfunction.jl")
 include("contourf.jl")
 
+
+to_x_attrs(attrs) = @modify(k -> Symbol(:x, k), keys(attrs)[∗])
+to_y_attrs(attrs) = @modify(k -> Symbol(:y, k), keys(attrs)[∗])
+to_xy_attrs(attrs) = merge(to_x_attrs(attrs), to_y_attrs(attrs))
 
 # XXX: should upstream these!
 
