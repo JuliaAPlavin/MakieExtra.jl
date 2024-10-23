@@ -156,6 +156,30 @@ end
     @test_broken (to_x_attrs(attrs); true)
 end
 
+@testitem "fplot" begin
+    using Accessors
+
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=true))
+    @test content(fig[1,1]).xlabel[] == "+(_, 1)"
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), linewidth=10)
+    @test ax.xlabel[] == ""
+    # @test plt.linewidth[]
+    plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
+    plt = lines!(FPlot(1:10, Ref(1), (@o _^2), color=sqrt, axis=true))
+    plt = lines!(FPlot(1:10, x->x+1, (@o _^2), color=sqrt, axis=true), linewidth=15)
+    @test ax.xlabel[] == ""
+    # @test Makie.get_plots(ax) #[:linewidth][]
+
+    struct MyObj end
+    Makie.used_attributes(T::Type{<:Plot}, ::MyObj) = Tuple(Makie.attribute_names(T))
+    Makie.convert_arguments(ct::Type{<:AbstractPlot}, ::MyObj; kwargs...) = Makie.convert_arguments(ct, FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=true); kwargs...)
+
+    lines(MyObj(); linewidth=15)
+    lines(MyObj())
+    lines!(MyObj())
+    lines!(MyObj(), linewidth=10)
+end
+
 @testitem "@define_plotfunc" begin
     struct MyType end
     struct MyTypeVec <: AbstractVector{Float64} end

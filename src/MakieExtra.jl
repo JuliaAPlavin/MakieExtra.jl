@@ -1,7 +1,7 @@
 module MakieExtra
 
 using Reexport
-using Accessors
+using AccessorsExtra
 using InverseFunctions
 using PyFormattedStrings
 using Makie: left, right, bottom, top, bottomleft, topleft, bottomright, topright
@@ -19,7 +19,8 @@ export
 	BaseMulTicks, EngTicks,
 	zoom_lines!,
 	marker_lw,
-	to_x_attrs, to_y_attrs, to_xy_attrs
+	to_x_attrs, to_y_attrs, to_xy_attrs,
+	FPlot
 
 include("lift.jl")
 include("scales.jl")
@@ -31,6 +32,7 @@ include("axisfunction.jl")
 include("contourf.jl")
 include("markers.jl")
 include("glow.jl")
+include("fplot.jl")
 
 
 to_x_attrs(attrs) = @modify(k -> Symbol(:x, k), keys(attrs)[∗])
