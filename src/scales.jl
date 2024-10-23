@@ -21,7 +21,7 @@ function (s::SymLog)(x)
     end
 end
 
-Makie.inverse_transform(s::SymLog) = function(y)
+InverseFunctions.inverse(f::SymLog) = function(y)
     x = inverse(s._fsmall)(y)
     if abs(x) < s.linthresh
         return x
@@ -29,6 +29,7 @@ Makie.inverse_transform(s::SymLog) = function(y)
         return sign(y) * inverse(s._flarge)(abs(y))
     end
 end
+Makie.inverse_transform(s::SymLog) = inverse(s)
 
 
 @kwdef struct AsinhScale{F} <: Function
@@ -44,7 +45,8 @@ AsinhScale(linthresh; kwargs...) = AsinhScale(; linthresh=Float32(linthresh), ma
 
 (s::AsinhScale)(x) = s._f(clamp(x, s.vmin, s.vmax))
 
-Makie.inverse_transform(s::AsinhScale) = inverse(s._f)
+InverseFunctions.inverse(s::AsinhScale) = inverse(s._f)
+Makie.inverse_transform(s::AsinhScale) = inverse(s)
 
 
 const SymLogLike = Union{SymLog,AsinhScale}
