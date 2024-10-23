@@ -18,7 +18,7 @@ end
 
 function Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax; go_to_previous_base_power=false)
     mintick = @p let
-        scale.linthresh * t.symlog_mul_min
+        min(scale.linthresh * t.symlog_mul_min, max(abs(vmax), abs(vmin)))
         go_to_previous_base_power ? @modify(l -> floor(l - 0.01) - 0.01, log(t.base, $__)) : __
         max(vmin, __)
     end
