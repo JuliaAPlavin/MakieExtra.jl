@@ -32,12 +32,12 @@ end
 Accessors.insert(X::FPlot, p::PropertyLens, v) = @insert X.kwargfuncs |> p = v
 Accessors.insert(X::FPlot, p::IndexLens, v) = @insert X.argfuncs |> p = v
 
-Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
-Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
+Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, :_axis, Makie.attribute_names(T)...)
+Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, :_axis, Makie.attribute_names(T)...)
 
 Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 
-function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, kwargs...)
+function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), kwargs...)
 	@assert !isnothing(X.data)
 	pargs = map(X.argfuncs) do f
 		getval(f, X.data)
@@ -50,7 +50,7 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	if doaxis
 		S = Makie.SpecApi
 		# can set axis attributes (eg xylabels), but cannot be plotted on existing axes
-		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, kwargs)...)])
+		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, kwargs)..., _axis...)])
 	else
 		# can be plotted either from scratch or on existing axes, but cannot set axis attributes
 		pspec
