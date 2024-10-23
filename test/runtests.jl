@@ -137,9 +137,12 @@ end
 end
 
 @testitem "markers" begin
-    scatter(rand(30), rand(30), marker=vline_lw(0.5), markersize=30)
-    scatter(rand(30), rand(30), marker=hline_lw(0.5), markersize=30)
-    scatter(rand(30), rand(30), marker=cross_lw(0.5), markersize=30)
+    scatter(rand(30), rand(30), marker=marker_lw(:vline, 0.5), markersize=30)
+    scatter(rand(30), rand(30), marker=marker_lw(:hline, 0.5), markersize=30)
+    scatter(rand(30), rand(30), marker=marker_lw(:cross, 0.5), markersize=30)
+
+    @test marker_lw(:vline, 0.5) === marker_lw(:vline, 0.501)
+    @test marker_lw(:vline, 0.5) != marker_lw(:vline, 0.53)
 end
 
 @testitem "to_xy_attrs" begin

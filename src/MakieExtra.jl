@@ -18,7 +18,7 @@ export
 	SymLog, AsinhScale,
 	BaseMulTicks, EngTicks,
 	zoom_lines!,
-	vline_lw, hline_lw, cross_lw,
+	marker_lw,
 	to_x_attrs, to_y_attrs, to_xy_attrs
 
 include("lift.jl")
