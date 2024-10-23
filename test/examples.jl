@@ -44,6 +44,13 @@ let
 	fig
 end
 
+# ╔═╡ f2e8836b-d608-49c7-aa62-39594eea7697
+let
+	fig, ax, plt = scatter(range(0, 0.01, length=100), rand(100), color=Cycled(2))
+	scatterlines!(sin, color=Cycled(1))
+	fig
+end
+
 # ╔═╡ 007b2ac4-d5c6-4e71-8c50-09a3130f8abb
 band(x -> sin(x)..2abs(sin(x)))
 
@@ -202,7 +209,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 CairoMakie = "~0.12.3"
 DataManipulation = "~0.1.16"
 Makie = "~0.21.3"
-MakieExtra = "~0.1.10"
+MakieExtra = "~0.1.11"
 PlutoUI = "~0.7.59"
 Unitful = "~1.20.0"
 """
@@ -1105,9 +1112,9 @@ version = "0.8.3"
 
 [[MakieExtra]]
 deps = ["Accessors", "DataManipulation", "DataPipes", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport"]
-git-tree-sha1 = "c082c5a92c857da998017ac9fb5d579ce9a4686c"
+git-tree-sha1 = "b5d0f05a7667b6d0c1ad5baba5e8633f1d4d3c08"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
-version = "0.1.10"
+version = "0.1.11"
 
 [[MappedArrays]]
 git-tree-sha1 = "2dab0221fe2b0f2cb6754eaa743cc266339f527e"
@@ -1460,7 +1467,7 @@ uuid = "45858cf5-a6b0-47a3-bbea-62219f50df47"
 version = "0.1.3"
 
 [[Skipper]]
-git-tree-sha1 = "735fc729f4ff1940c3b3436ff6de6598af8b1603"
+git-tree-sha1 = "b18148264375368f6b9c1a7743913a11706b8698"
 uuid = "fc65d762-6112-4b1c-b428-ad0792653d81"
 version = "0.1.13"
 
@@ -1822,6 +1829,7 @@ version = "3.5.0+0"
 # ╟─d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
 # ╠═9529f2de-82ec-44fb-b45e-45424dbca177
 # ╠═60a9dad0-0b74-465b-8972-dc1b24af7f3b
+# ╠═f2e8836b-d608-49c7-aa62-39594eea7697
 # ╠═007b2ac4-d5c6-4e71-8c50-09a3130f8abb
 # ╟─0dc4e2d1-f74b-4d40-a271-220b42243f09
 # ╠═55be0296-4cc2-47f1-9578-866e4cdd2edd
