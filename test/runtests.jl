@@ -86,6 +86,9 @@ using TestItemRunner
     @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, -3, 100) == [-2.0, -1.0, -0.5, -0.2, -0.1, 0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
     @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, 0, 1) == [0, 0.1, 0.2, 0.5, 1.0]
     @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, 0, 0.2) == [0, 0.1, 0.2]
+
+    @test Makie.get_ticks(Makie.Automatic(), identity, PercentFormatter(), -0.5, 2) == ([-0.5, 0.0, 0.5, 1.0, 1.5, 2.0], ["-50%", "0%", "50%", "100%", "150%", "200%"])
+    @test Makie.get_ticks(Makie.Automatic(), identity, PercentFormatter(digits=3, sign=true), 0.5, 0.51) == ([0.5, 0.505, 0.51], ["+50.000%", "+50.500%", "+51.000%"])
 end
 
 @testitem "scalebar" begin
