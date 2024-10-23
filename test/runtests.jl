@@ -46,6 +46,18 @@ end
 	scalebar!((0.15, x -> "a $x b"), color=:black)
 end
 
+@testitem "zoom_lines" begin
+    fig = Figure()
+    ax1, _ = heatmap(fig[1,1], rand(10, 10))
+    ax2, _ = heatmap(fig[1,2], rand(100, 100))
+    ax3, _ = heatmap(fig[2,1], rand(100, 100))
+    ax4, _ = heatmap(fig[2,2], rand(100, 100))
+    axs = [ax1, ax2, ax3, ax4]
+    for aa in Iterators.product(axs, axs)
+        zoom_lines!(aa...)
+    end
+end
+
 @testitem "axis-wide function" begin
     lines(sin)
     scatter!(sin)
