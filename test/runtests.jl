@@ -142,6 +142,8 @@ end
 	linesglow(0..6, x->sin(x^2), glowwidth=15)
 	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowcolor=(:green, 0.4))
 	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowalpha=0.5)
+
+    linesglow(FPlot(1:5, identity, identity), glowwidth=15)
 end
 
 @testitem "markers" begin

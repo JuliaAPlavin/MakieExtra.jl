@@ -5,6 +5,9 @@
     documented_attributes(Makie.Lines)...
 end
 
+# to make SpecApi work
+Makie.LinesGlow = LinesGlow
+
 function Makie.plot!(p::LinesGlow)
     att = Makie.shared_attributes(p, Lines)
     nsteps = max(5, ceil(Int, p.glowwidth[] / 2))
