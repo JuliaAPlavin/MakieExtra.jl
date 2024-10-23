@@ -167,9 +167,10 @@ end
     @test length(res) == 2
     @test res[1] isa Plot
     @test res[2] isa Plot
+    multiplot!(current_axis(), (Scatter, Lines), 1:10, 1:10)
 
     multiplot((Scatter, Lines), 1:10, 1:10, color=:red)
-    multiplot((Scatter, Lines), 1:10, 1:10, markersize=5)
+    multiplot(current_figure()[1,2], (Scatter, Lines), 1:10, 1:10, markersize=5)
     multiplot((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2)
     plts = multiplot!((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2, color=:red)
     @test plts[1].markersize[] == 5
