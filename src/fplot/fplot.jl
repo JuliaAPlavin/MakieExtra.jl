@@ -34,6 +34,7 @@ Accessors.insert(X::FPlot, p::IndexLens, v) = @insert X.argfuncs |> p = v
 
 include("makieconvert.jl")
 include("axisorder.jl")
+include("interactive.jl")
 
 # should go into AccessorsExtra?
 
