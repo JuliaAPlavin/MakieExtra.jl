@@ -5,7 +5,7 @@
 end
 
 function cursor_vals(dc::DataCursor, fplt::FPlot, plt::Type{<:Plot}, i::Int; kwargs...)
-    afunc = get(argfuncs_for_xy(plt, fplt; reorder_args=true, kwargs...), i, nothing)
+    afunc = get(argfuncs_for_xy(plt, fplt; kwargs...), i, nothing)
     emptyval = [NaN]
     isnothing(afunc) && return emptyval
     @lift let
@@ -18,7 +18,7 @@ function add!(ax::Axis, dc::DataCursor, fplt::FPlot, plt::Type{<:Plot}; kwargs..
     vlines!(ax, cursor_vals(dc, fplt, plt, 1; kwargs...); dc.lines...)
     hlines!(ax, cursor_vals(dc, fplt, plt, 2; kwargs...); dc.lines...)
 
-    argfuncs = argfuncs_for_xy(plt, fplt; reorder_args=true, kwargs...)
+    argfuncs = argfuncs_for_xy(plt, fplt; kwargs...)
     on(events(ax).mouseposition, priority=100) do event
         try
             if is_mouseinside(ax) && ispressed(ax, Exclusively(dc.key))
