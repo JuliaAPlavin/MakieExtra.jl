@@ -157,9 +157,6 @@ end
     using Accessors
     using CairoMakie
 
-    # XXX: temporary
-    @eval CairoMakie Base.insert!(screen::Screen, scene::Scene, plot::Plot{plotlist}) = nothing
-
     res = multiplot((Scatter, lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), doaxis=true, _axis=(;width=1234))
     @test res[1] isa Makie.FigureAxisPlot
     ax = content(res[1].figure[:,:])
