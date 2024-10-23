@@ -6,29 +6,21 @@ function zoom_lines!(ax1, ax2; strokewidth=1.5, strokecolor=:black, color=(:blac
 		axs = lims[1] ⊆ lims[2] ? (ax1, ax2) :
 			  lims[2] ⊆ lims[1] ? (ax2, ax1) :
 			  nothing
-        if isnothing(axs)
+        slines = if isnothing(axs)
 			nothing
 		else
-			vps = to_value.(viewport.(axs))
-			fs = if right(vps[1]) < left(vps[2])
-	            (topright, bottomright, topline, bottomline)
-	        elseif left(vps[1]) > right(vps[2])
-	            (topleft, bottomleft, topline, bottomline)
-	        elseif bottom(vps[1]) < top(vps[2])
-	            (topleft, topright, leftline, rightline)
-	        elseif bottom(vps[1]) > top(vps[2])
-	            (bottomleft, bottomright, leftline, rightline)
-	        end
-			line1 = fs[3](fullproject(axs[2], axs[1].finallimits[]))
-			line2 = fs[4](fullproject(axs[2], axs[1].finallimits[]))
+			corns1 = corners(viewport(axs[1])[])
+			corns2 = corners(fullproject(axs[2], axs[1].finallimits[]))
+            cornpairs = @p Iterators.product(corns1, corns2) collect vec sort(by=((a, b),) -> norm(a - b))
+            [
+                first(cornpairs),
+                filterfirst(c -> all(c .!= first(cornpairs)), cornpairs),
+            ]
 		end
         (
             rect1=ax2.finallimits[],
             rect2=ax1.finallimits[],
-            slines=isnothing(axs) ? Point2{Float32}[] : Point2{Float32}[
-				fs[1](vps[1]), argmin(p -> norm(p - fs[1](vps[1])), line1),
-                fs[2](vps[1]), argmin(p -> norm(p - fs[2](vps[1])), line2),
-            ],
+            slines=isnothing(slines) ? Point2{Float32}[] : Point2{Float32}[slines[1]..., slines[2]...],
         )
     end
 
