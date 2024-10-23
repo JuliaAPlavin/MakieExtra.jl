@@ -342,6 +342,22 @@ end
     @test t6[] == 3.0
 end
 
+@testitem "obs changes" begin
+    # https://github.com/JuliaGizmos/Observables.jl/pull/115
+    x = Observable(1)
+    yupds = []
+    y = lift(changes(x)) do x
+        push!(yupds, x)
+        x
+    end
+    x[] = 1
+    x[] = 2
+    x[] = 2
+    x[] = 1
+    x[] = 1
+    @test yupds == [1, 2, 1]
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=false, undefined_exports=false, piracies=false, persistent_tasks=false)

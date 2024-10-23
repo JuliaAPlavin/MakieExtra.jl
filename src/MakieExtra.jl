@@ -23,7 +23,8 @@ export
 	marker_lw,
 	to_x_attrs, to_y_attrs, to_xy_attrs,
 	multiplot, multiplot!,
-	FPlot
+	FPlot,
+	changes
 
 include("lift.jl")
 include("scales.jl")
@@ -59,6 +60,28 @@ end
 
 # XXX: should upstream these!
 
+
+# https://github.com/JuliaGizmos/Observables.jl/pull/115
+"""
+     changes(obs::AbstractObservable)
+
+Returns an `Observable` that only forwards `obs` updates when its value changes.
+"""
+function changes(obs::Makie.AbstractObservable{T}) where {T}
+	result = Observable{T}(obs[])
+    oldobs = Observable{T}(obs[])
+	on(obs) do val
+		if val != oldobs[]
+			result[] = val
+			oldobs[] = val
+		end
+	end
+	return result
+end
+
+
+# https://github.com/MakieOrg/Makie.jl/pull/4037
+# Base.setindex(x::Attributes, value, key::Symbol) = merge(Attributes(; NamedTuple{(key,)}((value,))...), x)
 function Base.setindex(x::Attributes, value::Observable, key::Symbol)
 	y = copy(x)
 	y[key] = value
