@@ -30,9 +30,14 @@ function add!(ax::Axis, dc::DataCursor, fplt::FPlot, plt::Type{<:Plot}; kwargs..
         end
     end
     on(events(ax).keyboardbutton, priority=100) do event
-        if event.key == dc.key && event.action == Keyboard.release
-            dc.vals[] = []
-            return Consume(true)
+        if event.key == dc.key
+            if is_mouseinside(ax) && event.action == Keyboard.press
+                dc.vals[] = map(=>, argfuncs, _mouseposition(ax)[1:length(argfuncs)])
+                return Consume(true)
+            elseif event.action == Keyboard.release
+                dc.vals[] = []
+                return Consume(true)
+            end
         end
     end
 end
