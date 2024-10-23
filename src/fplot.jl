@@ -16,7 +16,8 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	pargs = map(X.argfuncs) do f
 		getval(f, X.data)
 	end
-	pkws = map(X.kwargfuncs) do f
+	pkws_keys = Tuple(keys(X.kwargfuncs) ∩ Makie.attribute_names(ct))
+	pkws = map(X.kwargfuncs[pkws_keys]) do f
 		getval(f, X.data)
 	end
 	pspec = Makie.to_plotspec(ct, pargs; pkws..., kwargs...)
