@@ -49,7 +49,7 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	if doaxis
 		S = Makie.SpecApi
 		# can set axis attributes (eg xylabels), but cannot be plotted on existing axes
-		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(X)...)])
+		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, kwargs)...)])
 	else
 		# can be plotted either from scratch or on existing axes, but cannot set axis attributes
 		pspec
@@ -58,11 +58,19 @@ end
 
 # Makie.plot!(ax::Axis, plot::Plot{plot, Tuple{Makie.GridLayoutSpec}}) = plotlist!(ax, plot.converted[][].content[].second.plots[])
 
-axis_attributes(X::FPlot) = (; xlabel=_xlabel(X), ylabel=_ylabel(X), X.axis...)
+axis_attributes(ct, X::FPlot, kwargs) = (; xlabel=_xlabel(ct, X, kwargs), ylabel=_ylabel(ct, X, kwargs), X.axis...)
 
-@inline getval(f, data) = map(f, data)
+@inline getval(f, data) = convert_to_makie(map(f, data))
 @inline getval(f::Ref, data) = f[]
 
-_xlabel(X::FPlot) = length(X.argfuncs) ≥ 1 ? shortlabel(X.argfuncs[1]) : ""
-_ylabel(X::FPlot) = length(X.argfuncs) ≥ 2 ? shortlabel(X.argfuncs[2]) : ""
+convert_to_makie(x) = x
+convert_to_makie(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
+
+_xlabel(ct, X::FPlot, kwargs) = shortlabel(get(X.argfuncs, funcix_xy_axes(ct, X, kwargs)[1], nothing))
+_ylabel(ct, X::FPlot, kwargs) = shortlabel(get(X.argfuncs, funcix_xy_axes(ct, X, kwargs)[2], nothing))
+
+funcix_xy_axes(ct, X::FPlot, kwargs) = (1, 2)
+funcix_xy_axes(::Type{<:BarPlot}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
+
 shortlabel(f) = AccessorsExtra.barebones_string(f)
+shortlabel(::Nothing) = ""
