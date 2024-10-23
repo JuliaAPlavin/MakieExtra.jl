@@ -369,6 +369,13 @@ end
     @test yupds == [1, 2, 1]
 end
 
+@testitem "obsmap" begin
+    x = Observable(1)
+    y = @lift $x + 1
+    @test obsmap(x, 1:10, y) == 2:11
+    @test obsmap(x, 1:5, @lift (;x=$x, y=$y)) == [(x=1, y=2), (x=2, y=3), (x=3, y=4), (x=4, y=5), (x=5, y=6)]
+end
+
 @testitem "func2type" begin
     using MakieExtra: func2type
     @test func2type(scatter) == Scatter
