@@ -34,19 +34,62 @@ using TestItemRunner
     Makie.ReversibleScale(AsinhScale(1))
 end
 
-@testitem "macro" begin
-    const TT = Vector
-    MakieExtra.@define_plotfunc scatter TT
-    MakieExtra.default_axis_attributes(::Type{Scatter}, ::Vector) = (;)
+@testitem "@define_plotfunc" begin
+    struct MyType end
+    struct MyTypeVec <: AbstractVector{Float64} end
 
-    MakieExtra.@define_plotfunc_conv image TT
-    MakieExtra.default_axis_attributes(::Type{Image}, ::Vector) = (;)
-    MakieExtra._convert_arguments_singlestep(::Type{Image}, ::Vector) = ([1 2; 3 4],)
+    MakieExtra.@define_plotfunc scatter MyType
+    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyType) = (;limits=((1, 2), (3, 4)))
+    Makie.convert_arguments(::Type{Scatter}, ::MyType) = ([1, 2, 3], [1, 2, 3])
 
-    scatter([1,2,3])
-    scatter(Observable([1,2,3]))
-    image([1,2,3])
-    image(Observable([1,2,3]))
+    MakieExtra.@define_plotfunc scatter MyTypeVec
+    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
+    Makie.expand_dimensions(::PointBased, ::MyTypeVec) = ([1, 2, 3], [1, 2, 3])
+
+    MakieExtra.@define_plotfunc image MyType
+    MakieExtra.default_axis_attributes(::Type{Image}, ::MyType) = (;limits=((1, 2), (3, 4)))
+    Makie.convert_arguments(CT::Type{Image}, ::MyType) = ([1 2; 3 4],)
+
+    MakieExtra.@define_plotfunc image MyTypeVec
+    MakieExtra.default_axis_attributes(::Type{Image}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
+    Makie.convert_arguments(CT::Type{Image}, ::MyTypeVec) = ([1 2; 3 4],)
+
+    @testset for plotf in (scatter, image),
+                 T in (MyType, MyTypeVec)
+        fig, ax, plt = plotf(T())
+        @test ax.limits[] === ((1, 2), (3, 4))
+        fig, ax, plt = plotf(Observable(T()))
+        @test ax.limits[] === ((1, 2), (3, 4))
+    end
+end
+
+@testitem "@define_plotfunc_conv" begin
+    struct MyType end
+    struct MyTypeVec <: AbstractVector{Float64} end
+
+    MakieExtra.@define_plotfunc_conv scatter MyType
+    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyType) = (;limits=((1, 2), (3, 4)))
+    MakieExtra._convert_arguments_singlestep(::Type{Scatter}, ::MyType) = ([1, 2, 3],)
+
+    MakieExtra.@define_plotfunc_conv scatter MyTypeVec
+    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
+    MakieExtra._convert_arguments_singlestep(::Type{Scatter}, ::MyTypeVec) = ([1, 2, 3],)
+
+    MakieExtra.@define_plotfunc_conv image MyType
+    MakieExtra.default_axis_attributes(::Type{Image}, ::MyType) = (;limits=((1, 2), (3, 4)))
+    MakieExtra._convert_arguments_singlestep(::Type{Image}, ::MyType) = ([1 2; 3 4],)
+
+    MakieExtra.@define_plotfunc_conv image MyTypeVec
+    MakieExtra.default_axis_attributes(::Type{Image}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
+    MakieExtra._convert_arguments_singlestep(::Type{Image}, ::MyTypeVec) = ([1 2; 3 4],)
+
+    @testset for plotf in (scatter, image),
+                 T in (MyType, MyTypeVec)
+        fig, ax, plt = plotf(T())
+        @test ax.limits[] === ((1, 2), (3, 4))
+        fig, ax, plt = plotf(Observable(T()))
+        @test ax.limits[] === ((1, 2), (3, 4))
+    end
 end
 
 @testitem "_" begin
