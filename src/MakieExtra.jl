@@ -11,6 +11,7 @@ using Makie.IntervalSets: width
 using Makie.Unitful
 using DataPipes
 import DataManipulation: shift_range
+using StructHelpers
 
 @reexport using Makie
 export Makie
