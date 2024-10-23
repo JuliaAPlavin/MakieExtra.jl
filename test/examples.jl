@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.43
+# v0.19.45
 
 using Markdown
 using InteractiveUtils
@@ -8,7 +8,7 @@ using InteractiveUtils
 using PlutoUI; TableOfContents()
 
 # ╔═╡ 9b4134d6-2755-11ef-08c1-03239a8c3986
-using MakieExtra; import CairoMakie
+using MakieExtra; import GLMakie
 
 # ╔═╡ cf72d61f-49a7-4db3-b9f5-9731820c410c
 using Colors
@@ -30,7 +30,9 @@ using Unitful
 
 # ╔═╡ 11e2cd0f-9948-4097-bf2b-009a3614ea55
 md"""
-# New recipes
+# Indicating scales
+
+Utilities to indicate scales of the plotted data: scalebar and zoom lines.
 """
 
 # ╔═╡ 8e65e21e-c28b-4b60-b6d1-de8a53ad5f3c
@@ -79,6 +81,11 @@ let
 	end
 end
 
+# ╔═╡ c6504e8d-7ef5-42a0-a978-dfedce9626d7
+md"""
+# New recipes
+"""
+
 # ╔═╡ d7bc9e8c-a208-47e5-bb06-0faa1a9c2463
 md"""
 ## Fast contourf
@@ -125,54 +132,130 @@ let
 	fig
 end
 
-# ╔═╡ 04d07684-0c2d-4551-a915-5c3134f67cf7
+# ╔═╡ d61b5912-5e22-4a1b-b024-fb82c0741a4e
 md"""
-## Plot function over the full x-limits
+## Lines with arrows
+
+Use the `arrowlines` recipe to draw arrowheads at the start and/or end of the line. By default, draws an arrowhead at the end.
+
+Control the arrow appearance with the `arrowstyle` argument, syntax is similar to that of matplotlib and should be intuitive:
 """
 
-# ╔═╡ d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
-md"""
-Similar to `Makie.ablines`, now we can plot arbitrary functions covering the full x-limits of axes. Just pass a function to plots like `lines`, `band`, `scatter`, etc!
-"""
-
-# ╔═╡ 9529f2de-82ec-44fb-b45e-45424dbca177
-lines(sin)
-
-# ╔═╡ 60a9dad0-0b74-465b-8972-dc1b24af7f3b
+# ╔═╡ 1b6eb1b9-af13-422f-979b-980e0f26a5b8
 let
-	fig, ax, plt = scatter(rand(100), color=Cycled(2))
-	scatterlines!(sin, color=Cycled(1))
-	fig
-end
-
-# ╔═╡ f2e8836b-d608-49c7-aa62-39594eea7697
-let
-	fig, ax, plt = scatter(range(0, 0.01, length=100), rand(100), color=Cycled(2))
-	scatterlines!(sin, color=Cycled(1))
-	fig
-end
-
-# ╔═╡ 007b2ac4-d5c6-4e71-8c50-09a3130f8abb
-band(x -> sin(x)..2abs(sin(x)))
-
-# ╔═╡ 0dc4e2d1-f74b-4d40-a271-220b42243f09
-md"""
-It's fully reactive, equipped to handle even the most complicated functions for any limit changes:
-"""
-
-# ╔═╡ 55be0296-4cc2-47f1-9578-866e4cdd2edd
-let
-	xlims = Observable(0. .. 10.)
-	fig,ax,plt = lines(x -> sin(1/x), axis=(limits=(@lift ($xlims, nothing)),))
-
-	Record(fig, (@p maprange(log, 10, 0.01, length=200) [__; reverse(__)])) do r
-		xlims[] = 0..r
+	xl = Observable(1.3)
+	arrowlines([(0, 0), (1, 0.5)], markersize=25, axis=(;limits=(@lift ((0, $xl), nothing))))
+	arrowlines!([(1.3, 0), (0.9, 0.5)], markersize=17, arrowstyle="<|..>", color=Cycled(2))
+	arrowlines!([(0.5, 0), (0.9, 0.55)], markersize=17, arrowstyle=">--|>", color=Cycled(3))
+	Record(current_figure(), @p range(1, 5, length=100) [__; reverse(__)]) do x_
+		xl[] = x_
 	end
+end
+
+# ╔═╡ 92464940-cc18-4326-97a2-cf9c9f14a3cd
+md"""
+## Multiple plots with the same data
+
+`Makie` provides recipes that just combine two underlying recipes, such as `scatterlines`. This is convenient for commonly-used operations.
+
+Here, we define a generic version of recipe combination: `multiplot(plottypes, args...)`:
+"""
+
+# ╔═╡ 64bf16ee-67ac-4ec8-9dd3-319b637dd41a
+let
+	fig = Figure(size=(1000, 550))
+
+	# like scatterlines:
+	multiplot(fig[1,1], (Scatter, Lines), rand(100))
+
+	# but can combine arbitrary recipes:
+	multiplot(fig[1,2], (Band, Rangebars), 1:20, x -> sin(x) ± abs(cos(x)))
+
+	# common attributes are passed to all recipes:
+	multiplot(fig[2,1], (Band, Rangebars), 1:20, x -> sin(x) ± abs(cos(x)), color=(:blue, 0.1))
+
+	# attributes can also be specified for individual recipes:
+	multiplot(fig[2,2], (Band => (;color=(:blue, 0.1)), Rangebars), 1:20, x -> sin(x) ± abs(cos(x)))
+
+	fig
+end
+
+# ╔═╡ 75934f79-effa-4fa9-a4bb-0e3ffd14a86a
+md"""
+## Glowing lines and text
+"""
+
+# ╔═╡ b77c3ed3-b467-4322-a070-c89df4fef022
+md"""
+`Makie` doesn't provide glowing lines directly, so we define `LinesGlow` recipe here:
+"""
+
+# ╔═╡ 4711f57a-c534-427d-9681-81425fe2b922
+let
+	Axis(Figure()[1,1], xautolimitmargin=(0,-0.1))
+	a = Observable(0.)
+	c1 = Observable(RGB(1., 0, 0))
+	c2 = Observable(RGB(1., 0, 0))
+	linesglow!(0..5, (@lift x->sin(x^2 + $a)), glowwidth=10, color=c1, label="A")
+	linesglow!(0..5, (@lift x->-sin(x^2 + $a)), color=:black, glowwidth=50, glowcolor=(@lift ($c2, 0.4)), label="B")
+
+	axislegend()
+
+	Record(current_figure(), range(0, 1, length=70)) do t
+		a[] = Animation(
+			0, 0.,
+			Animations.linear(),
+			1, 2π
+		)(t)
+		c1[] = Animation(
+			0, RGB(1., 0, 0),
+			Animations.linear(n=4, yoyo=true),
+			1, RGB(0, 1., 0),
+		)(t)
+		c2[] = Animation(
+			0, RGB(1., 0, 0),
+			Animations.linear(n=2, yoyo=true),
+			1, RGB(0, 0, 1.),
+		)(t)
+	end
+end
+
+# ╔═╡ 9d7f49b7-849b-4ee6-ab8c-ef4e707be8e1
+md"""
+`Makie` supports glowing text, but it has clear artifacts. The `TextGlow` recipe from `MakieExtra` is free from them:
+"""
+
+# ╔═╡ 969c858a-91c8-4d66-8d7c-6817afa1579f
+let
+	fig = Figure()
+	ax = Axis(fig[1,1], limits=(0.5..5, 0..5))
+	for (i, w) in enumerate([1, 5, 10, 30])
+		text!((1,i), text="Native Makie – Glowing Text", glowwidth=w, glowcolor=(:lightgreen, 0.8))
+	end
+	for (i, w) in enumerate([1, 5, 10, 30])
+		textglow!((3,i), text="MakieExtra – Glowing Text", glowwidth=w, glowcolor=(:lightgreen, 0.8))
+	end
+	current_figure()
+end
+
+# ╔═╡ 20ce357b-4ebd-4927-a3dc-b19d925b8f4b
+md"""
+## Band with stroke
+
+The `bandstroke` recipe: like `band`, but supports `strokewidth` and `strokecolor`:
+"""
+
+# ╔═╡ 905a39c6-89b0-402f-a732-76b719ea1004
+let
+	fig = Figure(size=(800, 300))
+	bandstroke(fig[1,1], 0..5, x -> sin(x) ± abs(cos(x)), alpha=0.5)
+	bandstroke(fig[1,2], 0..5, x -> sin(x) ± abs(cos(x)), strokewidth=5, strokecolor=:red)
+	fig
 end
 
 # ╔═╡ e8f92e7f-371d-4451-82a4-1ef5bf2e9295
 md"""
-# Scales, ticks
+# Axis/color scales, ticks
 """
 
 # ╔═╡ 43e63ef3-7883-4989-81d4-212e3d9843b0
@@ -243,68 +326,51 @@ end
 # ╔═╡ 69808d10-8370-4be6-9c29-333472f5dd76
 md"""
 # Various extensions
+
+Anything that doesn't fit into the above categories.
 """
 
-# ╔═╡ 75934f79-effa-4fa9-a4bb-0e3ffd14a86a
+# ╔═╡ 04d07684-0c2d-4551-a915-5c3134f67cf7
 md"""
-## Glowing lines and text
+## Plot function over the full x-limits
 """
 
-# ╔═╡ b77c3ed3-b467-4322-a070-c89df4fef022
+# ╔═╡ d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
 md"""
-`Makie` doesn't provide glowing lines directly, so we define `LinesGlow` recipe here:
+Similar to `Makie.ablines`, now we can plot arbitrary functions covering the full x-limits of axes. Just pass a function to plots like `lines`, `band`, `scatter`, etc!
 """
 
-# ╔═╡ 4711f57a-c534-427d-9681-81425fe2b922
+# ╔═╡ 9529f2de-82ec-44fb-b45e-45424dbca177
 let
-	Axis(Figure()[1,1], xautolimitmargin=(0,-0.1))
-	a = Observable(0.)
-	c1 = Observable(RGB(1., 0, 0))
-	c2 = Observable(RGB(1., 0, 0))
-	linesglow!(0..5, (@lift x->sin(x^2 + $a)), glowwidth=10, color=c1)
-	linesglow!(0..5, (@lift x->-sin(x^2 + $a)), color=:black, glowwidth=50, glowcolor=@lift ($c2, 0.4))
+	fig = Figure(size=(1000, 600))
+	
+	lines(fig[1,1], sin)
+	
+	scatter(fig[2,1], rand(100), color=Cycled(2))
+	scatterlines!(sin, color=Cycled(1), markersize=3)
+	
+	scatter(fig[2,2], range(0, 0.01, length=100), rand(100), color=Cycled(2))
+	scatterlines!(sin, color=Cycled(1))
 
-	Record(current_figure(), range(0, 1, length=70)) do t
-		a[] = Animation(
-			0, 0.,
-			Animations.linear(),
-			1, 2π
-		)(t)
-		c1[] = Animation(
-			0, RGB(1., 0, 0),
-			Animations.linear(n=4, yoyo=true),
-			1, RGB(0, 1., 0),
-		)(t)
-		c2[] = Animation(
-			0, RGB(1., 0, 0),
-			Animations.linear(n=2, yoyo=true),
-			1, RGB(0, 0, 1.),
-		)(t)
-	end
+	band(fig[1,2], x -> sin(x)..2abs(sin(x)))
+
+	fig
 end
 
-# ╔═╡ 9d7f49b7-849b-4ee6-ab8c-ef4e707be8e1
+# ╔═╡ 0dc4e2d1-f74b-4d40-a271-220b42243f09
 md"""
-`Makie` supports glowing text, but it has clear artifacts. The `TextGlow` recipe from `MakieExtra` is free from them:
+It's fully reactive, equipped to handle even the most complicated functions for any limit changes:
 """
 
-# ╔═╡ 969c858a-91c8-4d66-8d7c-6817afa1579f
+# ╔═╡ 55be0296-4cc2-47f1-9578-866e4cdd2edd
 let
-	fig = Figure()
-	ax = Axis(fig[1,1], limits=(0.5..5, 0..5))
-	for (i, w) in enumerate([1, 5, 10, 30])
-		text!((1,i), text="Native Makie – Glowing Text", glowwidth=w, glowcolor=(:lightgreen, 0.8))
-	end
-	for (i, w) in enumerate([1, 5, 10, 30])
-		textglow!((3,i), text="MakieExtra – Glowing Text", glowwidth=w, glowcolor=(:lightgreen, 0.8))
-	end
-	current_figure()
-end
+	xlims = Observable(0. .. 10.)
+	fig,ax,plt = lines(x -> sin(1/x), axis=(limits=(@lift ($xlims, nothing)),))
 
-# ╔═╡ 1ca5b738-a1f5-4e3e-b553-439e43db7eb5
-md"""
-_Note: you may not see the glow on the online rendered version of this notebook. That means glowing isn't supported in CairoMakie, and GLMakie cannot easily be installed on Github Actions._
-"""
+	Record(fig, (@p maprange(log, 10, 0.01, length=200) [__; reverse(__)])) do r
+		xlims[] = 0..r
+	end
+end
 
 # ╔═╡ b35e98bd-8ef8-4ba2-aae8-e4d85aa8214c
 md"""
@@ -321,9 +387,9 @@ let
 	scatter!(1 .+ rand(n), rand(n), marker=(@lift marker_lw(:vline, $w)), markersize=30, label="MakieExtra marker_lw(:vline, w)")
 	scatter!(rand(n), 1 .+ rand(n), marker=(@lift marker_lw(:hline, $w)), markersize=30, label="MakieExtra marker_lw(:hline, w)")
 	scatter!(1 .+ rand(n), 1 .+ rand(n), marker=(@lift marker_lw(:cross, $w)), markersize=30, label="MakieExtra marker_lw(:cross, w)")
-	# axislegend()
+
 	fig[1,2] = Legend(fig, ax, (@lift "w = $(round($w, digits=2))"), pos=(0.5, 0.5))
-	Record(fig, range(0, 1, length=100), framerate=20) do t
+	r = Record(fig, range(0, 1, length=100), framerate=20) do t
 		w[] = Animation(
 			0, 0.1,
 			Animations.linear(postwait=0.3),
@@ -344,9 +410,9 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
 AxisKeysExtra = "b7a0d2b7-1990-46dc-b5dd-87820ecd1b09"
-CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 DataManipulation = "38052440-ad76-4236-8414-61389b2c5143"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
 MakieExtra = "54e234d5-9986-40d8-815f-a5e42de435f6"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
@@ -355,15 +421,15 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 Animations = "~0.4.1"
-AxisKeysExtra = "~0.1.11"
-CairoMakie = "~0.12.5"
+AxisKeysExtra = "~0.1.12"
 Colors = "~0.12.11"
-DataManipulation = "~0.1.16"
+DataManipulation = "~0.1.17"
+GLMakie = "~0.10.5"
 IntervalSets = "~0.7.10"
-MakieExtra = "~0.1.16"
+MakieExtra = "~0.1.22"
 PlutoUI = "~0.7.59"
 RectiGrids = "~0.1.18"
-Unitful = "~1.20.0"
+Unitful = "~1.21.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -372,7 +438,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.4"
 manifest_format = "2.0"
-project_hash = "f3dc9f97fbfe60c2e93dd246366ade33fed9b40e"
+project_hash = "47a547b2290d461e6b938e56c4d049b4669c149c"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -398,9 +464,9 @@ version = "0.4.5"
 
 [[deps.Accessors]]
 deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
-git-tree-sha1 = "c0d491ef0b135fd7d63cbc6404286bc633329425"
+git-tree-sha1 = "f61b15be1d76846c0ce31d3fcfac5380ae53db6a"
 uuid = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
-version = "0.1.36"
+version = "0.1.37"
 weakdeps = ["AxisKeys", "IntervalSets", "Requires", "StaticArrays", "StructArrays", "Unitful"]
 
     [deps.Accessors.extensions]
@@ -412,9 +478,9 @@ weakdeps = ["AxisKeys", "IntervalSets", "Requires", "StaticArrays", "StructArray
 
 [[deps.AccessorsExtra]]
 deps = ["Accessors", "CompositionsBase", "ConstructionBase", "DataPipes", "InverseFunctions", "LinearAlgebra", "Reexport", "Test"]
-git-tree-sha1 = "08725732bfd08ea489b7e729b7581beb4cad5239"
+git-tree-sha1 = "e1cf45cc93de4f4f659110be4bde0e853d79a760"
 uuid = "33016aad-b69d-45be-9359-82a41f556fd4"
-version = "0.1.75"
+version = "0.1.77"
 
     [deps.AccessorsExtra.extensions]
     ColorTypesExt = "ColorTypes"
@@ -452,6 +518,11 @@ weakdeps = ["StaticArrays"]
 
     [deps.Adapt.extensions]
     AdaptStaticArraysExt = "StaticArrays"
+
+[[deps.AdaptivePredicates]]
+git-tree-sha1 = "7d5da5dd472490d048b081ca1bda4a7821b06456"
+uuid = "35492f91-a3bd-45ad-95db-fcad7dcfedb7"
+version = "1.1.1"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -518,9 +589,9 @@ version = "0.2.14"
 
 [[deps.AxisKeysExtra]]
 deps = ["AxisKeys", "Reexport", "StructArrays"]
-git-tree-sha1 = "6b533fa97b6fdc3d48006b8a410df439aeb14ab9"
+git-tree-sha1 = "9fce944b34cb67bfd391f82fd82286e7c0f3d7d2"
 uuid = "b7a0d2b7-1990-46dc-b5dd-87820ecd1b09"
-version = "0.1.11"
+version = "0.1.12"
 
     [deps.AxisKeysExtra.extensions]
     DimensionalDataExt = "DimensionalData"
@@ -559,18 +630,6 @@ git-tree-sha1 = "e329286945d0cfc04456972ea732551869af1cfc"
 uuid = "4e9b3aee-d8a1-5a3d-ad8b-7d824db253f0"
 version = "1.0.1+0"
 
-[[deps.Cairo]]
-deps = ["Cairo_jll", "Colors", "Glib_jll", "Graphics", "Libdl", "Pango_jll"]
-git-tree-sha1 = "d0b3f8b4ad16cb0a2988c6788646a5e6a17b6b1b"
-uuid = "159f3aea-2a34-519c-b102-8c37f9878175"
-version = "1.0.5"
-
-[[deps.CairoMakie]]
-deps = ["CRC32c", "Cairo", "Cairo_jll", "Colors", "FileIO", "FreeType", "GeometryBasics", "LinearAlgebra", "Makie", "PrecompileTools"]
-git-tree-sha1 = "e4da5095557f24713bae4c9f50e34ff4d3b959c0"
-uuid = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-version = "0.12.5"
-
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
 git-tree-sha1 = "a2f1c8c668c8e3cb4cca4e57a8efdb09067bb3fd"
@@ -601,9 +660,9 @@ version = "0.4.0"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "4b270d6465eb21ae89b732182c20dc165f8bf9f2"
+git-tree-sha1 = "b5278586822443594ff615963b0c09755771b3e0"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.25.0"
+version = "3.26.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -658,9 +717,9 @@ weakdeps = ["InverseFunctions"]
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "260fd2400ed2dab602a7c15cf10c1933c59930a2"
+git-tree-sha1 = "d8a9c0b6ac2d9081bf76324b39c78ca3ce4f0c98"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.5.5"
+version = "1.5.6"
 weakdeps = ["IntervalSets", "StaticArrays"]
 
     [deps.ConstructionBase.extensions]
@@ -679,9 +738,9 @@ version = "1.16.0"
 
 [[deps.DataManipulation]]
 deps = ["Accessors", "AccessorsExtra", "DataPipes", "Dictionaries", "FlexiGroups", "FlexiMaps", "InverseFunctions", "Reexport", "Skipper", "StructArrays"]
-git-tree-sha1 = "cb78875af54391b0e30732bd25d571186a59953d"
+git-tree-sha1 = "9c5e6d93afa406596c1132cb452d00feb7d4dbe7"
 uuid = "38052440-ad76-4236-8414-61389b2c5143"
-version = "0.1.16"
+version = "0.1.17"
 weakdeps = ["IntervalSets"]
 
     [deps.DataManipulation.extensions]
@@ -708,10 +767,10 @@ deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[deps.DelaunayTriangulation]]
-deps = ["EnumX", "ExactPredicates", "Random"]
-git-tree-sha1 = "078c716cbb032242df18b960e8b1fec6b1b0b9f9"
+deps = ["AdaptivePredicates", "EnumX", "ExactPredicates", "Random"]
+git-tree-sha1 = "1abb6a8541775a0bf82749ac8373a34e9f2f71e0"
 uuid = "927a84f5-c5f4-47a5-9785-b46e178433df"
-version = "1.0.5"
+version = "1.1.1"
 
 [[deps.Dictionaries]]
 deps = ["Indexing", "Random", "Serialization"]
@@ -766,6 +825,12 @@ version = "2.2.4+0"
 git-tree-sha1 = "bdb1942cd4c45e3c678fd11569d5cccd80976237"
 uuid = "4e289a0a-7415-4d19-859d-a7e5c4648b56"
 version = "1.0.4"
+
+[[deps.EpollShim_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "8e9441ee83492030ace98f9789a654a6d0b1f643"
+uuid = "2702e6a9-849d-5ed8-8c21-79e8b8f9ee43"
+version = "0.0.20230411+0"
 
 [[deps.ExactPredicates]]
 deps = ["IntervalArithmetic", "Random", "StaticArrays"]
@@ -908,6 +973,24 @@ git-tree-sha1 = "1ed150b39aebcc805c26b93a8d0122c940f64ce2"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
 version = "1.0.14+0"
 
+[[deps.GLFW]]
+deps = ["GLFW_jll"]
+git-tree-sha1 = "7ed24cfc4cb29fb10c0e8cca871ddff54c32a4c3"
+uuid = "f7f18e0c-5ee9-5ccd-a5bf-e8befd85ed98"
+version = "3.4.3"
+
+[[deps.GLFW_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "xkbcommon_jll"]
+git-tree-sha1 = "3f74912a156096bd8fdbef211eff66ab446e7297"
+uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
+version = "3.4.0+0"
+
+[[deps.GLMakie]]
+deps = ["ColorTypes", "Colors", "FileIO", "FixedPointNumbers", "FreeTypeAbstraction", "GLFW", "GeometryBasics", "LinearAlgebra", "Makie", "Markdown", "MeshIO", "ModernGL", "Observables", "PrecompileTools", "Printf", "ShaderAbstractions", "StaticArrays"]
+git-tree-sha1 = "a4cf5ae3c181a9df5e94d83bacd190af6e2f6f6e"
+uuid = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+version = "0.10.5"
+
 [[deps.GeoInterface]]
 deps = ["Extents"]
 git-tree-sha1 = "9fff8990361d5127b770e3454488360443019bb3"
@@ -931,12 +1014,6 @@ deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libic
 git-tree-sha1 = "7c82e6a6cd34e9d935e9aa4051b66c6ff3af59ba"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
 version = "2.80.2+0"
-
-[[deps.Graphics]]
-deps = ["Colors", "LinearAlgebra", "NaNMath"]
-git-tree-sha1 = "d61890399bc535850c4bf08e4e0d3a7ad0f21cbd"
-uuid = "a2bd30eb-e257-5431-a919-1863eab51364"
-version = "1.1.2"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1089,9 +1166,9 @@ version = "0.7.10"
 
 [[deps.InverseFunctions]]
 deps = ["Test"]
-git-tree-sha1 = "e7cbed5032c4c397a6ac23d1493f3289e01231c4"
+git-tree-sha1 = "18c59411ece4838b18cd7f537e56cf5e41ce5bfd"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.14"
+version = "0.1.15"
 weakdeps = ["Dates"]
 
     [deps.InverseFunctions.extensions]
@@ -1219,6 +1296,12 @@ git-tree-sha1 = "9fd170c4bbfd8b935fdc5f8b7aa33532c991a673"
 uuid = "d4300ac3-e22c-5743-9152-c294e39db1e4"
 version = "1.8.11+0"
 
+[[deps.Libglvnd_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll", "Xorg_libXext_jll"]
+git-tree-sha1 = "6f73d1dd803986947b2c750138528a999a6c7733"
+uuid = "7e76a0d4-f3c7-5321-8279-8d96eeed0f29"
+version = "1.6.0+0"
+
 [[deps.Libgpg_error_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "fbb1f2bef882392312feb1ede3615ddc1e9b99ed"
@@ -1296,10 +1379,14 @@ uuid = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
 version = "0.8.4"
 
 [[deps.MakieExtra]]
-deps = ["Accessors", "DataManipulation", "DataPipes", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport"]
-git-tree-sha1 = "0617a95bd01c2283d52625923d896aa4c63d4256"
+deps = ["AccessorsExtra", "DataManipulation", "DataPipes", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport", "StructHelpers"]
+git-tree-sha1 = "62e9cf6ddec5741eab7ada29eda87b97123a753b"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
-version = "0.1.16"
+version = "0.1.22"
+weakdeps = ["Unitful"]
+
+    [deps.MakieExtra.extensions]
+    UnitfulExt = "Unitful"
 
 [[deps.MappedArrays]]
 git-tree-sha1 = "2dab0221fe2b0f2cb6754eaa743cc266339f527e"
@@ -1312,14 +1399,20 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MathTeXEngine]]
 deps = ["AbstractTrees", "Automa", "DataStructures", "FreeTypeAbstraction", "GeometryBasics", "LaTeXStrings", "REPL", "RelocatableFolders", "UnicodeFun"]
-git-tree-sha1 = "1865d0b8a2d91477c8b16b49152a32764c7b1f5f"
+git-tree-sha1 = "e1641f32ae592e415e3dbae7f4a188b5316d4b62"
 uuid = "0a4f8689-d25c-4efe-a92b-7142dfc1aa53"
-version = "0.6.0"
+version = "0.6.1"
 
 [[deps.MbedTLS_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 version = "2.28.2+1"
+
+[[deps.MeshIO]]
+deps = ["ColorTypes", "FileIO", "GeometryBasics", "Printf"]
+git-tree-sha1 = "dc182956229ff16d5a4d90a562035e633bd2561d"
+uuid = "7269a6da-0436-5bbc-96c2-40638cbb6118"
+version = "0.4.12"
 
 [[deps.Missings]]
 deps = ["DataAPI"]
@@ -1329,6 +1422,12 @@ version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+
+[[deps.ModernGL]]
+deps = ["Libdl"]
+git-tree-sha1 = "b76ea40b5c0f45790ae09492712dd326208c28b2"
+uuid = "66fc600b-dfda-50eb-8b99-91cfa97b1301"
+version = "1.1.7"
 
 [[deps.MosaicViews]]
 deps = ["MappedArrays", "OffsetArrays", "PaddedViews", "StackViews"]
@@ -1469,12 +1568,6 @@ git-tree-sha1 = "0fac6313486baae819364c52b4f483450a9d793f"
 uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
 version = "0.5.12"
 
-[[deps.Pango_jll]]
-deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "cb5a2ab6763464ae0f19c86c56c63d4a2b0f5bda"
-uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
-version = "1.52.2+0"
-
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
 git-tree-sha1 = "8489905bcdbcfac64d1daa51ca07c0d8f0283821"
@@ -1533,9 +1626,9 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.ProgressMeter]]
 deps = ["Distributed", "Printf"]
-git-tree-sha1 = "763a8ceb07833dd51bb9e3bbca372de32c0605ad"
+git-tree-sha1 = "8f6bc219586aef8baf0ff9a5fe16ee9c70cb65e4"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
-version = "1.10.0"
+version = "1.10.2"
 
 [[deps.PtrArrays]]
 git-tree-sha1 = "f011fbb92c4d401059b2212c05c0601b70f8b759"
@@ -1556,9 +1649,9 @@ version = "1.0.0"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
-git-tree-sha1 = "9b23c31e76e333e6fb4c1595ae6afa74966a729e"
+git-tree-sha1 = "e237232771fdafbae3db5c31275303e056afaa9f"
 uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.9.4"
+version = "2.10.1"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -1786,6 +1879,12 @@ version = "0.6.18"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
+[[deps.StructHelpers]]
+deps = ["ConstructionBase"]
+git-tree-sha1 = "8e678449dd7a5b82bd940a4589ae68a28a049a1d"
+uuid = "4093c41a-2008-41fd-82b8-e3f9d02b504f"
+version = "1.1.2"
+
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
@@ -1807,10 +1906,10 @@ uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
 version = "1.0.1"
 
 [[deps.Tables]]
-deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "LinearAlgebra", "OrderedCollections", "TableTraits"]
-git-tree-sha1 = "cb76cf677714c095e535e3501ac7954732aeea2d"
+deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
+git-tree-sha1 = "598cd7c1f68d1e205689b1c2fe65a9f85846f297"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.11.1"
+version = "1.12.0"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -1834,18 +1933,18 @@ uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
 version = "0.10.0"
 
 [[deps.TranscodingStreams]]
-git-tree-sha1 = "60df3f8126263c0d6b357b9a1017bb94f53e3582"
+git-tree-sha1 = "96612ac5365777520c3c5396314c8cf7408f436a"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.11.0"
+version = "0.11.1"
 weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
     TestExt = ["Test", "Random"]
 
 [[deps.Tricks]]
-git-tree-sha1 = "eae1bb484cd63b36999ee58be2de6c178105112f"
+git-tree-sha1 = "7822b97e99a1672bfb1b49b668a6d46d58d8cbcb"
 uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.8"
+version = "0.1.9"
 
 [[deps.TriplotBase]]
 git-tree-sha1 = "4d4ed7f294cda19382ff7de4c137d24d16adc89b"
@@ -1872,14 +1971,26 @@ version = "0.4.1"
 
 [[deps.Unitful]]
 deps = ["Dates", "LinearAlgebra", "Random"]
-git-tree-sha1 = "dd260903fdabea27d9b6021689b3cd5401a57748"
+git-tree-sha1 = "d95fe458f26209c66a187b1114df96fd70839efd"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.20.0"
+version = "1.21.0"
 weakdeps = ["ConstructionBase", "InverseFunctions"]
 
     [deps.Unitful.extensions]
     ConstructionBaseUnitfulExt = "ConstructionBase"
     InverseFunctionsUnitfulExt = "InverseFunctions"
+
+[[deps.Wayland_jll]]
+deps = ["Artifacts", "EpollShim_jll", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
+git-tree-sha1 = "7558e29847e99bc3f04d6569e82d0f5c54460703"
+uuid = "a2964d1f-97da-50d4-b82a-358c7fce9d89"
+version = "1.21.0+1"
+
+[[deps.Wayland_protocols_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "93f43ab61b16ddfb2fd3bb13b3ce241cafb0e6c9"
+uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
+version = "1.31.0+0"
 
 [[deps.WoodburyMatrices]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -1911,6 +2022,12 @@ git-tree-sha1 = "6035850dcc70518ca32f012e46015b9beeda49d8"
 uuid = "0c0b7dd1-d40b-584c-a123-a41640f87eec"
 version = "1.0.11+0"
 
+[[deps.Xorg_libXcursor_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libXfixes_jll", "Xorg_libXrender_jll"]
+git-tree-sha1 = "12e0eb3bc634fa2080c1c37fccf56f7c22989afd"
+uuid = "935fb764-8cf2-53bf-bb30-45bb1f8bf724"
+version = "1.2.0+4"
+
 [[deps.Xorg_libXdmcp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "34d526d318358a859d7de23da945578e8e8727b7"
@@ -1922,6 +2039,30 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
 git-tree-sha1 = "d2d1a5c49fae4ba39983f63de6afcbea47194e85"
 uuid = "1082639a-0dae-5f34-9b06-72781eeb8cb3"
 version = "1.3.6+0"
+
+[[deps.Xorg_libXfixes_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libX11_jll"]
+git-tree-sha1 = "0e0dc7431e7a0587559f9294aeec269471c991a4"
+uuid = "d091e8ba-531a-589c-9de9-94069b037ed8"
+version = "5.0.3+4"
+
+[[deps.Xorg_libXi_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libXext_jll", "Xorg_libXfixes_jll"]
+git-tree-sha1 = "89b52bc2160aadc84d707093930ef0bffa641246"
+uuid = "a51aa0fd-4e3c-5386-b890-e753decda492"
+version = "1.7.10+4"
+
+[[deps.Xorg_libXinerama_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libXext_jll"]
+git-tree-sha1 = "26be8b1c342929259317d8b9f7b53bf2bb73b123"
+uuid = "d1454406-59df-5ea1-beac-c340f2130bc3"
+version = "1.1.4+4"
+
+[[deps.Xorg_libXrandr_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libXext_jll", "Xorg_libXrender_jll"]
+git-tree-sha1 = "34cea83cb726fb58f325887bf0612c6b3fb17631"
+uuid = "ec84b674-ba8e-5d96-8ba1-2a689ba10484"
+version = "1.5.2+4"
 
 [[deps.Xorg_libXrender_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
@@ -1940,6 +2081,24 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "XSLT_jll", "Xorg_libXau_jll", "Xor
 git-tree-sha1 = "bcd466676fef0878338c61e655629fa7bbc69d8e"
 uuid = "c7cfdc94-dc32-55de-ac96-5a1b8d977c5b"
 version = "1.17.0+0"
+
+[[deps.Xorg_libxkbfile_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libX11_jll"]
+git-tree-sha1 = "730eeca102434283c50ccf7d1ecdadf521a765a4"
+uuid = "cc61e674-0454-545c-8b26-ed2c68acab7a"
+version = "1.1.2+0"
+
+[[deps.Xorg_xkbcomp_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_libxkbfile_jll"]
+git-tree-sha1 = "330f955bc41bb8f5270a369c473fc4a5a4e4d3cb"
+uuid = "35661453-b289-5fab-8a00-3d9160c6a3a4"
+version = "1.4.6+0"
+
+[[deps.Xorg_xkeyboard_config_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Xorg_xkbcomp_jll"]
+git-tree-sha1 = "691634e5453ad362044e2ad653e79f3ee3bb98c3"
+uuid = "33bec58e-1273-512f-9401-5d533626f822"
+version = "2.39.0+0"
 
 [[deps.Xorg_xtrans_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1995,9 +2154,9 @@ version = "1.10.3+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
+git-tree-sha1 = "490376214c4721cdaca654041f635213c6165cb3"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+1"
+version = "1.3.7+2"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -2026,6 +2185,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "ee567a171cce03570d77ad3a43e90218e38937a9"
 uuid = "dfaa095f-4041-5dcd-9319-2fabd8486b76"
 version = "3.5.0+0"
+
+[[deps.xkbcommon_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Wayland_jll", "Wayland_protocols_jll", "Xorg_libxcb_jll", "Xorg_xkeyboard_config_jll"]
+git-tree-sha1 = "9c304562909ab2bab0262639bd4f444d7bc2be37"
+uuid = "d8fb68d0-12a3-5cfd-a85a-d49703b185fd"
+version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
@@ -2036,19 +2201,23 @@ version = "3.5.0+0"
 # ╟─3526c688-aea9-411b-a837-dc02ff81a7ee
 # ╟─bd7e6900-e660-4a10-b810-0ad2a66c3ea5
 # ╠═9f008eee-6986-4ae4-9945-d854f75b7ed1
+# ╠═c6504e8d-7ef5-42a0-a978-dfedce9626d7
 # ╟─d7bc9e8c-a208-47e5-bb06-0faa1a9c2463
 # ╟─dc93b904-81df-4a68-8936-938a9b095e5b
 # ╠═ced6cd2b-eedb-4024-985d-662b7572a731
 # ╠═7daaf5c0-fa53-4c87-a2f2-cf2641958232
 # ╠═6a05f9cd-bdbc-4a04-b4b3-309a721c0b18
-# ╟─04d07684-0c2d-4551-a915-5c3134f67cf7
-# ╟─d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
-# ╠═9529f2de-82ec-44fb-b45e-45424dbca177
-# ╠═60a9dad0-0b74-465b-8972-dc1b24af7f3b
-# ╠═f2e8836b-d608-49c7-aa62-39594eea7697
-# ╠═007b2ac4-d5c6-4e71-8c50-09a3130f8abb
-# ╟─0dc4e2d1-f74b-4d40-a271-220b42243f09
-# ╠═55be0296-4cc2-47f1-9578-866e4cdd2edd
+# ╟─d61b5912-5e22-4a1b-b024-fb82c0741a4e
+# ╠═1b6eb1b9-af13-422f-979b-980e0f26a5b8
+# ╟─92464940-cc18-4326-97a2-cf9c9f14a3cd
+# ╠═64bf16ee-67ac-4ec8-9dd3-319b637dd41a
+# ╟─75934f79-effa-4fa9-a4bb-0e3ffd14a86a
+# ╟─b77c3ed3-b467-4322-a070-c89df4fef022
+# ╠═4711f57a-c534-427d-9681-81425fe2b922
+# ╟─9d7f49b7-849b-4ee6-ab8c-ef4e707be8e1
+# ╠═969c858a-91c8-4d66-8d7c-6817afa1579f
+# ╟─20ce357b-4ebd-4927-a3dc-b19d925b8f4b
+# ╠═905a39c6-89b0-402f-a732-76b719ea1004
 # ╟─e8f92e7f-371d-4451-82a4-1ef5bf2e9295
 # ╟─43e63ef3-7883-4989-81d4-212e3d9843b0
 # ╟─40da1797-a79f-45d1-9efe-9b8def36b636
@@ -2058,12 +2227,11 @@ version = "3.5.0+0"
 # ╟─57384e49-c43b-4294-8338-92356bea96e1
 # ╠═01d80794-c229-46c6-b2fb-db4f7e54ad9c
 # ╟─69808d10-8370-4be6-9c29-333472f5dd76
-# ╟─75934f79-effa-4fa9-a4bb-0e3ffd14a86a
-# ╟─b77c3ed3-b467-4322-a070-c89df4fef022
-# ╠═4711f57a-c534-427d-9681-81425fe2b922
-# ╟─9d7f49b7-849b-4ee6-ab8c-ef4e707be8e1
-# ╠═969c858a-91c8-4d66-8d7c-6817afa1579f
-# ╟─1ca5b738-a1f5-4e3e-b553-439e43db7eb5
+# ╟─04d07684-0c2d-4551-a915-5c3134f67cf7
+# ╟─d16cae1b-a3fe-4fb8-93fd-a106f50df9ee
+# ╠═9529f2de-82ec-44fb-b45e-45424dbca177
+# ╟─0dc4e2d1-f74b-4d40-a271-220b42243f09
+# ╠═55be0296-4cc2-47f1-9578-866e4cdd2edd
 # ╟─b35e98bd-8ef8-4ba2-aae8-e4d85aa8214c
 # ╠═bc22e2e0-df92-4beb-b98a-aa4bfa4b04ac
 # ╟─bb711dab-bb26-4a76-9610-2ce43a4d6984
