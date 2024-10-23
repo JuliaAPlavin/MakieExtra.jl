@@ -40,6 +40,7 @@ end
     MakieExtra._convert_arguments_singlestep(::Type{Image}, ::Vector) = ([1 2; 3 4],)
 
     scatter([1,2,3])
+    scatter(Observable([1,2,3]))
     image([1,2,3])
     image(Observable([1,2,3]))
 end
