@@ -51,6 +51,8 @@ end
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt), linewidth=15)
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 15
+    plt = lines!(1:10, Observable(FPlot(x->x+1, (@o _^2), color=sqrt, linewidth=Ref(10))))
+    @test plt.linewidth[] == 10
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
 end
 
@@ -71,6 +73,29 @@ end
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(ylabel="Abc",)), doaxis=true)
+    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
+    @test content(fig[1,1]).xlabel[] == "_ + 1"
+    @test content(fig[1,1]).ylabel[] == "Abc"
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+end
+
+@testitem "axplot" begin
+    using Accessors
+    using CairoMakie
+
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), axis=(ylabel="Abc",))
+    lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
+    @test content(fig[1,1]).xlabel[] == ""
+    @test content(fig[1,1]).ylabel[] == "Abc"
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+
+    ax, plt = axplot(lines)(current_figure()[2,1], FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), axis=(ylabel="Abc",))
+    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
+    @test content(fig[2,1]).xlabel[] == "_ + 1"
+    @test content(fig[2,1]).ylabel[] == "Abc"
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+
+    fig, ax, plt = axplot(lines, autolimits_refresh=false)(Observable(FPlot(1:10, (@o _+1), (@o _^2); color=sqrt, axis=(ylabel="Abc",))))
     lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
     @test content(fig[1,1]).xlabel[] == "_ + 1"
     @test content(fig[1,1]).ylabel[] == "Abc"
@@ -343,7 +368,7 @@ end
 
     fig,_,_ = with_widgets(scatter, [dc, rs])(fplt1, doaxis=true)
 
-    with_widgets(hist, [dc, rs])(fig[2,1], fplt1, doaxis=true)
+    axplot(hist, widgets=[dc, rs])(fig[2,1], fplt1)
 
     fplt2 = @set fplt1[1] = @o _[3]
     with_widgets(scatter, [dc, rs])(fig[1,2], fplt2, doaxis=true, _axis=(;yscale=SymLog(0.1)))
