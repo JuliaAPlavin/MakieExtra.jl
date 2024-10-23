@@ -68,7 +68,7 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwarg
                 return Consume(true)
             end
         catch e
-            @warn "" e
+            @warn "" (e,catch_backtrace())
             return Consume(true)
         end
     end
