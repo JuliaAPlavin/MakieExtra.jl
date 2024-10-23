@@ -178,7 +178,7 @@ end
     @test content(fig[1,1]).xlabel[] == "+(_, 1)"
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), linewidth=10)
     @test ax.xlabel[] == ""
-    # @test plt.linewidth[]
+    @test plt.linewidth[] == 10
     plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
     plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=Ref(:black)), doaxis=true)
     plt = lines!(FPlot(1:10, x->x+1, (@o _^2), color=sqrt), linewidth=15)
