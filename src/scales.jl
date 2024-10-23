@@ -1,16 +1,16 @@
 @kwdef struct SymLog{FS,FL} <: Function
-    linthresh::Float32
-    base::Float32 = 10f0
-    linscale::Float32 = 1f0
-    vmin::Float32 = -Inf32
-    vmax::Float32 = Inf32
+    linthresh::Float64
+    base::Float64 = 10.
+    linscale::Float64 = 1.
+    vmin::Float64 = -Inf
+    vmax::Float64 = Inf
 
-    _linscale_adj::Float32 = linscale / (1 - base^-1)
+    _linscale_adj::Float64 = linscale / (1 - base^-1)
     _fsmall::FS = @o _ * _linscale_adj
     _flarge::FL = @o linthresh * (_linscale_adj + log(base, _ / linthresh))
 end
 
-SymLog(linthresh; kwargs...) = SymLog(; linthresh=Float32(linthresh), map(Float32, values(kwargs))...)
+SymLog(linthresh; kwargs...) = SymLog(; linthresh=Float64(linthresh), map(Float64, values(kwargs))...)
 
 function (s::SymLog)(x)
     x = clamp(x, s.vmin, s.vmax)
@@ -33,15 +33,15 @@ Makie.inverse_transform(s::SymLog) = inverse(s)
 
 
 @kwdef struct AsinhScale{F} <: Function
-    linthresh::Float32
-    vmin::Float32 = -Inf32
-    vmax::Float32 = Inf32
+    linthresh::Float64
+    vmin::Float64 = -Inf
+    vmax::Float64 = Inf
 
-    _a::Float32 = 0.5f0 * linthresh
+    _a::Float64 = 0.5 * linthresh
     _f::F = @o _a * asinh(_/_a)
 end
 
-AsinhScale(linthresh; kwargs...) = AsinhScale(; linthresh=Float32(linthresh), map(Float32, values(kwargs))...)
+AsinhScale(linthresh; kwargs...) = AsinhScale(; linthresh=Float64(linthresh), map(Float64, values(kwargs))...)
 
 (s::AsinhScale)(x) = s._f(clamp(x, s.vmin, s.vmax))
 
