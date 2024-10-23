@@ -68,6 +68,16 @@ end
     band(x -> sin(x)..2sin(x))
 end
 
+@testitem "contourf fast" begin
+    using AxisKeysExtra
+
+    contourf_fast(rand(100, 100))
+    contourf_fast(rand(100, 100), levels=[0, 0.3, 1])
+    @test current_axis().xlabel[] == ""
+    contourf_fast(KeyedArray(rand(100, 100), a=range(0, 1, length=100), b=range(-1, 2, length=100)))
+    @test current_axis().xlabel[] == "a"
+end
+
 @testitem "@define_plotfunc" begin
     struct MyType end
     struct MyTypeVec <: AbstractVector{Float64} end
