@@ -32,9 +32,10 @@ function sel_span(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}, i::Int; kwa
 end
 
 function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
-    poly!(ax, sel_poly(rs, fplt, plt; kwargs...); rs.poly...)
-    vspan!(ax, sel_span(rs, fplt, plt, 1; kwargs...); rs.poly...)
-    hspan!(ax, sel_span(rs, fplt, plt, 2; kwargs...); rs.poly...)
+    # XXX: do x/yautolimits=false work? are they needed?
+    poly!(ax, sel_poly(rs, fplt, plt; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)
+    vspan!(ax, sel_span(rs, fplt, plt, 1; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)
+    hspan!(ax, sel_span(rs, fplt, plt, 2; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)
 
     argfuncs = argfuncs_for_xy(plt, fplt; reorder_args=true, kwargs...)
     isrecting = Observable(false)
