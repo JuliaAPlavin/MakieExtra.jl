@@ -65,7 +65,8 @@ md"""
 
 # ╔═╡ bd7e6900-e660-4a10-b810-0ad2a66c3ea5
 md"""
-Whenever one axes is a zoomed-in version of another _(they can have different content)_, it may be useful to display zoom lines and rectangle to guide the eye. This is done with `zoom_lines!(ax1, ax2)` function. It uses axes relative positions and their limits to properly draw lines and rectangles:
+Whenever one axes is a zoomed-in version of another _(they can have different content)_, it may be useful to display zoom lines and rectangle to guide the eye. \
+This is done with `zoom_lines!(ax1, ax2)` function. It uses axes relative positions and their limits to properly draw lines and rectangles:
 """
 
 # ╔═╡ 9f008eee-6986-4ae4-9945-d854f75b7ed1
@@ -76,8 +77,37 @@ let
 
 	zoom_lines!(ax1, ax2)
 	
-	Record(fig, (@p maprange(log, 150, 0.5, length=200) [__; reverse(__)])) do x
+	Record(fig, (@p maprange(log, 150, 0.5, length=120) [__; reverse(__)])) do x
 		w[] = x
+	end
+end
+
+# ╔═╡ 2ca62b2e-0947-43cb-81d5-839a85e201c4
+let
+	fig, ax1, plt = heatmap(rand(100, 100), alpha=0.3, axis=(limits=(@lift (45±5, 80±5)), xreversed=true, yreversed=true))
+	ax2, plt = heatmap(fig[1,2], rand(100, 100), alpha=0.3, axis=(;xreversed=true, yreversed=true, xscale=log10))
+	Label(fig[0,:], "with Reversed and logscales")
+	zoom_lines!(ax1, ax2)
+	fig
+end
+
+# ╔═╡ 9ad8a875-6a7d-453b-a917-c054d941490f
+let
+	w = Observable(5.)
+	t = Observable(0.)
+	lb = @lift 300 .* sincos($t) .+ (300, 325)
+	fig = Figure(size=(700, 700))
+	ax1 = Axis(fig, xreversed=true, bbox=BBox(250, 450, 250, 450), limits=(@lift (45±$w, 80±$w)))
+	plt = heatmap!(ax1, rand(100, 100), alpha=0.3)
+	ax2 = Axis(fig, xreversed=true, bbox=@lift BBox($lb[1], $lb[1]+200, $lb[2], $lb[2]+150))
+	plt = heatmap!(ax2, rand(100, 100), alpha=0.3)
+
+	zoom_lines!(ax1, ax2)
+	resize_to_layout!(fig)
+
+	fig
+	Record(fig, (@p range(0, 2π, length=200)), framerate=40) do x
+		t[] = x
 	end
 end
 
@@ -278,7 +308,7 @@ let
 
 	resize_to_layout!(fig)
 	fig
-	Record(fig, (@p maprange(log, 1, 1e4, length=150) [__; reverse(__)])) do x
+	Record(fig, (@p maprange(log, 1, 1e4, length=60) [__; reverse(__)])) do x
 		linscale[] = round(x, sigdigits=2)
 	end
 end
@@ -410,6 +440,29 @@ let
 	end
 end
 
+# ╔═╡ c7545664-2132-4e4d-9091-0eaf71fea19d
+md"""
+## Rich text manipulation
+
+Concatenation and interpolation is supported – often more readable than using the `Makie.rich(...)` function:
+```julia
+# plain Makie:
+rich("a", subscript("x"), ": ", rich(a, font=:bold), ", b: ", rich(b, font=:italic))
+# with MakieExtra, concatenation:
+"a" * subscript("x") * ": " * rich(a, font=:bold) * ", b: " * rich(b, font=:italic))
+# and interpolation:
+@rich "a$(subscript("x")): $(rich(a, font=:bold)), b: $(rich(b, font=:italic))"
+```
+"""
+
+# ╔═╡ c1f31438-4da1-43dd-b418-fcb3dfa8a156
+let
+	a, b = "val1", "val2"
+	fig = Figure(size=(400, 50))
+	Label(fig[1,1], @rich "a$(subscript("x")): $(rich(a, font=:bold)), b: $(rich(b, font=:italic))")
+	fig
+end
+
 # ╔═╡ 4b0b6723-0ef7-4e66-909b-05f9aec0323a
 
 
@@ -455,9 +508,9 @@ Animations = "~0.4.1"
 AxisKeysExtra = "~0.1.13"
 Colors = "~0.12.11"
 DataManipulation = "~0.1.17"
-GLMakie = "~0.10.9"
+GLMakie = "~0.10.11"
 IntervalSets = "~0.7.10"
-MakieExtra = "~0.1.28"
+MakieExtra = "~0.1.31"
 MonteCarloMeasurements = "~1.2.1"
 PlutoUI = "~0.7.60"
 RectiGrids = "~0.1.18"
@@ -470,7 +523,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.5"
 manifest_format = "2.0"
-project_hash = "323a34a4a71d683360ab173d2c3c6efcb07c4cf4"
+project_hash = "fb3baf7e1e59052fe7c2cb7014e931a4b222cf89"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -495,24 +548,26 @@ uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 version = "0.4.5"
 
 [[deps.Accessors]]
-deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
-git-tree-sha1 = "f61b15be1d76846c0ce31d3fcfac5380ae53db6a"
+deps = ["CompositionsBase", "ConstructionBase", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown"]
+git-tree-sha1 = "b392ede862e506d451fc1616e79aa6f4c673dab8"
 uuid = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
-version = "0.1.37"
-weakdeps = ["AxisKeys", "IntervalSets", "Requires", "StaticArrays", "StructArrays", "Unitful"]
+version = "0.1.38"
+weakdeps = ["AxisKeys", "Dates", "IntervalSets", "Requires", "StaticArrays", "StructArrays", "Test", "Unitful"]
 
     [deps.Accessors.extensions]
     AccessorsAxisKeysExt = "AxisKeys"
+    AccessorsDatesExt = "Dates"
     AccessorsIntervalSetsExt = "IntervalSets"
     AccessorsStaticArraysExt = "StaticArrays"
     AccessorsStructArraysExt = "StructArrays"
+    AccessorsTestExt = "Test"
     AccessorsUnitfulExt = "Unitful"
 
 [[deps.AccessorsExtra]]
-deps = ["Accessors", "CompositionsBase", "ConstructionBase", "DataPipes", "InverseFunctions", "Reexport"]
-git-tree-sha1 = "fc9f87d761d620b5bb06812535d7ef4b8e78ddde"
+deps = ["Accessors", "CompositionsBase", "ConstructionBase", "DataPipes", "InverseFunctions", "LinearAlgebra", "Reexport"]
+git-tree-sha1 = "f8f19e702d9b5e1f0b47fbb2b89d48f71e1bd514"
 uuid = "33016aad-b69d-45be-9359-82a41f556fd4"
-version = "0.1.79"
+version = "0.1.81"
 
     [deps.AccessorsExtra.extensions]
     ColorTypesExt = "ColorTypes"
@@ -522,7 +577,6 @@ version = "0.1.79"
     DomainSetsExt = "DomainSets"
     FlexiMapsExt = "FlexiMaps"
     FlexiMapsStructArraysExt = ["FlexiMaps", "StructArrays"]
-    LinearAlgebraExt = "LinearAlgebra"
     SkipperExt = "Skipper"
     StaticArraysExt = "StaticArrays"
     StructArraysExt = "StructArrays"
@@ -537,7 +591,6 @@ version = "0.1.79"
     Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
     DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
     FlexiMaps = "6394faf6-06db-4fa8-b750-35ccc60383f7"
-    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
     Skipper = "fc65d762-6112-4b1c-b428-ad0792653d81"
     StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
     StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
@@ -556,9 +609,9 @@ weakdeps = ["StaticArrays"]
     AdaptStaticArraysExt = "StaticArrays"
 
 [[deps.AdaptivePredicates]]
-git-tree-sha1 = "7d5da5dd472490d048b081ca1bda4a7821b06456"
+git-tree-sha1 = "7e651ea8d262d2d74ce75fdf47c4d63c07dba7a6"
 uuid = "35492f91-a3bd-45ad-95db-fcad7dcfedb7"
-version = "1.1.1"
+version = "1.2.0"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -578,9 +631,9 @@ version = "1.1.1"
 
 [[deps.ArrayInterface]]
 deps = ["Adapt", "LinearAlgebra"]
-git-tree-sha1 = "f54c23a5d304fb87110de62bace7777d59088c34"
+git-tree-sha1 = "3640d077b6dafd64ceb8fd5c1ec76f7ca53bcf76"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "7.15.0"
+version = "7.16.0"
 
     [deps.ArrayInterface.extensions]
     ArrayInterfaceBandedMatricesExt = "BandedMatrices"
@@ -716,9 +769,9 @@ version = "1.18.0+2"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra"]
-git-tree-sha1 = "71acdbf594aab5bbb2cec89b208c41b4c411e49f"
+git-tree-sha1 = "3e4b134270b372f2ed4d4d0e936aabaefc1802bc"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.24.0"
+version = "1.25.0"
 weakdeps = ["SparseArrays"]
 
     [deps.ChainRulesCore.extensions]
@@ -836,9 +889,9 @@ weakdeps = ["IntervalSets"]
     IntervalSetsExt = "IntervalSets"
 
 [[deps.DataPipes]]
-git-tree-sha1 = "39dd85718246d2a13b5f3659af21e009ddf4400b"
+git-tree-sha1 = "29077a8d5c093f4e0988e92c0d76f56c4c581900"
 uuid = "02685ad9-2d12-40c3-9f73-c6aeda6a7ff5"
-version = "0.3.17"
+version = "0.3.18"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -863,9 +916,9 @@ version = "1.14.10+0"
 
 [[deps.DelaunayTriangulation]]
 deps = ["AdaptivePredicates", "EnumX", "ExactPredicates", "Random"]
-git-tree-sha1 = "46f12daa85e5acc0ea5d5f9f8c3f1fc679e0f7e5"
+git-tree-sha1 = "94eb20e6621600f4315813b1d1fc9b8a5a6a34db"
 uuid = "927a84f5-c5f4-47a5-9785-b46e178433df"
-version = "1.2.0"
+version = "1.4.0"
 
 [[deps.Dictionaries]]
 deps = ["Indexing", "Random", "Serialization"]
@@ -1014,9 +1067,9 @@ version = "0.8.5"
 
 [[deps.FlexiGroups]]
 deps = ["AccessorsExtra", "Combinatorics", "DataPipes", "Dictionaries", "FlexiMaps"]
-git-tree-sha1 = "d4cd4a4e52b938fa6000ef5cad8f2a8afcd5eaa9"
+git-tree-sha1 = "90ae81797a6f8c631f2a7c129648ef5c76631038"
 uuid = "1e56b746-2900-429a-8028-5ec1f00612ec"
-version = "0.1.25"
+version = "0.1.26"
 
     [deps.FlexiGroups.extensions]
     AxisKeysExt = "AxisKeys"
@@ -1103,9 +1156,9 @@ version = "3.4.0+1"
 
 [[deps.GLMakie]]
 deps = ["ColorTypes", "Colors", "FileIO", "FixedPointNumbers", "FreeTypeAbstraction", "GLFW", "GeometryBasics", "LinearAlgebra", "Makie", "Markdown", "MeshIO", "ModernGL", "Observables", "PrecompileTools", "Printf", "ShaderAbstractions", "StaticArrays"]
-git-tree-sha1 = "f644c26d8b4d0d9d6ac6ff1f7fefe7b8f70c3e92"
+git-tree-sha1 = "a06c778bf7c8c33db4203951e7365ed6e4b8f7f1"
 uuid = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
-version = "0.10.9"
+version = "0.10.11"
 
 [[deps.GenericSchur]]
 deps = ["LinearAlgebra", "Printf"]
@@ -1273,16 +1326,17 @@ weakdeps = ["Unitful"]
 
 [[deps.IntervalArithmetic]]
 deps = ["CRlibm_jll", "MacroTools", "RoundingEmulator"]
-git-tree-sha1 = "01fa84a20be8c7c867edf3b9ef33ac15f4089c1a"
+git-tree-sha1 = "fe30dec78e68f27fc416901629c6e24e9d5f057b"
 uuid = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
-version = "0.22.15"
-weakdeps = ["DiffRules", "ForwardDiff", "IntervalSets", "RecipesBase"]
+version = "0.22.16"
+weakdeps = ["DiffRules", "ForwardDiff", "IntervalSets", "LinearAlgebra", "RecipesBase"]
 
     [deps.IntervalArithmetic.extensions]
     IntervalArithmeticDiffRulesExt = "DiffRules"
     IntervalArithmeticForwardDiffExt = "ForwardDiff"
+    IntervalArithmeticIntervalSetsExt = "IntervalSets"
+    IntervalArithmeticLinearAlgebraExt = "LinearAlgebra"
     IntervalArithmeticRecipesBaseExt = "RecipesBase"
-    IntervalArithmeticsIntervalSetsExt = "IntervalSets"
 
 [[deps.IntervalSets]]
 git-tree-sha1 = "dba9ddf07f77f60450fe5d2e2beb9854d9a49bd0"
@@ -1364,9 +1418,9 @@ version = "3.100.2+0"
 
 [[deps.LLVMOpenMP_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "e16271d212accd09d52ee0ae98956b8a05c4b626"
+git-tree-sha1 = "78211fb6cbc872f77cad3fc0b6cf647d923f4929"
 uuid = "1d63c593-3942-5779-bab2-d838dc0a180e"
-version = "17.0.6+0"
+version = "18.1.7+0"
 
 [[deps.LZO_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -1504,22 +1558,22 @@ uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 version = "0.5.13"
 
 [[deps.Makie]]
-deps = ["Animations", "Base64", "CRC32c", "ColorBrewer", "ColorSchemes", "ColorTypes", "Colors", "Contour", "Dates", "DelaunayTriangulation", "Distributions", "DocStringExtensions", "Downloads", "FFMPEG_jll", "FileIO", "FilePaths", "FixedPointNumbers", "Format", "FreeType", "FreeTypeAbstraction", "GeometryBasics", "GridLayoutBase", "ImageIO", "InteractiveUtils", "IntervalSets", "Isoband", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "MacroTools", "MakieCore", "Markdown", "MathTeXEngine", "Observables", "OffsetArrays", "Packing", "PlotUtils", "PolygonOps", "PrecompileTools", "Printf", "REPL", "Random", "RelocatableFolders", "Scratch", "ShaderAbstractions", "Showoff", "SignedDistanceFields", "SparseArrays", "Statistics", "StatsBase", "StatsFuns", "StructArrays", "TriplotBase", "UnicodeFun", "Unitful"]
-git-tree-sha1 = "204f06860af9008fa08b3a4842f48116e1209a2c"
+deps = ["Animations", "Base64", "CRC32c", "ColorBrewer", "ColorSchemes", "ColorTypes", "Colors", "Contour", "Dates", "DelaunayTriangulation", "Distributions", "DocStringExtensions", "Downloads", "FFMPEG_jll", "FileIO", "FilePaths", "FixedPointNumbers", "Format", "FreeType", "FreeTypeAbstraction", "GeometryBasics", "GridLayoutBase", "ImageBase", "ImageIO", "InteractiveUtils", "Interpolations", "IntervalSets", "Isoband", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "MacroTools", "MakieCore", "Markdown", "MathTeXEngine", "Observables", "OffsetArrays", "Packing", "PlotUtils", "PolygonOps", "PrecompileTools", "Printf", "REPL", "Random", "RelocatableFolders", "Scratch", "ShaderAbstractions", "Showoff", "SignedDistanceFields", "SparseArrays", "Statistics", "StatsBase", "StatsFuns", "StructArrays", "TriplotBase", "UnicodeFun", "Unitful"]
+git-tree-sha1 = "2281aaf0685e5e8a559982d32f17d617a949b9cd"
 uuid = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-version = "0.21.9"
+version = "0.21.11"
 
 [[deps.MakieCore]]
 deps = ["ColorTypes", "GeometryBasics", "IntervalSets", "Observables"]
-git-tree-sha1 = "b0e2e3473af351011e598f9219afb521121edd2b"
+git-tree-sha1 = "22fed09860ca73537a36d4e5a9bce0d9e80ee8a8"
 uuid = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
-version = "0.8.6"
+version = "0.8.8"
 
 [[deps.MakieExtra]]
 deps = ["AccessorsExtra", "DataManipulation", "DataPipes", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport", "StructHelpers"]
-git-tree-sha1 = "4c09c9fc7e23fd86cf6975ff05a0b29061b28cf8"
+git-tree-sha1 = "59a0999977324c220c7737588761ef75368523fa"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
-version = "0.1.28"
+version = "0.1.31"
 weakdeps = ["Unitful"]
 
     [deps.MakieExtra.extensions]
@@ -1670,9 +1724,9 @@ version = "0.8.1+2"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "1b35263570443fdd9e76c76b7062116e2f374ab8"
+git-tree-sha1 = "7493f61f55a6cce7325f197443aa80d32554ba10"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.0.15+0"
+version = "3.0.15+1"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -1807,9 +1861,9 @@ version = "1.0.0"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
-git-tree-sha1 = "1d587203cf851a51bf1ea31ad7ff89eff8d625ea"
+git-tree-sha1 = "cda3b045cf9ef07a08ad46731f5a3165e56cf3da"
 uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.11.0"
+version = "2.11.1"
 
     [deps.QuadGK.extensions]
     QuadGKEnzymeExt = "Enzyme"
@@ -1871,15 +1925,15 @@ version = "1.3.0"
 
 [[deps.Rmath]]
 deps = ["Random", "Rmath_jll"]
-git-tree-sha1 = "f65dcb5fa46aee0cf9ed6274ccbd597adc49aa7b"
+git-tree-sha1 = "852bd0f55565a9e973fcfee83a84413270224dc4"
 uuid = "79098fc4-a85e-5d69-aa6a-4863f24498fa"
-version = "0.7.1"
+version = "0.8.0"
 
 [[deps.Rmath_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "e60724fd3beea548353984dc61c943ecddb0e29a"
+git-tree-sha1 = "58cdd8fb2201a6267e1db87ff148dd6c1dbd8ad8"
 uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
-version = "0.4.3+0"
+version = "0.5.1+0"
 
 [[deps.RoundingEmulator]]
 git-tree-sha1 = "40b9edad2e5287e05bd413a38f61a8ff55b9557b"
@@ -1892,9 +1946,9 @@ version = "0.7.0"
 
 [[deps.SIMD]]
 deps = ["PrecompileTools"]
-git-tree-sha1 = "2803cab51702db743f3fda07dd1745aadfbf43bd"
+git-tree-sha1 = "98ca7c29edd6fc79cd74c61accb7010a4e7aee33"
 uuid = "fdea26ae-647d-5447-a871-4b548cad5224"
-version = "3.5.0"
+version = "3.6.0"
 
 [[deps.SIMDTypes]]
 git-tree-sha1 = "330289636fb8107c5f32088d2741e9fd7a061a5c"
@@ -2050,9 +2104,9 @@ version = "0.34.3"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
-git-tree-sha1 = "cef0472124fab0695b58ca35a77c6fb942fdab8a"
+git-tree-sha1 = "b423576adc27097764a90e163157bcfc9acf0f46"
 uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
-version = "1.3.1"
+version = "1.3.2"
 weakdeps = ["ChainRulesCore", "InverseFunctions"]
 
     [deps.StatsFuns.extensions]
@@ -2407,6 +2461,8 @@ version = "1.4.1+1"
 # ╟─3526c688-aea9-411b-a837-dc02ff81a7ee
 # ╟─bd7e6900-e660-4a10-b810-0ad2a66c3ea5
 # ╠═9f008eee-6986-4ae4-9945-d854f75b7ed1
+# ╟─2ca62b2e-0947-43cb-81d5-839a85e201c4
+# ╟─9ad8a875-6a7d-453b-a917-c054d941490f
 # ╟─c6504e8d-7ef5-42a0-a978-dfedce9626d7
 # ╟─d7bc9e8c-a208-47e5-bb06-0faa1a9c2463
 # ╟─dc93b904-81df-4a68-8936-938a9b095e5b
@@ -2441,6 +2497,8 @@ version = "1.4.1+1"
 # ╠═55be0296-4cc2-47f1-9578-866e4cdd2edd
 # ╟─b35e98bd-8ef8-4ba2-aae8-e4d85aa8214c
 # ╠═bc22e2e0-df92-4beb-b98a-aa4bfa4b04ac
+# ╟─c7545664-2132-4e4d-9091-0eaf71fea19d
+# ╠═c1f31438-4da1-43dd-b418-fcb3dfa8a156
 # ╟─bb711dab-bb26-4a76-9610-2ce43a4d6984
 # ╟─4b0b6723-0ef7-4e66-909b-05f9aec0323a
 # ╠═9b4134d6-2755-11ef-08c1-03239a8c3986
