@@ -102,6 +102,12 @@ end
     @test current_axis().xlabel[] == "_ ^ 2 ± 3"
     @test current_axis().ylabel[] == "_"
 
+    scatter(FPlot(1:10, (@o _), (@o _^2 ± 3)), doaxis=true, reorder_args=false)
+    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
+    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test current_axis().xlabel[] == "_"
+    @test current_axis().ylabel[] == "_ ^ 2 ± 3"
+
 
     ## reorder_args = true
     barplot(FPlot(1:10, (@o _), (@o _^2)), doaxis=true)

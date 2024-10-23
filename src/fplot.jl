@@ -39,27 +39,8 @@ Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = M
 
 function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), reorder_args=true, kwargs...)
 	@assert !isnothing(X.data)
-	pargs = if reorder_args
-		ixs = argixs_xy_axes(ct, X, kwargs)
-		argfuncs =
-			if isnothing(ixs)
-				# default behavior if argixs_xy_axes is not defined
-				X.argfuncs
-			elseif maximum(ixs) ≤ length(X.argfuncs)
-				# reorder args according to argixs_xy_axes
-				X.argfuncs[collect(ixs)]
-			else
-				# got fewer args than argixs_xy_axes expects, use args as-is
-				# this handles stuff like scatter() and many others with a single argument
-				X.argfuncs
-			end
-		map(argfuncs) do f
-			getval(f, X.data)
-		end
-	else
-		map(X.argfuncs) do f
-			getval(f, X.data)
-		end
+	pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
+		getval(f, X.data)
 	end
 	pkws_keys = Tuple(keys(X.kwargfuncs) ∩ Makie.attribute_names(ct))
 	pkws = map(X.kwargfuncs[pkws_keys]) do f
@@ -87,17 +68,52 @@ convert_to_makie(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
 _xlabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 1)
 _ylabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 2)
 function _xylabel(ct, X::FPlot, kwargs, i)
+	afuncs = argfuncs_for_xy(ct, X; kwargs...)
+	afunc = isnothing(afuncs) ? nothing : get(afuncs, i, nothing)
+	return shortlabel(afunc)
+end
+
+
+# reorder if reorder_args == true, otherwise original order
+argfuncs_for_plotargs(ct, X::FPlot; reorder_args::Bool, kwargs...) =
+	if reorder_args
+		ixs = argixs_xy_axes(ct, X, kwargs)
+		if isnothing(ixs)
+			# default behavior if argixs_xy_axes is not defined
+			X.argfuncs
+		elseif maximum(ixs) ≤ length(X.argfuncs)
+			# reorder args according to argixs_xy_axes
+			X.argfuncs[collect(ixs)]
+		else
+			# got fewer args than argixs_xy_axes expects, use args as-is
+			# this handles stuff like scatter() and many others with a single argument
+			X.argfuncs
+		end
+	else
+		X.argfuncs
+	end
+
+# original order if reorder_args == true, otherwise reorder
+function argfuncs_for_xy(ct, X::FPlot; reorder_args::Bool, kwargs...)
 	argixs = argixs_xy_axes(ct, X, kwargs)
 	if !isnothing(argixs) && !all(∈(eachindex(X.argfuncs)), argixs)
 		# got fewer args than argixs_xy_axes expects, likely something unusual like scatter() and many others with a single argument
-		return shortlabel(nothing)
+		return nothing
 	end
-	argix = kwargs.reorder_args ?
-		(isnothing(argixs) || i ∈ argixs ? i : nothing) :
-		get(argixs, i, nothing)
-	isnothing(argix) && return shortlabel(nothing)
-	shortlabel(get(X.argfuncs, argix, nothing))
+	ixs = if isnothing(argixs)
+		# default behavior if argixs_xy_axes is not defined
+		X.argfuncs
+	elseif reorder_args
+		# argfuncs in the original order, but only those present in argixs
+		map(1:maximum(argixs)) do i
+			i ∈ argixs ? X.argfuncs[i] : nothing
+		end
+	else
+		# argfuncs reordered according to argixs
+		X.argfuncs[collect(argixs)]
+	end
 end
+
 
 argixs_xy_axes(ct, X::FPlot, kwargs) = nothing
 argixs_xy_axes(::Type{<:VLines}, X::FPlot, kwargs) = (1,)
