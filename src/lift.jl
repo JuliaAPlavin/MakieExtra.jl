@@ -79,6 +79,9 @@ nt = (x = Observable(1), y = Observable(2))
 ```
 """
 macro lift(exp)
+    exp = @modify(exp |> RecursiveOfType(Expr) |> If(e -> Base.isexpr(e, :macrocall) && e.args[1] == Symbol("@f_str"))) do e
+        macroexpand(__module__, e; recursive=true)
+    end
 
     observable_expr_set = find_observable_expressions(exp)
 
