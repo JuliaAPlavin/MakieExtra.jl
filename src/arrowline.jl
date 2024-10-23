@@ -8,13 +8,18 @@ end
 
 function Makie.plot!(p::ArrowLines)
     points = p[1]
-    @assert length(points[]) == 2
+    @assert length(points[]) ≥ 2
     
     scene = Makie.get_scene(p)
-    ps_pix = lift(scene.camera.projectionview, p.model, Makie.transform_func(p), scene.viewport, points) do _, _, _, _, ps
-        return Makie.project.(Ref(scene), ps)
+    markerangles = lift(scene.camera.projectionview, p.model, Makie.transform_func(p), scene.viewport, points) do _, _, _, _, ps_all
+        map([
+            (ps_all[begin], ps_all[begin + 1]),
+            (ps_all[end - 1], ps_all[end]),
+        ]) do ps
+            ps_pix = Makie.project.(Ref(scene), ps)
+            atan(reverse(ps_pix[2] - ps_pix[1])...)
+        end
     end
-    markerangle = @lift atan(reverse($ps_pix[2] - $ps_pix[1])...)
 
     ast = @lift parse_arrowstyle($(p.arrowstyle))
 
@@ -27,17 +32,17 @@ function Makie.plot!(p::ArrowLines)
         attrs = @p let
             Makie.shared_attributes(p, Scatter)
             @set __[:marker] = @lift $ast.lm
-            @set __[:rotation] = @lift $markerangle + deg2rad(180)
+            @set __[:rotation] = @lift $markerangles[1] + deg2rad(180)
         end
-        scatter!(p, attrs, @lift $points[1])
+        scatter!(p, attrs, @lift first($points))
     end
     if !isnothing(ast[].rm)
         attrs = @p let
             Makie.shared_attributes(p, Scatter)
             @set __[:marker] = @lift $ast.rm
-            @set __[:rotation] = markerangle
+            @set __[:rotation] = @lift $markerangles[2]
         end
-        scatter!(p, attrs, @lift $points[2])
+        scatter!(p, attrs, @lift last($points))
     end
 end
 
