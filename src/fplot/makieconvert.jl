@@ -6,11 +6,11 @@ Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = M
 function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), reorder_args=true, kwargs...)
 	@assert !isnothing(X.data)
 	pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
-		getval(f, X.data) |> convert_to_categorical_if_needed
+		getval(X.data, f) |> convert_to_categorical_if_needed
 	end
 	pkws_keys = Tuple(keys(X.kwargfuncs) ∩ Makie.attribute_names(ct))
-	pkws = map(X.kwargfuncs[pkws_keys]) do f
-		getval(f, X.data)
+	pkws = map(NamedTuple{pkws_keys}(pkws_keys), X.kwargfuncs[pkws_keys]) do k, f
+		getval(X.data, k, f)
 	end
 	pspec = Makie.to_plotspec(ct, pargs; pkws..., kwargs...)
 	if doaxis
@@ -23,8 +23,12 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	end
 end
 
-@inline getval(f, data) = map(f, data)
-@inline getval(f::Ref, data) = f[]
+@inline getval(data, f) = getval(data, nothing, f)
+@inline getval(data, k, f) =
+	isempty(methods(f)) ? f :
+	k == :inspector_label ? (self, i, p) -> f(data[i]) :
+	map(f, data)
+@inline getval(data, _, f::Ref) = f[]
 
 convert_to_categorical_if_needed(x) = x
 convert_to_categorical_if_needed(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
