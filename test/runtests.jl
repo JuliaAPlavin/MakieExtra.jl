@@ -21,7 +21,8 @@ using TestItemRunner
 end
 
 @testitem "macro" begin
-    MakieExtra.@define_plotfunc scatter Vector
+    const TT = Vector
+    MakieExtra.@define_plotfunc scatter TT
     MakieExtra.axis_attributes(::Type{Scatter}, ::Vector) = (;)
 
     scatter([1,2,3])
