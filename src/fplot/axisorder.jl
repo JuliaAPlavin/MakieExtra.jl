@@ -1,5 +1,5 @@
 # reorder if reorder_args == true, otherwise original order
-argfuncs_for_plotargs(ct, X::FPlot; reorder_args::Bool, kwargs...) =
+argfuncs_for_plotargs(ct, X::FPlot; reorder_args::Bool=true, kwargs...) =
     if reorder_args
         ixs = argixs_xy_axes(ct, X, kwargs)
         if isnothing(ixs)
@@ -18,7 +18,7 @@ argfuncs_for_plotargs(ct, X::FPlot; reorder_args::Bool, kwargs...) =
     end
 
 # original order if reorder_args == true, otherwise reorder
-function argfuncs_for_xy(ct, X::FPlot; reorder_args::Bool, kwargs...)
+function argfuncs_for_xy(ct, X::FPlot; reorder_args::Bool=true, kwargs...)
     argixs = argixs_xy_axes(ct, X, kwargs)
     if !isnothing(argixs) && !all(∈(eachindex(X.argfuncs)), argixs)
         # got fewer args than argixs_xy_axes expects, likely something unusual like scatter() and many others with a single argument
