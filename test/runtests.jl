@@ -171,6 +171,7 @@ end
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt), linewidth=15)
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 15
+    plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
 
     struct MyObj end
     Makie.used_attributes(T::Type{<:Plot}, ::MyObj) = Tuple(Makie.attribute_names(T))
