@@ -153,8 +153,11 @@ end
 end
 
 @testitem "bandstroke" begin
+    using MakieExtra.Makie.IntervalSets
+
     bandstroke([1,2,3], [1..2, 3..4, 5..6])
     bandstroke([1,2,3], [1..2, 3..4, 5..6], strokecolor=:red, strokewidth=2)
+    bandstroke(0..5, x -> x±1, strokewidth=2)
     bandstroke(FPlot(1:5, identity, x->x..x+1), strokecolor=:red, strokewidth=2)
     bandstroke(FPlot(1:5, identity, x->x..x+1, strokecolor=Ref(:red)), strokewidth=2)
 end
