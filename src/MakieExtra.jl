@@ -11,7 +11,7 @@ using Makie.IntervalSets: width
 using Makie.Unitful
 using Makie.LinearAlgebra: norm
 using DataPipes
-import DataManipulation: shift_range, filteronly, mapinsert
+import DataManipulation: shift_range, filteronly, filterfirst, mapinsert
 using StructHelpers
 import Makie.MakieCore: plotfunc, plotfunc!, func2type
 
@@ -64,6 +64,8 @@ function __init__()
 end
 
 # XXX: should upstream all of these!
+
+corners(r::Makie.GeometryBasics.HyperRectangle{2}) = (bottomleft(r), topleft(r), topright(r), bottomright(r))
 
 Makie.project(s, r::Makie.GeometryBasics.HyperRectangle) = Makie.GeometryBasics.HyperRectangle(Makie.project(s, r.origin), Makie.project(s, r.origin + r.widths) - Makie.project(s, r.origin))
 
