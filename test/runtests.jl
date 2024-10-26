@@ -33,7 +33,7 @@ using TestItemRunner
         for mul in [1, 3, 10, 100]
     ], axis=(yscale=AsinhScale(1),))
     
-    ax, _ = lines(fig[1,5], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks(), ytickformat=EngTicks(:symbol)))
+    ax, _ = lines(fig[1,5], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks(suffix="abc"), ytickformat=EngTicks(:symbol)))
     lines!(ax, [Point(0, 0), Point(1, 1)], color=:black, linestyle=:dash, space=:relative)
 
     unityval =  1.1111111111111112
