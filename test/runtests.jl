@@ -25,7 +25,12 @@ end
     MakieExtra.@define_plotfunc scatter TT
     MakieExtra.default_axis_attributes(::Type{Scatter}, ::Vector) = (;)
 
+    MakieExtra.@define_plotfunc_conv image TT
+    MakieExtra.default_axis_attributes(::Type{Image}, ::Vector) = (;)
+    MakieExtra._convert_arguments_singlestep(::Type{Image}, ::Vector) = ([1 2; 3 4],)
+
     scatter([1,2,3])
+    image([1,2,3])
 end
 
 @testitem "_" begin
