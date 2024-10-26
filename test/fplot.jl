@@ -17,7 +17,7 @@
     @test (@insert values(fp_nov) = 1:10) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
 end
 
-@testitem "fplot basic" begin
+@testitem "basic" begin
     using Accessors
 
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
@@ -33,6 +33,13 @@ end
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 15
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
+end
+
+@testitem "categorical" begin
+    using Accessors
+
+    lines(FPlot(1:10, string, (@o _^2), color=sqrt), doaxis=true)
+    @test current_axis().xlabel[] == "string"
 end
 
 @testitem "flipped xy" begin
