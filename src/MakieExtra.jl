@@ -11,6 +11,8 @@ export SymLog, AsinhScale, BaseMulTicks, EngTicks
 
 include("scales.jl")
 include("ticks.jl")
+include("helpers.jl")
+
 
 # almost https://github.com/MakieOrg/Makie.jl/pull/3697
 __precompile__(false)
