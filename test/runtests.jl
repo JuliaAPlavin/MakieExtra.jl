@@ -2,7 +2,7 @@ using TestItems
 using TestItemRunner
 @run_package_tests
 
-@testitem "basic" begin
+@testitem "scales, ticks" begin
     fig = Figure(size=(1200, 300))
     xs = range(-10, 10, length=1000)
     
@@ -32,6 +32,18 @@ using TestItemRunner
     # smoke tests to probee the actual inverse:
     Makie.ReversibleScale(SymLog(1))
     Makie.ReversibleScale(AsinhScale(1))
+end
+
+@testitem "scalebar" begin
+    using MakieExtra.Unitful
+
+    X = rand(100, 100)
+    
+	heatmap(X, axis=(aspect=DataAspect(),), alpha=0.1)
+	scalebar!(0.15u"m")
+	scalebar!(0.15u"m", position=Point2(0.8, 0.1), color=:black)
+	scalebar!((0.15u"m", x -> "a $x b"), position=Point2(0.8, 0.1), color=:black)
+	scalebar!((0.15, x -> "a $x b"), color=:black)
 end
 
 @testitem "axis-wide function" begin
