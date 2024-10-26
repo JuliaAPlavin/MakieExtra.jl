@@ -3,12 +3,13 @@ name: CI
 on: [push, pull_request]
 
 env:
+  SSH_AUTH_SOCK: /tmp/ssh_agent.sock
   JULIA_PKG_SERVER:
   PYTHON:
 
 jobs:
   test:
-    timeout-minutes: 15
+    timeout-minutes: 20
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -22,5 +23,11 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.arch }}
+      - run: |
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+            ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+      - run: julia -e 'using Pkg; pkg"registry add General git@github.com:aplavin/MyRegistry.git"'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
