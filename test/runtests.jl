@@ -14,9 +14,19 @@ using TestItemRunner
     series(fig[1,2], [
         (xs, mul .* xs)
         for mul in [1, 3, 10, 100]
+    ], axis=(yscale=SymLog(1, vmin=0, vmax=10),))
+    
+    series(fig[1,3], [
+        (xs, mul .* xs)
+        for mul in [1, 3, 10, 100]
+    ], axis=(yscale=SymLog(1, vmin=-10, vmax=0),))
+    
+    series(fig[1,4], [
+        (xs, mul .* xs)
+        for mul in [1, 3, 10, 100]
     ], axis=(yscale=AsinhScale(1),))
     
-    ax, _ = lines(fig[1,3], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks(), ytickformat=EngTicks(:symbol)))
+    ax, _ = lines(fig[1,5], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks(), ytickformat=EngTicks(:symbol)))
     lines!(ax, [Point(0, 0), Point(1, 1)], color=:black, linestyle=:dash, space=:relative)
 end
 
