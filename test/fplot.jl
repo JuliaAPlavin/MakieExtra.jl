@@ -38,14 +38,22 @@ end
     using Accessors
     using CairoMakie
 
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), axis=(ylabel="Abc",))
     lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
     @test content(fig[1,1]).xlabel[] == ""
+    @test content(fig[1,1]).ylabel[] == "Abc"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true, _axis=(ylabel="Abc",))
     lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
     @test content(fig[1,1]).xlabel[] == "_ + 1"
+    @test content(fig[1,1]).ylabel[] == "Abc"
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(ylabel="Abc",)), doaxis=true)
+    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
+    @test content(fig[1,1]).xlabel[] == "_ + 1"
+    @test content(fig[1,1]).ylabel[] == "Abc"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 
