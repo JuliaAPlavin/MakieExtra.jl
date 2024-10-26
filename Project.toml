@@ -13,6 +13,12 @@ PyFormattedStrings = "5f89f4a4-a228-4886-b223-c468a82ed5b9"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 StructHelpers = "4093c41a-2008-41fd-82b8-e3f9d02b504f"
 
+[weakdeps]
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
+[extensions]
+UnitfulExt = "Unitful"
+
 [compat]
 AccessorsExtra = "0.1.75"
 DataManipulation = "0.1.16"
@@ -22,4 +28,5 @@ Makie = "0.21.2"
 PyFormattedStrings = "0.1"
 Reexport = "1.2.2"
 StructHelpers = "1"
+Unitful = "1"
 julia = "1.9"
