@@ -1,10 +1,11 @@
-@recipe LinesGlow (x, y) begin
+@recipe LinesGlow (positions,) begin
     glowwidth = 0
     glowalpha = 1
     glowcolor = nothing
     documented_attributes(Makie.Lines)...
 end
 
+Makie.conversion_trait(::Type{<:LinesGlow}) = Makie.PointBased()
 
 function Makie.plot!(p::LinesGlow)
     att = Makie.shared_attributes(p, Lines)
@@ -17,9 +18,9 @@ function Makie.plot!(p::LinesGlow)
             @set __[:linewidth] = @lift $(__[:linewidth]) + $(p.glowwidth) * x
             @set __[:alpha] = @lift (1-x)/nsteps*1.5 * $(p.glowalpha)
         end
-        lines!(p, attg, p.x, p.y)
+        lines!(p, attg, p.positions)
     end
-    lines!(p, att, p.x, p.y)
+    lines!(p, att, p.positions)
     return p
 end
 
