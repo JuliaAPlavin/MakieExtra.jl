@@ -12,6 +12,7 @@ end
 default_axis_attributes(_, ::Function) = (;)
 
 xint(rect::Makie.Rect) = minimum(rect)[1]..maximum(rect)[1]
+yint(rect::Makie.Rect) = minimum(rect)[2]..maximum(rect)[2]
 
 function Makie.convert_arguments(P::Type{<:Band}, i::AbstractInterval, f::Function)
     x, y = Makie.PlotUtils.adapted_grid(x -> Makie.mean(f(x)), endpoints(i))
