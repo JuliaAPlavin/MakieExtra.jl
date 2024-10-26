@@ -8,21 +8,32 @@ end
 
 FPlot(data, argfuncs...; axis::NamedTuple=(;), kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs), axis)
 
-Base.getindex(X::FPlot, i::Int) = X.argfuncs[i]
-Base.getindex(X::FPlot, i::Symbol) = X.kwargfuncs[i]
-Base.setindex(X::FPlot, v, i::Int) = @set X.argfuncs[i] = v
-Base.setindex(X::FPlot, v, i::Symbol) = @set X.kwargfuncs[i] = v
+const TUP_IX_TYPES = Union{Integer,NTuple{<:Any,<:Integer},AbstractVector{<:Integer}}
+const NTUP_IX_TYPES = Union{Symbol,NTuple{<:Any,<:Symbol},AbstractVector{<:Symbol}}
+Base.getindex(X::FPlot, i::TUP_IX_TYPES) = X.argfuncs[i]
+Base.getindex(X::FPlot, i::NTUP_IX_TYPES) = X.kwargfuncs[i]
+Base.setindex(X::FPlot, v, i::TUP_IX_TYPES) = @set X.argfuncs[i] = v
+Base.setindex(X::FPlot, v, i::NTUP_IX_TYPES) = @set X.kwargfuncs[i] = v
 Accessors.insert(X::FPlot, p::IndexLens, v) = 
-	if all(i -> i isa Integer, p.indices)
+	if all(i -> i isa TUP_IX_TYPES, p.indices)
 		@insert X.argfuncs |> p = v
-	else
+	elseif all(i -> i isa NTUP_IX_TYPES, p.indices)
 		@insert X.kwargfuncs |> p = v
+	else
+		error("Cannot insert to FPlot at indices $(p.indices)")
 	end
 Accessors.delete(X::FPlot, p::IndexLens) =
-	if all(i -> i isa Integer, p.indices)
-		@set X.argfuncs |> p = nothing
-	else
+	if all(i -> i isa TUP_IX_TYPES, p.indices)
+		ix = only(p.indices)
+		if minimum(ix) == length(X.argfuncs) - length(ix) + 1
+			@delete X.argfuncs |> p
+		else
+			@set X.argfuncs |> p = nothing
+		end
+	elseif all(i -> i isa NTUP_IX_TYPES, p.indices)
 		@delete X.kwargfuncs |> p
+	else
+		error("Cannot delete from FPlot at indices $(p.indices)")
 	end
 
 Base.getproperty(X::FPlot, i::Symbol) = hasfield(typeof(X), i) ? getfield(X, i) : X.kwargfuncs[i]
