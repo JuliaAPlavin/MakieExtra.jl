@@ -94,19 +94,19 @@ end
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
-    @test current_axis().ylabel[] == "_ ^ 2 ± 3"
+    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
 
     rangebars(FPlot(1:10, (@o _), (@o _^2 ± 3)), direction=:x, doaxis=true, reorder_args=false)
     @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test current_axis().xlabel[] == "_ ^ 2 ± 3"
+    @test current_axis().xlabel[] == "(_ ^ 2) ± 3"
     @test current_axis().ylabel[] == "_"
 
     scatter(FPlot(1:10, (@o _), (@o _^2 ± 3)), doaxis=true, reorder_args=false)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
-    @test current_axis().ylabel[] == "_ ^ 2 ± 3"
+    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
 
 
     ## reorder_args = true
@@ -126,13 +126,13 @@ end
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
-    @test current_axis().ylabel[] == "_ ^ 2 ± 3"
+    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
 
     rangebars(FPlot(1:10, (@o _ ± 0.5), (@o _^2 ± 3)), direction=:x, doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_ ± 0.5"
-    @test current_axis().ylabel[] == "_ ^ 2 ± 3"
+    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
 
     vlines(FPlot(1:10, (@o _^2), (@o _^3)), doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ -4..105  rtol=0.2
@@ -144,7 +144,7 @@ end
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -50..1050  rtol=0.2
     @test current_axis().xlabel[] == ""
-    @test current_axis().ylabel[] == "_ ^ 3 ± 5"
+    @test current_axis().ylabel[] == "(_ ^ 3) ± 5"
     
     hist(FPlot(1:10, (@o _^2), (@o _^3)), doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ 0..105  rtol=0.2
