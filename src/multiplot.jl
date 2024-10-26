@@ -40,18 +40,11 @@ keep_attrs(plt::Type{<:Plot}, kwargs, args...) = kwargs[collect(
 keep_attrs(plt::Function, kwargs, args...) = keep_attrs(Plot{plt}, kwargs, args...)
 keep_attrs((plt, _)::Pair, kwargs, args...) = keep_attrs(plt, kwargs, args...)
 
-plotfunc(::Type{<:Plot{F}}) where {F} = F
-plotfunc(F::Function) = F
 function plotfunc((F, kws)::Pair)
     F = plotfunc(F)
     (args...; newkwargs...) -> F(args...; newkwargs..., kws...)
 end
 
-function plotfunc!(P)
-    F = plotfunc(P)
-    name = Symbol(nameof(F), :!)
-    return getproperty(parentmodule(F), name)
-end
 function plotfunc!((F, kws)::Pair)
     F! = plotfunc!(F)
     (args...; newkwargs...) -> F!(args...; newkwargs..., kws...)

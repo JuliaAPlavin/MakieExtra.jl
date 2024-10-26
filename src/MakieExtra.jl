@@ -12,6 +12,7 @@ using Makie.Unitful
 using DataPipes
 import DataManipulation: shift_range, filteronly, mapinsert
 using StructHelpers
+import Makie.MakieCore: plotfunc, plotfunc!, func2type
 
 @reexport using Makie
 export Makie
@@ -62,16 +63,6 @@ end
 # XXX: should upstream all of these!
 
 Makie.inverse_transform(f::Function) = inverse(f)
-
-func2type(x) = Makie.MakieCore.func2type(x)
-func2type(f::Function) =
-    if endswith(string(nameof(f)), "!")
-        name = Symbol(chopsuffix(string(nameof(f)), "!"))
-        Plot{getproperty(parentmodule(f), name)}
-    else
-        Plot{f}
-    end
-
 
 Makie.GeometryBasics.HyperRectangle{N}(ints::Vararg{<:Interval, N}) where {N} = Makie.HyperRectangle{N}(
     Point(leftendpoint.(ints)),
