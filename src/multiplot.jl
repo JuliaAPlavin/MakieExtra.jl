@@ -4,9 +4,25 @@ function multiplot!(plts, args...; kwargs...)
 	end
 end
 
+function multiplot!(ax::Axis, plts, args...; kwargs...)
+	map(plts) do plt
+		plotfunc!(plt)(ax, args...; keep_attrs(plt, kwargs, args...)...)
+	end
+end
+
 function multiplot(plts, args...; kwargs...)
 	plt = first(plts)
 	firstres = plotfunc(plt)(args...; keep_attrs(plt, kwargs, args...)...)
+	
+	tailres = map(Base.tail(plts)) do plt
+		plotfunc!(plt)(args...; keep_attrs(plt, kwargs, args...)...)
+	end
+    return (firstres, tailres...)
+end
+
+function multiplot(pos::Union{GridPosition, GridSubposition}, plts, args...; kwargs...)
+	plt = first(plts)
+	firstres = plotfunc(plt)(pos, args...; keep_attrs(plt, kwargs, args...)...)
 	
 	tailres = map(Base.tail(plts)) do plt
 		plotfunc!(plt)(args...; keep_attrs(plt, kwargs, args...)...)
