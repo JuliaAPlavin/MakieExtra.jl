@@ -53,7 +53,7 @@ macro define_plotfunc_conv(plotfuncs, Ts)
         quote
             function Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_any...); axis=(;), kwargs...)
 				used_attrs = used_attributes($plottype, Makie.to_value($argname))
-                axis = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), axis)
+                $axis = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), $axis)
 				$plotf(
 					pos,
 					_lift(
