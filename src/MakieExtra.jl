@@ -10,7 +10,7 @@ using Makie.IntervalSets
 using Makie.IntervalSets: width
 using Makie.Unitful
 using DataPipes
-import DataManipulation: shift_range, filteronly
+import DataManipulation: shift_range, filteronly, mapinsert
 using StructHelpers
 
 @reexport using Makie
@@ -23,8 +23,9 @@ export
     marker_lw,
     to_x_attrs, to_y_attrs, to_xy_attrs,
     multiplot, multiplot!,
+    changes,
     FPlot,
-    changes
+    DataCursor, RectSelection, with_widgets, is_selected, selected_data, mark_selected_data
 
 include("lift.jl")
 include("scales.jl")
