@@ -6,7 +6,7 @@ using InverseFunctions
 @reexport using Makie
 export Makie
 
-export SymLog, AsinhScale, BaseMulTicks
+export SymLog, AsinhScale, BaseMulTicks, EngTicks
 
 include("scales.jl")
 include("ticks.jl")
