@@ -59,11 +59,12 @@ end
 
 # XXX: should upstream these!
 
-function Accessors.set(attrs::Attributes, il::IndexLens, val)
-	res = copy(attrs)
-	res[only(il.indices)] = val
-	return res
+function Base.setindex(x::Attributes, value::Observable, key::Symbol)
+	y = copy(x)
+	y[key] = value
+	return y
 end
+Base.setindex(x::Attributes, value, key::Symbol) = setindex(x, Observable(value), key)
 
 function Accessors.insert(attrs::Attributes, il::IndexLens, val)
 	res = copy(attrs)
