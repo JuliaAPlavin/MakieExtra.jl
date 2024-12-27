@@ -24,9 +24,3 @@ default_axis_attributes(_ignore, ::Function; kwargs...) = (;)
 
 xint(rect::Makie.Rect) = minimum(rect)[1]..maximum(rect)[1]
 yint(rect::Makie.Rect) = minimum(rect)[2]..maximum(rect)[2]
-
-# XXX: piracy, should upstream
-function Makie.convert_arguments(P::Type{<:Union{Band,Rangebars,Errorbars}}, i::AbstractInterval, f::Function)
-    x, y = Makie.PlotUtils.adapted_grid(x -> Makie.mean(f(x)), endpoints(i))
-    return convert_arguments(P, x, f.(x))
-end
