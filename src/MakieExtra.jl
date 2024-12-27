@@ -188,4 +188,10 @@ end
 # this method is relied upon in, for example, VLBIPlots.jl
 Makie.convert_arguments(args...; kwargs...) = isempty(kwargs) ? throw(MethodError(convert_arguments, args)) : convert_arguments(args...)
 
+
+Makie.Record(figlike::Figure, obs::Observable, iter::AbstractVector; kw_args...) =
+    Record(figlike, iter; kw_args...) do i
+        obs[] = i
+    end
+
 end
