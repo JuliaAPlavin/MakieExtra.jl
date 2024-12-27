@@ -159,13 +159,13 @@ end
 @testitem "fplot" begin
     using Accessors
 
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=true))
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
     @test content(fig[1,1]).xlabel[] == "+(_, 1)"
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), linewidth=10)
     @test ax.xlabel[] == ""
     # @test plt.linewidth[]
     plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
-    plt = lines!(FPlot(1:10, Ref(1), (@o _^2), color=sqrt, axis=true))
+    plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=Ref(:black)), doaxis=true)
     plt = lines!(FPlot(1:10, x->x+1, (@o _^2), color=sqrt), linewidth=15)
     @test plt.linewidth[] == 15
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt), linewidth=15)
@@ -174,7 +174,7 @@ end
 
     struct MyObj end
     Makie.used_attributes(T::Type{<:Plot}, ::MyObj) = Tuple(Makie.attribute_names(T))
-    Makie.convert_arguments(ct::Type{<:AbstractPlot}, ::MyObj; kwargs...) = Makie.convert_arguments(ct, FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=true); kwargs...)
+    Makie.convert_arguments(ct::Type{<:AbstractPlot}, ::MyObj; kwargs...) = Makie.convert_arguments(ct, FPlot(1:10, (@o _+1), (@o _^2), color=sqrt); doaxis=true, kwargs...)
 
     lines(MyObj(); linewidth=15)
     lines(MyObj())
