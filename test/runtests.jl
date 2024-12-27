@@ -410,7 +410,7 @@ end
 
 @testitem "_" begin
     import Aqua
-    Aqua.test_all(MakieExtra; ambiguities=false, undefined_exports=false, piracies=false, persistent_tasks=false)
+    Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
 
     import CompatHelperLocal as CHL
     CHL.@check(checktest=false)
