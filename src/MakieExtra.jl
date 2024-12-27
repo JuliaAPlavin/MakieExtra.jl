@@ -15,6 +15,7 @@ using DataPipes
 import DataManipulation: shift_range, filteronly, filterfirst, mapinsert
 using StructHelpers
 import Makie.MakieCore: plotfunc, plotfunc!, func2type
+using KwdefHelpers
 
 @reexport using Makie
 export Makie
