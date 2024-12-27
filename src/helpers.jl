@@ -24,7 +24,7 @@ macro define_plotfunc(plotfuncs, Ts)
             end
             
             function Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_obs...); axis=(;), kwargs...)
-                ax_kwargs = merge($axis_attributes($Plot{$plotf}, $(argnames...); kwargs...), axis)
+                ax_kwargs = merge($default_axis_attributes($Plot{$plotf}, $(argnames...); kwargs...), axis)
                 ax = Axis(pos; ax_kwargs...)
                 plt = $plotf_excl(ax, $(argnames...); kwargs...)
                 Makie.AxisPlot(ax, plt)
@@ -37,6 +37,6 @@ end
 _ensure_observable(x) = Observable(x)
 _ensure_observable(x::Observable) = x
 
-function axis_attributes end
+function default_axis_attributes end
 
-axis_attributes(T, args::Vararg{Observable}; kwargs...) = axis_attributes(T, getindex.(args)...; kwargs...)
+default_axis_attributes(T, args::Vararg{Observable}; kwargs...) = default_axis_attributes(T, getindex.(args)...; kwargs...)
