@@ -1,10 +1,33 @@
 struct FPlot
 	data
-	argfuncs
-	kwargfuncs
+	argfuncs::Tuple
+	kwargfuncs::NamedTuple
 end
+@batteries FPlot
 
 FPlot(data, argfuncs...; kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs))
+
+@accessor Base.values(X::FPlot) = X.data
+Accessors.delete(X::FPlot, ::typeof(values)) = @set X.data = nothing
+Accessors.insert(X::FPlot, ::typeof(values), v) = (@assert isnothing(X.data); @set X.data = v)
+
+Base.getindex(X::FPlot, i::Int) = X.argfuncs[i]
+Base.getindex(X::FPlot, i::Symbol) = X.kwargfuncs[i]
+Base.setindex(X::FPlot, v, i::Int) = @set X.argfuncs[i] = v
+Base.setindex(X::FPlot, v, i::Symbol) = @set X.kwargfuncs[i] = v
+
+Base.getproperty(X::FPlot, i::Symbol) = hasfield(typeof(X), i) ? getfield(X, i) : X.kwargfuncs[i]
+Base.propertynames(X::FPlot) = (fieldnames(typeof(X))..., keys(X.kwargfuncs)...)
+function Accessors.setproperties(X::FPlot, patch::NamedTuple)
+	fnames = Tuple(fieldnames(typeof(X)) ∩ keys(patch))
+	props = (;
+		getproperties(X)...,
+		patch[fnames]...,
+		kwargfuncs = merge(X.kwargfuncs, get(patch, :kwargfuncs, (;)), @delete patch[fnames]),
+	)
+	FPlot(props.data, props.argfuncs, props.kwargfuncs)
+end
+Accessors.insert(X::FPlot, p::PropertyLens, v) = @insert X.kwargfuncs |> p = v
 
 Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
 Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
