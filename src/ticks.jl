@@ -82,3 +82,13 @@ Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
     end
     rich(f"{v / 10.0^pow3:.{t.digits}f}", suffix)
 end
+
+
+@kwdef struct PercentFormatter
+    digits::Int = 0
+    sign::Bool = false
+end
+
+Makie.get_ticklabels(t::PercentFormatter, values) = map(values) do v
+    t.sign ? f"{v * 100:+.{t.digits}f}%" : f"{v * 100:.{t.digits}f}%"
+end
