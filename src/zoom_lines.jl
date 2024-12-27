@@ -9,13 +9,17 @@ function zoom_lines!(ax1, ax2; strokewidth=1.5, strokecolor=:black, color=(:blac
         slines = if isnothing(axs)
 			nothing
 		else
-			corns1 = corners(viewport(axs[1])[])
-			corns2 = corners(fullproject(axs[2], axs[1].finallimits[]))
-            cornpairs = @p Iterators.product(corns1, corns2) collect vec sort(by=((a, b),) -> norm(a - b))
-            [
-                first(cornpairs),
-                filterfirst(c -> all(c .!= first(cornpairs)), cornpairs),
-            ]
+			r1 = viewport(axs[1])[]
+			r2 = fullproject(axs[2], axs[1].finallimits[])
+            cornsets = [
+				((corner(r1, (1,1)), corner(r2, (-1,1))), (corner(r1, (1,-1)), corner(r2, (-1,-1)))),
+				((corner(r1, (1,-1)), corner(r2, (1,1))), (corner(r1, (-1,-1)), corner(r2, (-1,1)))),
+				((corner(r1, (-1,-1)), corner(r2, (1,-1))), (corner(r1, (-1,1)), corner(r2, (1,1)))),
+				((corner(r1, (-1,1)), corner(r2, (-1,-1))), (corner(r1, (1,1)), corner(r2, (1,-1)))),
+			]
+			argmin(cornsets) do ((a1, a2), (b1, b2))
+				min(norm(a1-a2), norm(b1-b2))
+			end
 		end
         (
             rect1=ax2.finallimits[],
