@@ -13,12 +13,13 @@ function Makie.plot!(p::ArrowLines)
     @assert length(points[]) ≥ 2
     
     scene = Makie.get_scene(p)
-    markerangles = lift(scene.camera.projectionview, p.model, Makie.transform_func(p), scene.viewport, points) do _, _, _, _, ps_all
+    markerangles = lift(scene.camera.projectionview, p.model, Makie.transform_func(p), scene.viewport, points) do _, _, tfunc, _, ps_all
         map([
             (ps_all[begin], ps_all[begin + 1]),
             (ps_all[end - 1], ps_all[end]),
         ]) do ps
-            ps_pix = Makie.project.(Ref(scene), ps)
+            ps_t = Makie.apply_transform.(Ref(tfunc), ps)
+            ps_pix = Makie.project.(Ref(scene), ps_t)
             atan(reverse(ps_pix[2] - ps_pix[1])...)
         end
     end
