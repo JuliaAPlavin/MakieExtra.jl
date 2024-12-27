@@ -1,5 +1,5 @@
 @recipe BandStroke begin
-    strokewidth = 0
+    strokewidth = 1
     strokecolor = nothing
     Makie.MakieCore.documented_attributes(Makie.Band)...
 end
