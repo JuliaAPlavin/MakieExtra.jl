@@ -27,7 +27,9 @@ function Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax; go
         0.;
         Makie.get_tickvalues(t, mintick, vmax);
     ])
-    length(ticks) ≤ 1 ? Makie.get_tickvalues(t, scale, vmin, vmax; go_to_previous_base_power=true) : ticks
+    length(ticks) ≤ 1 && !go_to_previous_base_power ?
+        Makie.get_tickvalues(t, scale, vmin, vmax; go_to_previous_base_power=true) :
+        ticks
 end
 
 Makie.get_minor_tickvalues(t::BaseMulTicks, scale, tickvals, vmin, vmax) = Makie.get_tickvalues(t, scale, vmin, vmax)
