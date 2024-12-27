@@ -28,6 +28,10 @@ using TestItemRunner
     
     ax, _ = lines(fig[1,5], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks(), ytickformat=EngTicks(:symbol)))
     lines!(ax, [Point(0, 0), Point(1, 1)], color=:black, linestyle=:dash, space=:relative)
+
+    # smoke tests to probee the actual inverse:
+    Makie.ReversibleScale(SymLog(1))
+    Makie.ReversibleScale(AsinhScale(1))
 end
 
 @testitem "macro" begin

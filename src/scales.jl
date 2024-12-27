@@ -21,7 +21,7 @@ function (s::SymLog)(x)
     end
 end
 
-InverseFunctions.inverse(f::SymLog) = function(y)
+InverseFunctions.inverse(s::SymLog) = function(y)
     x = inverse(s._fsmall)(y)
     if abs(x) < s.linthresh
         return x
