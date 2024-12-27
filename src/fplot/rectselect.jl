@@ -58,6 +58,7 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwarg
             end
         catch e
             @warn "" (e,catch_backtrace())
+            return Consume(true)
         end
     end
     on(events(ax).mouseposition, priority=100) do event
@@ -68,6 +69,7 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwarg
             end
         catch e
             @warn "" e
+            return Consume(true)
         end
     end
 end
