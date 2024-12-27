@@ -45,7 +45,9 @@ Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
     iszero(v) && return string(v)
     pow = log10(abs(v))
     pow3 = @modify(x -> floor(Int, x), $pow / 3)
-    suffix = if t.kind == :number
+    suffix = if pow3 == 0
+        ""
+    elseif t.kind == :number
         rich("×10", superscript(string(pow3)))
     elseif t.kind == :symbol
         " " * Dict(
