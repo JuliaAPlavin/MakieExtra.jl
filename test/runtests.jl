@@ -244,6 +244,7 @@ end
     arrowlines!([(0, 0), (1, 0.5)], markersize=50)
     arrowlines!([(0, 0), (1, 0.5)], arrowstyle="<-|>")
     arrowlines!([(0, 0), (10, -2), (1, 0.5)], arrowstyle="<-|>")
+    arrowlines!(1:10, sin)
 end
 
 @testitem "@define_plotfunc" begin
