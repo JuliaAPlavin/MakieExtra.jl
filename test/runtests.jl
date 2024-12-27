@@ -85,9 +85,11 @@ end
 
 @testitem "axis-wide function" begin
     lines(sin)
+    lines(sin; color=:black)
     scatter!(sin)
     scatter!(Observable(sin))
-    band(x -> sin(x)..2sin(x))
+    scatter!(Observable(sin); markersize=2)
+    band(x -> sin(x)..2sin(x); alpha=0.5)
 end
 
 @testitem "contourf fast" begin
