@@ -14,7 +14,12 @@ import DataManipulation: shift_range
 @reexport using Makie
 export Makie
 
-export SymLog, AsinhScale, BaseMulTicks, EngTicks, zoom_lines!, to_x_attrs, to_y_attrs, to_xy_attrs
+export 
+	SymLog, AsinhScale,
+	BaseMulTicks, EngTicks,
+	zoom_lines!,
+	vline_lw, hline_lw, cross_lw,
+	to_x_attrs, to_y_attrs, to_xy_attrs
 
 include("lift.jl")
 include("scales.jl")
@@ -24,6 +29,8 @@ include("zoom_lines.jl")
 include("helpers.jl")
 include("axisfunction.jl")
 include("contourf.jl")
+include("markers.jl")
+include("glow.jl")
 
 
 to_x_attrs(attrs) = @modify(k -> Symbol(:x, k), keys(attrs)[∗])
