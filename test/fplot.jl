@@ -122,7 +122,7 @@ end
 @testitem "modified/reordered args" begin
     using Accessors
     using MakieExtra: xint, yint
-    using UncertaintiesNaive
+    using Uncertain
 
     ## reorder_args = false
     barplot(FPlot(1:10, (@o _), (@o _^2)), doaxis=true, reorder_args=false)
@@ -137,23 +137,23 @@ end
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == "_"
 
-    rangebars(FPlot(1:10, (@o _), (@o _^2 ± 3)), doaxis=true, reorder_args=false)
+    rangebars(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), doaxis=true, reorder_args=false)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
-    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
+    @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
-    rangebars(FPlot(1:10, (@o _), (@o _^2 ± 3)), direction=:x, doaxis=true, reorder_args=false)
+    rangebars(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), direction=:x, doaxis=true, reorder_args=false)
     @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test current_axis().xlabel[] == "(_ ^ 2) ± 3"
+    @test current_axis().xlabel[] == "(_ ^ 2) ±ᵤ 3"
     @test current_axis().ylabel[] == "_"
 
-    scatter(FPlot(1:10, (@o _), (@o _^2 ± 3)), doaxis=true, reorder_args=false)
+    scatter(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), doaxis=true, reorder_args=false)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
-    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
+    @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
 
     ## reorder_args = true
@@ -169,17 +169,17 @@ end
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "_ ^ 2"
 
-    rangebars(FPlot(1:10, (@o _), (@o _^2 ± 3)), doaxis=true)
+    rangebars(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
-    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
+    @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
-    rangebars(FPlot(1:10, (@o _ ± 0.5), (@o _^2 ± 3)), direction=:x, doaxis=true)
+    rangebars(FPlot(1:10, (@o _ ±ᵤ 0.5), (@o _^2 ±ᵤ 3)), direction=:x, doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
-    @test current_axis().xlabel[] == "_ ± 0.5"
-    @test current_axis().ylabel[] == "(_ ^ 2) ± 3"
+    @test current_axis().xlabel[] == "_ ±ᵤ 0.5"
+    @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
     vlines(FPlot(1:10, (@o _^2), (@o _^3)), doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ -4..105  rtol=0.2
@@ -187,11 +187,11 @@ end
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == ""
 
-    hlines(FPlot(1:10, (@o _^2 ± 0.5), (@o _^3 ± 5)), doaxis=true)
+    hlines(FPlot(1:10, (@o _^2 ±ᵤ 0.5), (@o _^3 ±ᵤ 5)), doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -50..1050  rtol=0.2
     @test current_axis().xlabel[] == ""
-    @test current_axis().ylabel[] == "(_ ^ 3) ± 5"
+    @test current_axis().ylabel[] == "(_ ^ 3) ±ᵤ 5"
     
     hist(FPlot(1:10, (@o _^2), (@o _^3)), doaxis=true)
     @test xint(current_axis().targetlimits[]) ≈ 0..105  rtol=0.2
