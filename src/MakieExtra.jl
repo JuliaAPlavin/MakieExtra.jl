@@ -16,6 +16,7 @@ export Makie
 
 export SymLog, AsinhScale, BaseMulTicks, EngTicks, zoom_lines!, to_x_attrs, to_y_attrs, to_xy_attrs
 
+include("lift.jl")
 include("scales.jl")
 include("ticks.jl")
 include("scalebar.jl")
