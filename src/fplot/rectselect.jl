@@ -36,20 +36,21 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwarg
     vspan!(ax, sel_span(rs, fplt, plt, 1; kwargs...); rs.poly...)
     hspan!(ax, sel_span(rs, fplt, plt, 2; kwargs...); rs.poly...)
 
+    argfuncs = argfuncs_for_xy(plt, fplt; reorder_args=true, kwargs...)
     isrecting = Observable(false)
     on(events(ax).mousebutton, priority=100) do evt
         try
             if evt.button == Mouse.left
                 if is_mouseinside(ax) && evt.action == Mouse.press
-                    rs.vals[] = map((o, m) -> o => m..m, fplt.argfuncs, _mouseposition(ax))
+                    rs.vals[] = map((o, m) -> o => m..m, argfuncs, _mouseposition(ax)[1:length(argfuncs)])
                     isrecting[] = true
                     return Consume(true)
                 end
                 if is_mouseinside(ax) && isrecting[] && evt.action == Mouse.release
-                    if all(map((cur, m) -> leftendpoint(cur) == m, last.(rs.vals[]), _mouseposition(ax)))
+                    if all(map((cur, m) -> leftendpoint(cur) == m, last.(rs.vals[]), _mouseposition(ax)[1:length(argfuncs)]))
                         rs.vals[] = []
                     else
-                        rs.vals[] = map((o, cur, m) -> o => leftendpoint(cur)..m, fplt.argfuncs, last.(rs.vals[]), _mouseposition(ax))
+                        rs.vals[] = map((o, cur, m) -> o => leftendpoint(cur)..m, argfuncs, last.(rs.vals[]), _mouseposition(ax)[1:length(argfuncs)])
                     end
                     isrecting[] = false
                     return Consume(true)
@@ -62,8 +63,8 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwarg
     on(events(ax).mouseposition, priority=100) do event
         try
             if is_mouseinside(ax) && isrecting[] && ispressed(ax, Mouse.left)
-                rs.vals[] = map((o, cur, m) -> o => leftendpoint(cur)..m, fplt.argfuncs, last.(rs.vals[]), _mouseposition(ax))
-                return Consume(true) 
+                rs.vals[] = map((o, cur, m) -> o => leftendpoint(cur)..m, argfuncs, last.(rs.vals[]), _mouseposition(ax)[1:length(argfuncs)])
+                return Consume(true)
             end
         catch e
             @warn "" e
