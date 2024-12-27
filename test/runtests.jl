@@ -312,6 +312,8 @@ end
 end
 
 @testitem "lift" begin
+    using MakieExtra.PyFormattedStrings
+
     # https://github.com/MakieOrg/Makie.jl/pull/3915
     u_noobs = "a"
     x = Observable(1.0)
@@ -346,6 +348,9 @@ end
     observables = [Observable(1.0), Observable(2.0)]
     t6 = @lift($(observables[1]) + $(observables[2]))
     @test t6[] == 3.0
+
+    t7 = @lift f"abc {$x:0.2f} def"
+    @test t7[] == "abc 1.00 def"
 end
 
 @testitem "obs changes" begin
