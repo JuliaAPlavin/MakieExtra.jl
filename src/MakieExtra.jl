@@ -107,6 +107,18 @@ function obsmap(x::Observable, xvals, res::Observable)
 end
 
 
+# https://github.com/MakieOrg/Makie.jl/pull/4519
+Makie.resize_to_layout!() = resize_to_layout!(current_figure())
+Makie.xautolimits() = xautolimits(current_axis())
+Makie.yautolimits() = yautolimits(current_axis())
+Makie.hidexdecorations!(; kwargs...) = hidexdecorations!(current_axis(); kwargs...)
+Makie.hideydecorations!(; kwargs...) = hideydecorations!(current_axis(); kwargs...)
+Makie.hidedecorations!(; kwargs...) = hidedecorations!(current_axis(); kwargs...)
+Makie.hidespines!(spines::Symbol...) = hidespines!(current_axis(), spines...)
+Makie.tight_xticklabel_spacing!() = tight_xticklabel_spacing!(current_axis())
+Makie.tight_yticklabel_spacing!() = tight_yticklabel_spacing!(current_axis())
+Makie.tight_ticklabel_spacing!() = tight_ticklabel_spacing!(current_axis())
+
 # XXX: should upstream all of these!
 
 _which_to_ix(which::Integer) = which == -1 ? 1 : which == 1 ? 2 : error("which must be -1 or 1, got $which")
