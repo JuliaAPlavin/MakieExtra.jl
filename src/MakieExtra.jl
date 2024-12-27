@@ -10,7 +10,7 @@ using Makie.IntervalSets
 using Makie.IntervalSets: width
 using Makie.Unitful
 using DataPipes
-import DataManipulation: shift_range
+import DataManipulation: shift_range, filteronly
 using StructHelpers
 
 @reexport using Makie
@@ -60,6 +60,29 @@ end
 
 # XXX: should upstream these!
 
+func2type(x) = Makie.MakieCore.func2type(x)
+func2type(f::Function) =
+    if endswith(string(nameof(f)), "!")
+        name = Symbol(chopsuffix(string(nameof(f)), "!"))
+        Plot{getproperty(parentmodule(f), name)}
+    else
+        Plot{f}
+    end
+
+
+Makie.GeometryBasics.HyperRectangle{N}(ints::Vararg{<:Interval, N}) where {N} = Makie.HyperRectangle{N}(
+	Point(leftendpoint.(ints)),
+	Point(rightendpoint.(ints) .- leftendpoint.(ints))
+)
+
+# https://github.com/MakieOrg/Makie.jl/pull/4090
+function _mouseposition(ax::Axis)
+    pos = Makie.mouseposition(Makie.get_scene(ax))
+    # `pos` has the axis scaling already applied to it, so to get the true data
+    # coordinates we have to invert the scaling.
+    return Vec2{Float64}(Makie.inverse_transform(ax.xscale[])(pos[1]),
+                         Makie.inverse_transform(ax.yscale[])(pos[2]))
+end
 
 # https://github.com/JuliaGizmos/Observables.jl/pull/115
 """
