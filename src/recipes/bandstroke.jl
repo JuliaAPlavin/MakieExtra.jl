@@ -27,3 +27,10 @@ function Makie.plot!(p::BandStroke)
     lines!(p, att, pb[2])
     return p
 end
+
+
+function Makie.convert_arguments(P::Type{<:BandStroke}, i::AbstractInterval, f::Function)
+    # f() returns interval for this plottype
+    x, y = Makie.PlotUtils.adapted_grid(x -> Makie.mean(f(x)), endpoints(i))
+    return convert_arguments(P, x, f.(x))
+end

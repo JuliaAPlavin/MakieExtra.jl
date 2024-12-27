@@ -8,6 +8,7 @@ using Makie: left, right, bottom, top, bottomleft, topleft, bottomright, toprigh
 using Makie.MakieCore: documented_attributes
 using Makie.IntervalSets
 using Makie.IntervalSets: width
+import Makie.GeometryBasics; using Makie.GeometryBasics: HyperRectangle, Rect
 using Makie.Unitful
 using Makie.LinearAlgebra: norm
 using DataPipes
@@ -37,14 +38,14 @@ include("scales.jl")
 include("ticks.jl")
 include("helpers.jl")
 include("axplot.jl")
-include("scalebar.jl")
 include("zoom_lines.jl")
-include("contourf.jl")
 include("markers.jl")
-include("glow.jl")
-include("bandstroke.jl")
+include("recipes/arrowline.jl")
+include("recipes/scalebar.jl")
+include("recipes/contourf.jl")
+include("recipes/glow.jl")
+include("recipes/bandstroke.jl")
 include("axisfunction.jl")
-include("arrowline.jl")
 include("multiplot.jl")
 include("fplot/fplot.jl")
 
@@ -65,6 +66,10 @@ function __init__()
     end
 end
 
+
+# XXX: should try upstreaming all of these!
+
+include("geometry.jl")
 
 # adapted from https://github.com/sarvex/ObjectiveC.jl/blob/e2974864b13e91dd72fab85544b12bb782066cca/src/cocoa/cocoa.jl
 using ObjectiveC: id, Object, NSString, NSObject, @objc, @objcwrapper
@@ -119,22 +124,11 @@ Makie.tight_xticklabel_spacing!() = tight_xticklabel_spacing!(current_axis())
 Makie.tight_yticklabel_spacing!() = tight_yticklabel_spacing!(current_axis())
 Makie.tight_ticklabel_spacing!() = tight_ticklabel_spacing!(current_axis())
 
-# XXX: should upstream all of these!
 
-_which_to_ix(which::Integer) = which == -1 ? 1 : which == 1 ? 2 : error("which must be -1 or 1, got $which")
-corner(r::Makie.GeometryBasics.HyperRectangle{2}, which::NTuple{2,Integer}) = Point(extrema(r)[_which_to_ix(which[1])][1], extrema(r)[_which_to_ix(which[2])][2])
-corners(r::Makie.GeometryBasics.HyperRectangle{2}) = (bottomleft(r), topleft(r), topright(r), bottomright(r))
-
-Makie.project(s, r::Makie.GeometryBasics.HyperRectangle) = Makie.GeometryBasics.HyperRectangle(Makie.project(s, r.origin), Makie.project(s, r.origin + r.widths) - Makie.project(s, r.origin))
+Makie.project(s, r::HyperRectangle) = HyperRectangle(Makie.project(s, r.origin), Makie.project(s, r.origin + r.widths) - Makie.project(s, r.origin))
 
 fullproject(ax, p) = Makie.project(Makie.get_scene(ax), Makie.apply_transform(Makie.transform_func(ax), p)) + viewport(ax)[].origin
 
-Makie.inverse_transform(f::Function) = inverse(f)
-
-Makie.GeometryBasics.HyperRectangle{N}(ints::Vararg{Interval, N}) where {N} = Makie.HyperRectangle{N}(
-    Point(leftendpoint.(ints)),
-    Point(rightendpoint.(ints) .- leftendpoint.(ints))
-)
 
 # https://github.com/MakieOrg/Makie.jl/pull/4090
 function _mouseposition(ax::Axis)
@@ -182,20 +176,6 @@ function Accessors.delete(attrs::Attributes, il::IndexLens)
     delete!(res, only(il.indices))
     return res
 end
-
-
-function Makie.convert_arguments(P::Type{<:Union{Band,BandStroke,Rangebars}}, i::AbstractInterval, f::Function)
-    x, y = Makie.PlotUtils.adapted_grid(x -> Makie.mean(f(x)), endpoints(i))
-    return convert_arguments(P, x, f.(x))
-end
-
-
-Base.:(⊆)(a::Rect2, b::Rect2) = xint(a) ⊆ xint(b) && yint(a) ⊆ yint(b)
-
-shift_range(p::T, (r1, r2)::Pair{<:Rect2,<:Rect2}) where {T<:Point2} = T(
-    shift_range(p[1], xint(r1) => xint(r2)),
-    shift_range(p[2], yint(r1) => yint(r2)),
-)
 
 
 # XXX: hack, ignore kwargs that Makie erroneously propagates
