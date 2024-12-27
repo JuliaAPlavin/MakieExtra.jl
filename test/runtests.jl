@@ -97,6 +97,11 @@ end
         fig, ax, plt = plotf(Observable(T()))
         @test ax.limits[] === ((1, 2), (3, 4))
     end
+    @testset for plotf in (scatter!, image!),
+                 T in (MyType, MyTypeVec)
+        plt = plotf(T())
+        plt = plotf(Observable(T()))
+    end
 end
 
 @testitem "_" begin
