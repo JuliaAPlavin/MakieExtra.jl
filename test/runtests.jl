@@ -409,6 +409,7 @@ end
     t = Observable(1)
     fig, ax, plt = scatter(@lift ($t, $t))
     Record(fig, t, 1:10)
+    Record(t, 1:10)
 end
 
 @testitem "func2type" begin
