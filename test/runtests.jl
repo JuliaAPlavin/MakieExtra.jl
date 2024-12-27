@@ -408,6 +408,34 @@ end
     @test ReversibleScale(cbrt) === ReversibleScale(cbrt, Base.Fix2(^, 3))
 end
 
+@testitem "rectangles" begin
+    using Accessors
+    using MakieExtra: HyperRectangle
+
+    @test intervals(Rect2(Vec(0, 1), Vec(2, 3))) == [0..2, 1..4]
+    @test intervals(Rect3(Vec(0, 1, 2), Vec(2, 3, 4))) == [0..2, 1..4, 2..6]
+    
+    @test HyperRectangle(0..1, 2..5) == Rect2(Vec(0, 2), Vec(1, 3))
+    @test Rect(0..1, 2..5) == Rect2(Vec(0, 2), Vec(1, 3))
+    @test Rect2(0..1, 2..5) == Rect2(Vec(0, 2), Vec(1, 3))
+    @test HyperRectangle(0..1, 2..5, 3..6) == Rect3(Vec(0, 2, 3), Vec(1, 3, 3))
+    @test Rect(0..1, 2..5, 3..6) == Rect3(Vec(0, 2, 3), Vec(1, 3, 3))
+    @test Rect3(0..1, 2..5, 3..6) == Rect3(Vec(0, 2, 3), Vec(1, 3, 3))
+
+    @test Rect2(Rect3(Vec(0, 1, 2), Vec(2, 3, 4))) == Rect2(Vec(0, 1), Vec(2, 3))
+
+    @test Rect2(Vec(0, 1), Vec(2, 3)) ⊆ Rect2(Vec(0, 1), Vec(2, 3))
+    @test Rect2(Vec(0, 1), Vec(2, 3)) ⊆ Rect2(Vec(0, 1), Vec(3, 4))
+    @test !(Rect2(Vec(0, 1), Vec(2, 3)) ⊆ Rect2(Vec(0, 1), Vec(1, 4)))
+
+    Accessors.test_getset_laws(first∘intervals, Rect2(Vec(0., 1), Vec(2., 3)), -1.5..5.2, 10..20)
+    Accessors.test_insertdelete_laws(first∘intervals, Rect2(Vec(0., 1), Vec(2., 3)), -1.5..5.2)
+
+    @test dilate(Rect2(Vec(0, 1), Vec(2, 3)), Rect2(Vec(-1, -2), Vec(3, 5))) == Rect2(Vec(-1, -1), Vec(5, 8))
+    @test erode(Rect2(Vec(0, 1), Vec(3, 5)), Rect2(Vec(-1, -2), Vec(2, 3))) == Rect2(Vec(1, 3), Vec(1, 2))
+    @test erode(Rect2(Vec(0, 1), Vec(3, 5)), Rect2(Vec(-1, -2), Vec(20, 30))) == Rect2(Vec(1, 3), Vec(-17, -25))
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
