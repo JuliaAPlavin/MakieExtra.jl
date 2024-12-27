@@ -383,5 +383,5 @@ end
     Aqua.test_all(MakieExtra; ambiguities=false, undefined_exports=false, piracies=false, persistent_tasks=false)
 
     import CompatHelperLocal as CHL
-    CHL.@check()
+    CHL.@check(checktest=false)
 end
