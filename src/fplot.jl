@@ -32,15 +32,23 @@ end
 Accessors.insert(X::FPlot, p::PropertyLens, v) = @insert X.kwargfuncs |> p = v
 Accessors.insert(X::FPlot, p::IndexLens, v) = @insert X.argfuncs |> p = v
 
-Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, :_axis, Makie.attribute_names(T)...)
-Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, :_axis, Makie.attribute_names(T)...)
+Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, :_axis, :reorder_args, Makie.attribute_names(T)...)
+Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, :_axis, :reorder_args, Makie.attribute_names(T)...)
 
 Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 
-function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), kwargs...)
+function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), reorder_args=true, kwargs...)
 	@assert !isnothing(X.data)
-	pargs = map(X.argfuncs) do f
-		getval(f, X.data)
+	pargs = if reorder_args
+		ixs = argixs_xy_axes(ct, X, kwargs)
+		argfuncs = isnothing(ixs) ? X.argfuncs : X.argfuncs[collect(ixs)]
+		map(argfuncs) do f
+			getval(f, X.data)
+		end
+	else
+		map(X.argfuncs) do f
+			getval(f, X.data)
+		end
 	end
 	pkws_keys = Tuple(keys(X.kwargfuncs) ∩ Makie.attribute_names(ct))
 	pkws = map(X.kwargfuncs[pkws_keys]) do f
@@ -50,7 +58,7 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	if doaxis
 		S = Makie.SpecApi
 		# can set axis attributes (eg xylabels), but cannot be plotted on existing axes
-		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, kwargs)..., _axis...)])
+		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, (;kwargs..., reorder_args))..., _axis...)])
 	else
 		# can be plotted either from scratch or on existing axes, but cannot set axis attributes
 		pspec
@@ -68,11 +76,13 @@ convert_to_makie(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
 _xlabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 1)
 _ylabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 2)
 function _xylabel(ct, X::FPlot, kwargs, i)
-	argix = argixs_xy_axes(ct, X, kwargs)[i]
+	argix = kwargs.reorder_args ? i : get(argixs_xy_axes(ct, X, kwargs), i, i)
 	shortlabel(get(X.argfuncs, argix, nothing))
 end
 
-argixs_xy_axes(ct, X::FPlot, kwargs) = (1, 2)
+argixs_xy_axes(ct, X::FPlot, kwargs) = nothing
+argixs_xy_axes(::Type{<:VLines}, X::FPlot, kwargs) = (1,)
+argixs_xy_axes(::Type{<:HLines}, X::FPlot, kwargs) = (2,)
 argixs_xy_axes(::Type{<:Union{BarPlot,Errorbars,Rangebars}}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
 
 shortlabel(::Nothing) = ""
