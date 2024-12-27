@@ -30,6 +30,7 @@ function Accessors.setproperties(X::FPlot, patch::NamedTuple)
 	FPlot(fields...)
 end
 Accessors.insert(X::FPlot, p::PropertyLens, v) = @insert X.kwargfuncs |> p = v
+Accessors.insert(X::FPlot, p::IndexLens, v) = @insert X.argfuncs |> p = v
 
 Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
 Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = (:doaxis, Makie.attribute_names(T)...)
