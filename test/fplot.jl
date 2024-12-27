@@ -21,7 +21,7 @@ end
     using Accessors
 
     lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
-    lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), linewidth=10)
+    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), linewidth=10)
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 10
     plt = lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
