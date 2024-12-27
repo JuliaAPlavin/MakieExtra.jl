@@ -75,6 +75,8 @@ end
 
     lines(FPlot(1:10, string, (@o _^2), color=sqrt), doaxis=true)
     @test current_axis().xlabel[] == "string(_)"
+
+    lines(FPlot(1:10, string, (@o _^2), color=(@o _ > 5 ? :blue : :red)), doaxis=true)
 end
 
 @testitem "unitful" begin
