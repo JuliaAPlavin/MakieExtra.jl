@@ -227,6 +227,79 @@ end
     # @test ax.ylabel[] == ""
     # @test ax.yscale[] == identity
 
+@testitem "datacursor" begin
+    using MakieExtra: with_widgets, DataCursor, RectSelection, cursor_vals, to_value
+    using Accessors
+
+    @test isequal(cursor_vals(DataCursor(), FPlot(nothing, (@o _.a), (@o _.b)), Scatter, 1) |> to_value, [NaN])
+    @test isequal(cursor_vals(DataCursor(
+        vals=Observable([(@o _.a) => 123])
+    ), FPlot(nothing, (@o _.a), (@o _.b)), Scatter, 1) |> to_value, [123])
+    @test isequal(cursor_vals(DataCursor(
+        vals=Observable([(@o _.a) => 123])
+    ), FPlot(nothing, (@o _.a), (@o _.b)), Scatter, 2) |> to_value, [NaN])
+
+    @test isequal(cursor_vals(DataCursor(
+        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+    ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 1) |> to_value, [123])
+    @test isequal(cursor_vals(DataCursor(
+        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+    ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2) |> to_value, [NaN])
+
+    @test isequal(cursor_vals(DataCursor(
+        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+    ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 1; direction=:x) |> to_value, [NaN])
+    @test isequal(cursor_vals(DataCursor(
+        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+    ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2; direction=:x) |> to_value, [456])
+end
+
+@testitem "rectselect" begin
+    using MakieExtra: with_widgets, DataCursor, RectSelection, sel_ints, sel_poly, sel_span, to_value
+    using Accessors
+
+    @test isequal(
+        sel_ints(RectSelection(), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
+        (NaN .. NaN, NaN .. NaN))
+    @test isequal(
+        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5])), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
+        (2 .. 5, NaN .. NaN))
+    @test isequal(
+        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
+        (2 .. 5, 10 .. 12))
+    @test isequal(
+        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist) |> to_value,
+        [2 .. 5])
+    @test isequal(
+        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist; direction=:x) |> to_value,
+        [NaN .. NaN, 10 .. 12])
+
+    @test isequal(
+        sel_span(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 1) |> to_value,
+        2 .. 5)
+    @test isequal(
+        sel_span(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2) |> to_value,
+        NaN .. NaN)
+end
+
+@testitem "interactive smoke test" begin
+    using MakieExtra: with_widgets, DataCursor, RectSelection
+    using Accessors
+
+    data = [(randn(), rand(), randn()) for _ in 1:1000]
+
+    fplt1 = FPlot(data, (@o _[1]), (@o _[2]))
+    dc = DataCursor(lines=(;color=:black, linestyle=:dot))
+    rs = RectSelection(poly=(;color=:orange, alpha=0.3))
+
+    fig,_,_ = with_widgets(scatter, [dc, rs])(fplt1, doaxis=true)
+
+    with_widgets(hist, [dc, rs])(fig[2,1], fplt1, doaxis=true)
+
+    fplt2 = @set fplt1[1] = @o _[3]
+    with_widgets(scatter, [dc, rs])(fig[1,2], fplt2, doaxis=true, _axis=(;yscale=SymLog(0.1)))
+end
+
 @testitem "conversion to FPlot" begin
     using Accessors
 
