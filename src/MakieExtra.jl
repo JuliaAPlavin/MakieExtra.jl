@@ -32,6 +32,7 @@ export
     axplot,
     @rich,
     obsmap,
+    mouse_position_obs,
     intervals, dilate, erode, boundingbox2d
 
 include("lift.jl")
@@ -102,6 +103,20 @@ function obsmap(x::Observable, xvals, res::Observable)
 	end
 	x[] = xval₀
 	return result
+end
+
+
+# see https://github.com/MakieOrg/Makie.jl/issues/4107 and https://github.com/MakieOrg/Makie.jl/issues/4291
+function mouse_position_obs(ax::Axis; key=Makie.Mouse.left, priority=10, consume=true)
+	res = Observable(map(Returns(NaN), mouseposition(ax)))
+	scene = Makie.parent_scene(ax)
+	on(events(scene).mouseposition; priority) do pos
+		if is_mouseinside(ax) && ispressed(scene, key)
+			res[] = mouseposition(ax)
+			consume && return Consume()
+		end
+	end
+	return res
 end
 
 
