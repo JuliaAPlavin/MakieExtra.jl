@@ -6,7 +6,7 @@ end
 
 function sel_ints(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
     @lift let
-        map(argfuncs_for_xy(plt, fplt; reorder_args=true, kwargs...)) do afunc
+        map(argfuncs_for_xy(plt, fplt; kwargs...)) do afunc
             vs = @p $(rs.vals) |> filter(((o, v),) -> o == afunc) |> map(last)
             v = @oget only(vs) NaN..NaN
         end
@@ -37,7 +37,7 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwarg
     vspan!(ax, sel_span(rs, fplt, plt, 1; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)
     hspan!(ax, sel_span(rs, fplt, plt, 2; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)
 
-    argfuncs = argfuncs_for_xy(plt, fplt; reorder_args=true, kwargs...)
+    argfuncs = argfuncs_for_xy(plt, fplt; kwargs...)
     isrecting = Observable(false)
     on(events(ax).mousebutton, priority=100) do evt
         try

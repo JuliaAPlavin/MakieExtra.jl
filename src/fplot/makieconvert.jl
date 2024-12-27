@@ -3,9 +3,9 @@ Makie.used_attributes(T::Type{<:Plot}, _, fplt::FPlot) = Makie.used_attributes(T
 
 Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 
-function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), reorder_args=true, kwargs...)
+function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), kwargs...)
 	@assert !isnothing(X.data)
-	pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
+	pargs = map(argfuncs_for_plotargs(ct, X; kwargs...)) do f
 		getval(f, X.data) |> convert_to_categorical_if_needed
 	end
 	pkws_keys = Tuple(keys(X.kwargfuncs) ∩ Makie.attribute_names(ct))
@@ -16,7 +16,7 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	if doaxis
 		S = Makie.SpecApi
 		# can set axis attributes (eg xylabels), but cannot be plotted on existing axes
-		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, (;kwargs..., reorder_args))..., _axis...)])
+		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, kwargs)..., _axis...)])
 	else
 		# can be plotted either from scratch or on existing axes, but cannot set axis attributes
 		pspec
