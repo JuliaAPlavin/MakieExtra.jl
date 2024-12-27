@@ -57,18 +57,6 @@ to_y_attrs(attrs) = @modify(k -> Symbol(:y, k), keys(attrs)[∗])
 to_xy_attrs(attrs) = merge(to_x_attrs(attrs), to_y_attrs(attrs))
 
 
-function __init__()
-    if ccall(:jl_generating_output, Cint, ()) != 1
-        # to support SpecApi
-        Core.eval(Makie, Expr(:global, :BandStroke))
-        Makie.BandStroke = BandStroke
-
-        Core.eval(Makie, Expr(:global, :LinesGlow))
-        Makie.LinesGlow = LinesGlow
-    end
-end
-
-
 # XXX: should try upstreaming all of these!
 
 include("geometry.jl")
