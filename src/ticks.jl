@@ -9,11 +9,11 @@ function Makie.get_tickvalues(t::BaseMulTicks, vmin, vmax)
     vmin < vmax || return []
     vmin < 0 && vmax ≤ 0 && return .-Makie.get_tickvalues(t, -vmax, -vmin)
     @assert vmin ≥ 0 && vmax ≥ 0
-    filter!(∈(vmin..vmax), [
+    @p [
         mul * t.base^pow
         for pow in floor(Int, log(t.base, vmin) - 0.1):ceil(Int, log(t.base, vmax) + 0.1)
         for mul in t.subs
-    ])
+    ] filter!(∈(vmin..vmax)) map(round(_, sigdigits=4)) map(isinteger(_) ? Int(_) : _)
 end
 
 function Makie.get_tickvalues(t::BaseMulTicks, scale::SymLogLike, vmin, vmax; go_to_previous_base_power=false)
