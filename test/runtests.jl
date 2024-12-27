@@ -159,8 +159,17 @@ end
     linesglow(FPlot(1:5, identity, identity), glowwidth=15)
 end
 
+@testitem "text with box" begin
+    using MakieExtra.IntervalSets
+
+    textwithbox((0, 0), "Some of My Text")
+    textwithbox!((0, 0), "Some of My Text", poly=(;padding=Rect(0±3, 0±3)))
+    textwithbox!((0, 0), "Some of My Text", space=:relative, poly=(;color=:red))
+    textwithbox!((0, 0), "Some of My Text", space=:pixel, poly=(;padding=Rect(0±3, 0±3), color=:red))
+end
+
 @testitem "bandstroke" begin
-    using MakieExtra.Makie.IntervalSets
+    using MakieExtra.IntervalSets
 
     bandstroke([1,2,3], [1..2, 3..4, 5..6])
     bandstroke([1,2,3], [1..2, 3..4, 5..6], strokecolor=:red, strokewidth=2)
