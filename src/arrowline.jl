@@ -1,5 +1,3 @@
-filter_keys(pred, d::Dict) = Dict(k => v for (k, v) in pairs(d) if pred(k))
-
 @recipe ArrowLines () begin
     arrowstyle = "-|>"
     documented_attributes(Lines)...
