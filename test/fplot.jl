@@ -61,6 +61,16 @@ end
     @test current_axis().ylabel[] == "identity"
 end
 
+@testitem "multiplot" begin
+    using Accessors
+
+    res = multiplot((Scatter, Lines), FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
+    @test res[1] isa Makie.FigureAxisPlot
+    ax = content(res[1].figure[:,:])
+    @test ax.xlabel[] == "identity"
+    @test ax.ylabel[] == "^(_, 2)"
+end
+
     # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
     # ax = content(fig[1,1])
     # @test ax.xlabel[] == "Abcdef"
