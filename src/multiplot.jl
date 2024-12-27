@@ -31,8 +31,8 @@ function multiplot(pos::Union{GridPosition, GridSubposition}, plts, args...; kwa
 end
 
 keep_attrs(plt::Type{<:Plot}, kwargs, args...) = kwargs[collect(keys(kwargs) ∩ (Makie.attribute_names(plt) ∪ used_attributes(plt, args...)))]
-keep_attrs(plt::Function, kwargs, args...) = keep_attrs(Plot{plt}, kwargs)
-keep_attrs((plt, _)::Pair, kwargs, args...) = keep_attrs(plt, kwargs)
+keep_attrs(plt::Function, kwargs, args...) = keep_attrs(Plot{plt}, kwargs, args...)
+keep_attrs((plt, _)::Pair, kwargs, args...) = keep_attrs(plt, kwargs, args...)
 
 plotfunc(::Type{<:Plot{F}}) where {F} = F
 plotfunc(F::Function) = F
