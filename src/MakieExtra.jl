@@ -37,9 +37,9 @@ include("markers.jl")
 include("glow.jl")
 include("bandstroke.jl")
 include("axisfunction.jl")
-include("fplot.jl")
 include("arrowline.jl")
 include("multiplot.jl")
+include("fplot/fplot.jl")
 
 
 to_x_attrs(attrs) = @modify(k -> Symbol(:x, k), keys(attrs)[∗])
