@@ -26,12 +26,14 @@ export
     multiplot, multiplot!,
     changes,
     FPlot,
-    DataCursor, RectSelection, with_widgets, is_selected, selected_data, mark_selected_data
+    DataCursor, RectSelection, with_widgets, is_selected, selected_data, mark_selected_data,
+    axplot
 
 include("lift.jl")
 include("scales.jl")
 include("ticks.jl")
 include("helpers.jl")
+include("axplot.jl")
 include("scalebar.jl")
 include("zoom_lines.jl")
 include("contourf.jl")
