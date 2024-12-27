@@ -41,8 +41,8 @@ end
     
 	heatmap(X, axis=(aspect=DataAspect(),), alpha=0.1)
 	scalebar!(0.15u"m")
-	scalebar!(0.15u"m", position=Point2(0.8, 0.1), color=:black)
-	scalebar!((0.15u"m", x -> "a $x b"), position=Point2(0.8, 0.1), color=:black)
+	scalebar!(0.15u"m", position=(0.8, 0.1), color=:black)
+	scalebar!((0.15u"m", x -> "a $x b"), position=(0.8, 0.1), color=:black)
 	scalebar!((0.15, x -> "a $x b"), color=:black)
     
 	heatmap(0..1e-5, 0..1e-5, X, axis=(aspect=DataAspect(),), alpha=0.1)
