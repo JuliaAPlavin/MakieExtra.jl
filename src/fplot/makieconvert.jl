@@ -23,7 +23,10 @@ end
 @inline getval(data, _, f::Ref) = f[]
 
 convert_to_categorical_if_needed(x) = x
-convert_to_categorical_if_needed(x::AbstractArray{<:Union{String,Symbol}}) = Categorical(x)
+convert_to_categorical_if_needed(x::AbstractArray{<:Union{
+	AbstractString,Symbol,
+	NTuple{<:Any,AbstractString},NTuple{<:Any,Symbol},
+}}) = Categorical(x)
 
 axis_attributes(ct, X::FPlot, kwargs) = (; xlabel=_xlabel(ct, X, kwargs), ylabel=_ylabel(ct, X, kwargs), X.axis...)
 
