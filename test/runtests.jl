@@ -54,6 +54,17 @@ using TestItemRunner
     # smoke tests to probee the actual inverse:
     Makie.ReversibleScale(SymLog(1))
     Makie.ReversibleScale(AsinhScale(1))
+
+    bmt = BaseMulTicks([1,2,5])
+    @test Makie.get_tickvalues(bmt, identity, 0.25, 100) == [0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
+    @test Makie.get_tickvalues(bmt, identity, 3, 100) == [5.0, 10.0, 20.0, 50.0, 100.0]
+    @test Makie.get_tickvalues(bmt, log10, 3, 100) == [5.0, 10.0, 20.0, 50.0, 100.0]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 100) == [0, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
+    @test Makie.get_tickvalues(bmt, SymLog(1), -10, 100) == [-10.0, -5.0, -2.0, -1.0, -0.5, -0.2, -0.1, 0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 3, 100) == [5.0, 10.0, 20.0, 50.0, 100.0]
+
+    @test Makie.get_minor_tickvalues(bmt, identity, nothing, 3, 100) == Makie.get_tickvalues(bmt, identity, 3, 100)
+    @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, -3, 100) == Makie.get_tickvalues(bmt, SymLog(1), -3, 100)
 end
 
 @testitem "scalebar" begin
