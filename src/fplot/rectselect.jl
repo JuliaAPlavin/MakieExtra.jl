@@ -73,3 +73,30 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwarg
         end
     end
 end
+
+const SELECTED_PROPNAME = :RectSel_isselected_FJNRQT
+
+is_selected(x::NamedTuple) = get(x, SELECTED_PROPNAME, false)
+
+normalized_selints(rs::RectSelection) = @lift modify(eps -> minmax(eps...), $(rs.vals), @o _[∗][2] |> endpoints)
+
+selected_data(data, rs::RectSelection) = @lift let
+    selints = Tuple($(normalized_selints(rs)))
+    filter(data) do r
+        all(map(selints) do (o, int)
+            o(r) ∈ int
+        end)
+    end
+end
+
+function mark_selected_data(data, rs::RectSelection)
+    eltype(data) <: NamedTuple || error("mark_selected is only supported for NamedTuples, got eltype <: $(nameof(eltype(data)))")
+    @lift let
+        selints = Tuple($(normalized_selints(rs)))
+        mapinsert(data; RectSel_isselected_FJNRQT=function (r)
+            all(map(selints) do (o, int)
+                o(r) ∈ int
+            end)
+        end)
+    end
+end
