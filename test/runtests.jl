@@ -65,6 +65,9 @@ using TestItemRunner
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 1) == [0, 0.5, 1.0]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 0.2) == [0, 0.1, 0.2]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 0.099) ≈ [0, 0.01, 0.02, 0.05]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0.09, 0.11) ≈ [0.1]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 9, 11) ≈ [10]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 9, 9.5) == []
 
     @test Makie.get_minor_tickvalues(bmt, identity, nothing, 3, 100) == Makie.get_tickvalues(bmt, identity, 3, 100)
     @test Makie.get_minor_tickvalues(bmt, SymLog(1), nothing, -3, 100) == [-2.0, -1.0, -0.5, -0.2, -0.1, 0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
