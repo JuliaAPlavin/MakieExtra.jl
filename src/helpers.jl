@@ -76,6 +76,15 @@ macro define_plotfunc_conv(plotfuncs, Ts)
 			end
 
             Makie.$plotf_excl($(args_any...); kwargs...) = $plotf_excl(current_axis(), $(argnames...); kwargs...)
+            
+            function Makie.$plotf_excl(ax::Makie.Block, $(args_any...); kwargs...)
+				used_attrs = used_attributes($plottype, Makie.to_value($argname))
+                $plotf_excl(ax, 
+                    _lift(
+                        x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
+                        $argname
+                    ); _unselect_kwargs(kwargs, used_attrs)...)
+            end
 
 			Makie.convert_arguments(ct::Type{<:$plottype}, $(args_any...); kwargs...) =
 				convert_arguments(ct, _convert_arguments_singlestep(ct, $(argnames...); kwargs...)...)
