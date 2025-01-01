@@ -426,7 +426,7 @@ Colors = "~0.12.11"
 DataManipulation = "~0.1.17"
 GLMakie = "~0.10.5"
 IntervalSets = "~0.7.10"
-MakieExtra = "~0.1.22"
+MakieExtra = "~0.1.24"
 PlutoUI = "~0.7.59"
 RectiGrids = "~0.1.18"
 Unitful = "~1.21.0"
@@ -438,7 +438,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.4"
 manifest_format = "2.0"
-project_hash = "47a547b2290d461e6b938e56c4d049b4669c149c"
+project_hash = "78e77a3bc3404f0ca91f2b76e36918af9fcfce74"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -693,9 +693,9 @@ version = "1.0.2"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "b1c55339b7c6c350ee89f2c1604299660525b248"
+git-tree-sha1 = "8ae8d32e09f0dcf42a36b90d4e17f5dd2e4c4215"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.15.0"
+version = "4.16.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -766,11 +766,17 @@ version = "1.0.0"
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
+[[deps.Dbus_jll]]
+deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "fc173b380865f70627d7dd1190dc2fce6cc105af"
+uuid = "ee1fde0b-3d02-5ea6-8484-8dfef6360eab"
+version = "1.14.10+0"
+
 [[deps.DelaunayTriangulation]]
 deps = ["AdaptivePredicates", "EnumX", "ExactPredicates", "Random"]
-git-tree-sha1 = "1abb6a8541775a0bf82749ac8373a34e9f2f71e0"
+git-tree-sha1 = "b5f1c6532d2ea71e99b74231b0a3d53fba846ced"
 uuid = "927a84f5-c5f4-47a5-9785-b46e178433df"
-version = "1.1.1"
+version = "1.1.3"
 
 [[deps.Dictionaries]]
 deps = ["Indexing", "Random", "Serialization"]
@@ -980,10 +986,10 @@ uuid = "f7f18e0c-5ee9-5ccd-a5bf-e8befd85ed98"
 version = "3.4.3"
 
 [[deps.GLFW_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "xkbcommon_jll"]
-git-tree-sha1 = "3f74912a156096bd8fdbef211eff66ab446e7297"
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
+git-tree-sha1 = "532f9126ad901533af1d4f5c198867227a7bb077"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
-version = "3.4.0+0"
+version = "3.4.0+1"
 
 [[deps.GLMakie]]
 deps = ["ColorTypes", "Colors", "FileIO", "FixedPointNumbers", "FreeTypeAbstraction", "GLFW", "GeometryBasics", "LinearAlgebra", "Makie", "Markdown", "MeshIO", "ModernGL", "Observables", "PrecompileTools", "Printf", "ShaderAbstractions", "StaticArrays"]
@@ -1380,9 +1386,9 @@ version = "0.8.4"
 
 [[deps.MakieExtra]]
 deps = ["AccessorsExtra", "DataManipulation", "DataPipes", "InverseFunctions", "Makie", "PyFormattedStrings", "Reexport", "StructHelpers"]
-git-tree-sha1 = "62e9cf6ddec5741eab7ada29eda87b97123a753b"
+git-tree-sha1 = "c75c7809bab63314a9d443ac97d317a177f821b4"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
-version = "0.1.22"
+version = "0.1.24"
 weakdeps = ["Unitful"]
 
     [deps.MakieExtra.extensions]
@@ -1567,6 +1573,12 @@ deps = ["OffsetArrays"]
 git-tree-sha1 = "0fac6313486baae819364c52b4f483450a9d793f"
 uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
 version = "0.5.12"
+
+[[deps.Pango_jll]]
+deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "cb5a2ab6763464ae0f19c86c56c63d4a2b0f5bda"
+uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
+version = "1.52.2+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1881,9 +1893,9 @@ version = "0.6.18"
 
 [[deps.StructHelpers]]
 deps = ["ConstructionBase"]
-git-tree-sha1 = "8e678449dd7a5b82bd940a4589ae68a28a049a1d"
+git-tree-sha1 = "1d6b389c6d24e0fd76ba12c9c8111c9df197c1cd"
 uuid = "4093c41a-2008-41fd-82b8-e3f9d02b504f"
-version = "1.1.2"
+version = "1.2.0"
 
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
@@ -2133,6 +2145,12 @@ version = "0.15.1+0"
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
 version = "5.8.0+1"
+
+[[deps.libdecor_jll]]
+deps = ["Artifacts", "Dbus_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "Pango_jll", "Wayland_jll", "xkbcommon_jll"]
+git-tree-sha1 = "9bf7903af251d2050b467f76bdbe57ce541f7f4f"
+uuid = "1183f4f0-6f2a-5f1a-908b-139f9cdfea6f"
+version = "0.2.2+0"
 
 [[deps.libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
