@@ -31,7 +31,8 @@ export
     DataCursor, RectSelection, with_widgets, is_selected, selected_data, mark_selected_data,
     axplot,
     @rich,
-    obsmap
+    obsmap,
+    intervals, dilate, erode, boundingbox2d
 
 include("lift.jl")
 include("scales.jl")
@@ -99,6 +100,9 @@ end
 Base.:*(x::Makie.RichText, y::AbstractString) = rich(x, y)
 Base.:*(x::AbstractString, y::Makie.RichText) = rich(x, y)
 Base.:*(x::Makie.RichText, y::Makie.RichText) = rich(x, y)
+
+
+boundingbox2d(args...) = Rect2(boundingbox(args...))
 
 
 function obsmap(x::Observable, xvals, res::Observable)
