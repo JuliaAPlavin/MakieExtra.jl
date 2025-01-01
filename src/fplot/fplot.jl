@@ -58,16 +58,11 @@ Accessors.delete(X::FPlot, p::PropertyLens) = @delete X.kwargfuncs |> p
 Accessors.delete(X::FPlot, ::PropertyLens{:data}) = @set X.data = nothing
 Accessors.insert(X::FPlot, ::PropertyLens{:data}, v) = (@assert isnothing(X.data); @set X.data = v)
 
+include("axfuncs.jl")
 include("makieconvert.jl")
 include("axisorder.jl")
 include("interactive.jl")
 
-shortlabel(::Nothing) = ""
-function shortlabel(f)
-	o, unit = AccessorsExtra._split_unitstr_from_optic(f)
-	ostr = AccessorsExtra.barebones_string(o)
-	isnothing(unit) ? ostr : "$ostr ($unit)"
-end
 
 # XXX: upstream cleaner version!
 Makie.plot!(ax::Axis, plot::Plot{plot, Tuple{Makie.GridLayoutSpec}}) = plotlist!(ax, plot.converted[][].content[].second.plots[])

@@ -28,12 +28,12 @@ convert_to_categorical_if_needed(x::AbstractArray{<:Union{
 	NTuple{<:Any,AbstractString},NTuple{<:Any,Symbol},
 }}) = Categorical(x)
 
-axis_attributes(ct, X::FPlot, kwargs) = (; xlabel=_xlabel(ct, X, kwargs), ylabel=_ylabel(ct, X, kwargs), X.axis...)
 
-_xlabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 1)
-_ylabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 2)
-function _xylabel(ct, X::FPlot, kwargs, i)
+function axis_attributes(ct, X::FPlot, kwargs)
 	afuncs = argfuncs_for_xy(ct, X; kwargs...)
-	afunc = isnothing(afuncs) ? nothing : get(afuncs, i, nothing)
-	return shortlabel(afunc)
+	merge_axis_kwargs(
+		(@oget to_x_attrs(ax_attrs_from_func(afuncs[1]))),
+		(@oget to_y_attrs(ax_attrs_from_func(afuncs[2]))),
+		X.axis,
+	)
 end

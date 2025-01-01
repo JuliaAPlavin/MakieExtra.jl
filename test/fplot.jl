@@ -91,6 +91,14 @@ end
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 
+@testitem "axfunc" begin
+    fplt = FPlot(1:10, AxFunc(x->x+1, label="Abc", ticks=-10:100), AxFunc(x->x^2, label="Def"))
+    axplot(lines)(fplt)
+    @test current_axis().xlabel[] == "Abc"
+    @test current_axis().ylabel[] == "Def"
+    @test current_axis().xticks[] == -10:100
+end
+
 @testitem "categorical" begin
     using Accessors
 

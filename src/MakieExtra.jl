@@ -28,7 +28,7 @@ export
     to_x_attrs, to_y_attrs, to_xy_attrs,
     multiplot, multiplot!,
     changes,
-    FPlot,
+    FPlot, AxFunc,
     DataCursor, RectSelection, with_widgets, is_selected, selected_data, mark_selected_data,
     axplot,
     @rich,
