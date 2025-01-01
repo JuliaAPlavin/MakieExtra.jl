@@ -110,6 +110,15 @@ end
 end
 
 @testitem "axfunc" begin
+    using Accessors
+
+    f = AxFunc(sin, label="Abc", ticks=-10:100)
+    @test AxFunc(f; scale=log, ticks=1:5) === AxFunc(sin, label="Abc", ticks=1:5, scale=log)
+    @test (@set f.f = cos) === AxFunc(cos, label="Abc", ticks=-10:100)
+    @test (@set f.attrs.label = "Def") === AxFunc(sin, label="Def", ticks=-10:100)
+    @test (@insert f.attrs.scale = log) === AxFunc(sin, label="Abc", ticks=-10:100, scale=log)
+    @test f === AxFunc(sin, label="Abc", ticks=-10:100)
+
     fplt = FPlot(1:10, AxFunc(x->x+1, label="Abc", ticks=-10:100), AxFunc(x->x^2, label="Def"))
     axplot(lines)(fplt)
     @test current_axis().xlabel[] == "Abc"
