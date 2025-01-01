@@ -131,7 +131,7 @@ fullproject(ax, p) = Makie.project(Makie.get_scene(ax), Makie.apply_transform(Ma
 
 Makie.inverse_transform(f::Function) = inverse(f)
 
-Makie.GeometryBasics.HyperRectangle{N}(ints::Vararg{<:Interval, N}) where {N} = Makie.HyperRectangle{N}(
+Makie.GeometryBasics.HyperRectangle{N}(ints::Vararg{Interval, N}) where {N} = Makie.HyperRectangle{N}(
     Point(leftendpoint.(ints)),
     Point(rightendpoint.(ints) .- leftendpoint.(ints))
 )
