@@ -77,6 +77,8 @@ Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
             15 => "P",
             18 => "E",
         )[pow3]
+    else
+        error("Unknown EngTicks kind: $(t.kind)")
     end
     rich(f"{v / 10.0^pow3:.{t.digits}f}", suffix)
 end
