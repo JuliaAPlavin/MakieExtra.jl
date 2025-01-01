@@ -7,6 +7,7 @@
     end...
 
     color = :black
+    cycle = nothing
     position = Point2(0.85, 0.08)
     target_ax_frac = 0.2
     muls = [x*p for p in Real[[10.0^p for p in -50:-1]; [1, 10, 100, 1000, 10000]; [10.0^p for p in 5:50]] for x in [1, 2, 5]]
