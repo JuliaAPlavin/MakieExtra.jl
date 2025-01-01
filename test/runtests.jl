@@ -156,6 +156,34 @@ end
     @test_broken (to_x_attrs(attrs); true)
 end
 
+@testitem "multiplot" begin
+    res = multiplot((Scatter, Lines), 1:10, 1:10)
+    @test length(res) == 2
+    @test res[1] isa Makie.FigureAxisPlot
+    @test res[2] isa Plot
+    res = multiplot!((Scatter, Lines), 1:10, 1:10)
+    @test length(res) == 2
+    @test res[1] isa Plot
+    @test res[2] isa Plot
+
+    multiplot((Scatter, Lines), 1:10, 1:10, color=:red)
+    multiplot((Scatter, Lines), 1:10, 1:10, markersize=5)
+    multiplot((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2)
+    plts = multiplot!((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2, color=:red)
+    @test plts[1].markersize[] == 5
+    @test plts[1].color[] == :red
+    @test plts[2].linewidth[] == 2
+    @test plts[2].color[] == :red
+
+    multiplot((scatter, lines), 1:10, 1:10)
+    multiplot!((scatter, lines), 1:10, 1:10)
+    plts = multiplot!((scatter, lines), 1:10, 1:10, color=:red, markersize=5, linewidth=2)
+    @test plts[1].markersize[] == 5
+    @test plts[1].color[] == :red
+    @test plts[2].linewidth[] == 2
+    @test plts[2].color[] == :red
+end
+
 @testitem "arrowline" begin
     using MakieExtra: split_arrowstyle
 
