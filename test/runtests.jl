@@ -412,6 +412,15 @@ end
     Record(t, 1:10)
 end
 
+@testitem "mouse_position_obs" begin
+    using MakieExtra.Makie: StaticVector
+
+    # smoke test only
+    @test isequal(mouse_position_obs(current_axis())[]::StaticVector, [NaN, NaN])
+    @test isequal(mouse_position_obs(current_axis(); consume=false)[]::StaticVector, [NaN, NaN])
+    @test isequal(mouse_position_obs(current_axis(); key=Makie.Mouse.right)[]::StaticVector, [NaN, NaN])
+end
+
 @testitem "func2type" begin
     # upstreamed to Makie
     using MakieExtra: func2type
