@@ -74,7 +74,7 @@ function _xylabel(ct, X::FPlot, kwargs, i)
 end
 
 argixs_xy_axes(ct, X::FPlot, kwargs) = (1, 2)
-argixs_xy_axes(::Type{<:BarPlot}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
+argixs_xy_axes(::Type{<:Union{BarPlot,Errorbars,Rangebars}}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
 
 shortlabel(::Nothing) = ""
 function shortlabel(f)
