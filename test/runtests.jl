@@ -187,11 +187,35 @@ end
     @test marker_lw(:vline, 0.5) != marker_lw(:vline, 0.53)
 end
 
+@testitem "kwargs merging" begin
+    using MakieExtra: merge_plot_kwargs, merge_axis_kwargs, merge_limits
+
+    @test merge_plot_kwargs(nothing, nothing) == nothing
+    @test merge_plot_kwargs(nothing, (;a=1)) == (;a=1)
+    @test merge_plot_kwargs((;a=1, b=2), (;a=3, c=4)) == (;a=3, b=2, c=4)
+    @test merge_plot_kwargs((;a=1, b=2, axis=(;c=3, d=4)), (;a=5, e=6)) == (;a=5, b=2, axis=(;c=3, d=4), e=6)
+    @test merge_plot_kwargs((;a=1, b=2), (;a=3, c=4, axis=(;d=5, e=6))) == (;a=3, b=2, c=4, axis=(;d=5, e=6))
+    @test merge_plot_kwargs((;a=1, b=2, axis=(;c=3, d=4)), (;a=5, e=6, axis=(;c=7, f=8))) == (;a=5, b=2, axis=(;c=7, d=4, f=8), e=6)
+
+    @test merge_axis_kwargs(nothing, nothing) == nothing
+    @test merge_axis_kwargs(nothing, (;a=1)) == (;a=1)
+    @test merge_axis_kwargs((;a=1, b=2), (;a=3, c=4)) == (;a=3, b=2, c=4)
+    @test merge_axis_kwargs((;a=1, b=2, limits=(3, 4)), (;a=5, c=6)) == (;a=5, b=2, limits=(3, 4), c=6)
+    @test merge_axis_kwargs((;a=1, b=2), (;a=5, c=6, limits=(3, nothing))) == (;a=5, b=2, c=6, limits=(3, nothing))
+    @test merge_axis_kwargs((;a=1, b=2, limits=((4,nothing), nothing)), (;a=5, c=6, limits=((5,6), nothing))) == (;a=5, b=2, limits=((5,6), nothing), c=6)
+
+    @test merge_limits(nothing, nothing) == nothing
+    @test merge_limits(nothing, (1..2, nothing)) == ((1,2), nothing)
+    @test merge_limits((1..2, nothing), (3..4, 5..6)) == ((3,4), (5,6))
+    @test merge_limits((1,2,nothing,4), (nothing,4,nothing,nothing)) == ((1,4), (nothing,4))
+    @test merge_limits((1,2,nothing,4), (nothing,4,5,nothing)) == ((1,4), (5,4))
+end
+
 @testitem "to_xy_attrs" begin
-    attrs = (a=1, b=123, xyz="4")
-    @test to_x_attrs(attrs) == (xa=1, xb=123, xxyz="4")
-    @test to_y_attrs(attrs) == (ya=1, yb=123, yxyz="4")
-    @test to_xy_attrs(attrs) == (xa=1, xb=123, xxyz="4", ya=1, yb=123, yxyz="4")
+    attrs = (a=1, b=123, xyz="4", limit=5, size=6)
+    @test to_x_attrs(attrs) == (xa=1, xb=123, xxyz="4", limits=(5, nothing), width=6)
+    @test to_y_attrs(attrs) == (ya=1, yb=123, yxyz="4", limits=(nothing, 5), height=6)
+    @test to_xy_attrs(attrs) == (xa=1, xb=123, xxyz="4", limits=(5, 5), width=6, ya=1, yb=123, yxyz="4", height=6)
 
     attrs = Attributes(attrs)
     @test NamedTuple(attrs).b[] == 123
@@ -432,6 +456,7 @@ end
 end
 
 @testitem "inverse" begin
+    # upstreamed to Makie
     @test ReversibleScale(identity) === ReversibleScale(identity, identity)
     @test ReversibleScale(cbrt) === ReversibleScale(cbrt, Base.Fix2(^, 3))
 end

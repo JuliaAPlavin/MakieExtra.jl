@@ -54,11 +54,6 @@ include("multiplot.jl")
 include("fplot/fplot.jl")
 
 
-to_x_attrs(attrs) = @modify(k -> Symbol(:x, k), keys(attrs)[∗])
-to_y_attrs(attrs) = @modify(k -> Symbol(:y, k), keys(attrs)[∗])
-to_xy_attrs(attrs) = merge(to_x_attrs(attrs), to_y_attrs(attrs))
-
-
 # XXX: should try upstreaming all of these!
 
 include("geometry.jl")
@@ -80,6 +75,47 @@ function show_gl_icon_in_dock(show::Bool)
     val = show ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory
     @objc [NSApp::id{Object} setActivationPolicy:val::Int]::id{Object}
 end
+
+
+function to_x_attrs(attrs)
+    attrs_nospecial = delete(attrs, (@maybe _.size) ++ (@maybe _.limit))
+    res = @modify(k -> Symbol(:x, k), keys(attrs_nospecial)[∗])
+    return merge(
+        res,
+        (haskey(attrs, :limit) ? (;limits=(attrs.limit, nothing)) : (;)),
+        (haskey(attrs, :size) ? (;width=attrs.size) : (;)))
+end
+function to_y_attrs(attrs)
+    attrs_nospecial = delete(attrs, (@maybe _.size) ++ (@maybe _.limit))
+    res = @modify(k -> Symbol(:y, k), keys(attrs_nospecial)[∗])
+    return merge(
+        res,
+        (haskey(attrs, :limit) ? (;limits=(nothing, attrs.limit)) : (;)),
+        (haskey(attrs, :size) ? (;height=attrs.size) : (;)))
+end
+to_xy_attrs(attrs) = merge_axis_kwargs(to_x_attrs(attrs), to_y_attrs(attrs))
+
+
+function merge_plot_kwargs(a, b)
+    axis = merge_axis_kwargs((@oget a.axis), (@oget b.axis))
+    return merge_non_nothing(a, b, isnothing(axis) ? nothing : (;axis))
+end
+merge_plot_kwargs(args...) = foldl(merge_plot_kwargs, args; init=nothing)
+
+function merge_axis_kwargs(a, b)
+    limits = merge_limits((@oget a.limits), (@oget b.limits))
+    merge_non_nothing(a, b, isnothing(limits) ? nothing : (;limits))
+end
+merge_axis_kwargs(args...) = foldl(merge_axis_kwargs, args; init=nothing)
+
+merge_limits(a, b) = _merge_limits((@oget Makie.convert_limit_attribute(a)), (@oget Makie.convert_limit_attribute(b)))
+_merge_limits(a, b::Nothing) = a
+_merge_limits(a::Nothing, b) = b
+_merge_limits(a::Nothing, b::Nothing) = nothing
+_merge_limits(a::Number, b::Number) = b
+_merge_limits(a::NTuple{2,Any}, b::NTuple{2,Any}) = _merge_limits.(a, b)
+
+merge_non_nothing(args...) = all(isnothing, args) ? nothing : merge(filter(!isnothing, args)...)
 
 
 macro rich(expr)
