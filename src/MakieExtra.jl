@@ -40,19 +40,19 @@ to_xy_attrs(attrs) = merge(to_x_attrs(attrs), to_y_attrs(attrs))
 # XXX: should upstream these!
 
 function Accessors.set(attrs::Attributes, il::IndexLens, val)
-	res = deepcopy(attrs)
+	res = copy(attrs)
 	res[only(il.indices)] = val
 	return res
 end
 
 function Accessors.insert(attrs::Attributes, il::IndexLens, val)
-	res = deepcopy(attrs)
+	res = copy(attrs)
 	res[only(il.indices)] = val
 	return res
 end
 
 function Accessors.delete(attrs::Attributes, il::IndexLens)
-	res = deepcopy(attrs)
+	res = copy(attrs)
 	delete!(res, only(il.indices))
 	return res
 end
