@@ -129,6 +129,9 @@ Makie.tight_xticklabel_spacing!() = tight_xticklabel_spacing!(current_axis())
 Makie.tight_yticklabel_spacing!() = tight_yticklabel_spacing!(current_axis())
 Makie.tight_ticklabel_spacing!() = tight_ticklabel_spacing!(current_axis())
 
+Makie.Record(obs::Observable, iter::AbstractVector; kwargs...) = Record(current_figure(), obs, iter; kwargs...)
+Makie.Record(func::Function, iter::AbstractVector; kwargs...) = Record(func, current_figure(), iter; kwargs...)
+
 
 Makie.project(s, r::HyperRectangle) = HyperRectangle(Makie.project(s, r.origin), Makie.project(s, r.origin + r.widths) - Makie.project(s, r.origin))
 
