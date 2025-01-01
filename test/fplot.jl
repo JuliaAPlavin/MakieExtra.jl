@@ -342,7 +342,6 @@ end
     using Accessors
 
     struct MyObj end
-    Makie.used_attributes(T::Type{<:Plot}, ::MyObj) = Tuple(Makie.attribute_names(T))
     Makie.convert_arguments(ct::Type{<:AbstractPlot}, ::MyObj; kwargs...) = Makie.convert_arguments(ct, FPlot(1:10, (@o _+1), (@o _^2), color=sqrt); doaxis=true, kwargs...)
 
     lines(MyObj(); linewidth=15)
