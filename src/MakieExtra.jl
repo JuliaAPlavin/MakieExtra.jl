@@ -102,6 +102,12 @@ function Accessors.delete(attrs::Attributes, il::IndexLens)
 end
 
 
+function Makie.convert_arguments(P::Type{<:Union{Band,BandStroke,Rangebars}}, i::AbstractInterval, f::Function)
+    x, y = Makie.PlotUtils.adapted_grid(x -> Makie.mean(f(x)), endpoints(i))
+    return convert_arguments(P, x, f.(x))
+end
+
+
 Base.:(⊆)(a::Rect2, b::Rect2) = xint(a) ⊆ xint(b) && yint(a) ⊆ yint(b)
 
 shift_range(p::T, (r1, r2)::Pair{<:Rect2,<:Rect2}) where {T<:Point2} = T(
