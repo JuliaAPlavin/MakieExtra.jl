@@ -73,22 +73,30 @@ end
     using CairoMakie
 
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), axis=(ylabel="Abc",))
-    lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
     @test content(fig[1,1]).xlabel[] == ""
     @test content(fig[1,1]).ylabel[] == "Abc"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
     ax, plt = axplot(lines)(current_figure()[2,1], FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), axis=(ylabel="Abc",))
-    # lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
     @test content(fig[2,1]).xlabel[] == "_ + 1"
     @test content(fig[2,1]).ylabel[] == "Abc"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
     fig, ax, plt = axplot(lines, autolimits_refresh=false)(Observable(FPlot(1:10, (@o _+1), (@o _^2); color=sqrt, axis=(ylabel="Abc",))))
-    # lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
     @test content(fig[1,1]).xlabel[] == "_ + 1"
     @test content(fig[1,1]).ylabel[] == "Abc"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
+
+
+    fig, ax, plt = scatter([(0,0)])
+    axplot(lines!)(ax, FPlot(1:10, (@o _/1), (@o _+2), color=sqrt))
+    @test content(fig[1,1]).xlabel[] == "_ / 1"
+    @test content(fig[1,1]).ylabel[] == "_ + 2"
+
+    fig, ax, plt = scatter([(0,0)])
+    axplot(lines!)(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), axis=(;xlabel=Observable("Abc"),))
+    @test content(fig[1,1]).xlabel[] == "Abc"
+    @test content(fig[1,1]).ylabel[] == "_ + 2"
 end
 
 @testitem "axfunc" begin
