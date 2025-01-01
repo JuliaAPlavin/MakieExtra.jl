@@ -45,7 +45,7 @@ end
 
     fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true)
     lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
-    @test content(fig[1,1]).xlabel[] == "+(_, 1)"
+    @test content(fig[1,1]).xlabel[] == "_ + 1"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 
@@ -60,7 +60,7 @@ end
     using Accessors, Unitful
 
     lines(FPlot((1:10)u"m", (@o ustrip(u"cm", 2*_)), (@o ustrip(_^2))), doaxis=true)
-    @test current_axis().xlabel[] == "*(2, _) (cm)"
+    @test current_axis().xlabel[] == "2 * _ (cm)"
     @test_broken current_axis().ylabel[] == "^(_, 2) (m^2)"
 end
 
@@ -68,22 +68,28 @@ end
     using Accessors
 
     barplot(FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
-    @test current_axis().xlabel[] == "identity"
-    @test current_axis().ylabel[] == "^(_, 2)"
+    @test current_axis().xlabel[] == "_"
+    @test current_axis().ylabel[] == "_ ^ 2"
     barplot(FPlot(1:10, (@o _), (@o _^2)), direction=:x, doaxis=true)
-    @test current_axis().xlabel[] == "^(_, 2)"
-    @test current_axis().ylabel[] == "identity"
+    @test current_axis().xlabel[] == "_ ^ 2"
+    @test current_axis().ylabel[] == "_"
 end
 
 @testitem "multiplot" begin
     using Accessors
     using CairoMakie
 
+    # XXX: temporary
+    @eval CairoMakie Base.insert!(screen::Screen, scene::Scene, plot::Plot{plotlist}) = nothing
+
     res = multiplot((Scatter, Lines), FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
     @test res[1] isa Makie.FigureAxisPlot
     ax = content(res[1].figure[:,:])
-    @test ax.xlabel[] == "identity"
-    @test ax.ylabel[] == "^(_, 2)"
+    @test ax.xlabel[] == "_"
+    @test ax.ylabel[] == "_ ^ 2"
+    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+
+    res = multiplot(current_figure()[1,2], (Scatter, Lines), FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 
