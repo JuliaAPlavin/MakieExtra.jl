@@ -547,6 +547,12 @@ end
     Accessors.test_getset_laws(Makie.coordinates, p, Point2f[Point(0,0), Point(1,1), Point(0,1), Point(-1, 0.5)], [Point(2,2), Point(3,3), Point(4,4)])
 end
 
+@testitem "rich" begin
+    @test (@rich "abc") == "abc"
+    @test string(@rich "abc $(rich("x", color=:red))") == string(rich("abc ", rich("x", color=:red)))
+    @test string("abc " * rich("x", color=:red)) == string(rich("abc ", rich("x", color=:red)))
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))

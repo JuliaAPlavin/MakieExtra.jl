@@ -123,6 +123,9 @@ _merge_limits(a::NTuple{2,Any}, b::NTuple{2,Any}) = _merge_limits.(a, b)
 merge_non_nothing(args...) = all(isnothing, args) ? nothing : merge(filter(!isnothing, args)...)
 
 
+macro rich(expr::String)
+    return expr
+end
 macro rich(expr)
     @assert Base.isexpr(expr, :string)
     Expr(:call, :rich, esc.(expr.args)...)
