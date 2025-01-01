@@ -28,12 +28,4 @@ function Base.show(io::IO, ::MIME"text/html", vs::VideoStream)
     end
 end
 
-# https://github.com/MakieOrg/Makie.jl/pull/3695
-Makie.convert_arguments(P::Type{<: Band}, x::AbstractVector{<:Number}, y::AbstractVector{<:Makie.Interval}) =
-    Makie.convert_arguments(P, x, Makie.leftendpoint.(y), Makie.rightendpoint.(y))
-Makie.convert_arguments(P::Type{<:Rangebars}, x::AbstractVector{<:Number}, y::AbstractVector{<:Makie.Interval}) =
-    Makie.convert_arguments(P, x, Makie.endpoints.(y))
-Makie.convert_arguments(P::Type{<:Union{HSpan, VSpan}}, x::Makie.Interval) =
-    Makie.convert_arguments(P, Makie.endpoints(x)...)
-
 end
