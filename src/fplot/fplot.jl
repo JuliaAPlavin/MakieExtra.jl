@@ -3,6 +3,10 @@ struct FPlot
 	argfuncs::Tuple
 	kwargfuncs::NamedTuple
 	axis::NamedTuple
+
+	# to only have the constructor with correctly typed arguments, avoid auto convert attempts
+	# when eg FPlot(data, f1, f2, f3) is passed
+	FPlot(data, argfuncs::Tuple, kwargfuncs::NamedTuple, axis::NamedTuple) = new(data, argfuncs, kwargfuncs, axis)
 end
 @batteries FPlot
 
