@@ -1,12 +1,12 @@
-struct AxplotFunc
+struct Axplot
     plotf::Function
     widgets::Vector
     autolimits_refresh::Bool
 end
 
-axplot(plotf::Function; widgets=[], autolimits_refresh=false) = AxplotFunc(plotf, widgets, autolimits_refresh)
+axplot(plotf::Function; widgets=[], autolimits_refresh=false) = Axplot(plotf, widgets, autolimits_refresh)
 
-function (axp::AxplotFunc)(pos::Union{GridPosition, GridSubposition}, args...; axis=(;), kwargs...)
+function (axp::Axplot)(pos::Union{GridPosition, GridSubposition}, args...; axis=(;), kwargs...)
     @assert !haskey(kwargs, :doaxis) && !haskey(kwargs, :_axis)
     axis = merge(
         axis_attributes(axp.plotf, to_value.(args)..., kwargs),
@@ -22,7 +22,7 @@ function (axp::AxplotFunc)(pos::Union{GridPosition, GridSubposition}, args...; a
     res
 end
 
-function (axp::AxplotFunc)(args...; figure=(;), kwargs...)
+function (axp::Axplot)(args...; figure=(;), kwargs...)
     fig = Figure(;figure...)
     ax, plot = axp(fig[1,1], args...; kwargs...)
     return Makie.FigureAxisPlot(fig, ax, plot)
