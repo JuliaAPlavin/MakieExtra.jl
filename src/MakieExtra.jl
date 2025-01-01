@@ -20,7 +20,7 @@ export Makie
 
 export 
     SymLog, AsinhScale,
-    BaseMulTicks, EngTicks,
+    BaseMulTicks, EngTicks, PercentFormatter,
     zoom_lines!,
     marker_lw,
     to_x_attrs, to_y_attrs, to_xy_attrs,
