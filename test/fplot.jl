@@ -1,7 +1,7 @@
 @testitem "fplot structure" begin
     using Accessors
 
-    fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
+    fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123)
     
     @test fp.data === 1:10
     @test fp.color === sqrt
@@ -9,25 +9,32 @@
     @test fp[2] === @o _^2
     @test fp[:color] === sqrt
 
-    @test (@set fp.argfuncs = (identity,)) === FPlot(1:10, identity, color=sqrt)
+    @test (@set fp.argfuncs = (identity,)) === FPlot(1:10, identity, color=sqrt, linewidth=123)
     @test (@set fp.kwargfuncs = (;)) === FPlot(1:10, (@o _+1), (@o _^2))
     @test (@set fp.kwargfuncs = (;color=sin, markersize=sqrt)) === FPlot(1:10, (@o _+1), (@o _^2), color=sin, markersize=sqrt)
 
-    @test (@set fp.data = [1,2,3]) == FPlot([1,2,3], (@o _+1), (@o _^2), color=sqrt)
-    @test (@delete fp.data) === FPlot(nothing, (@o _+1), (@o _^2), color=sqrt)
+    @test (@set fp.data = [1,2,3]) == FPlot([1,2,3], (@o _+1), (@o _^2), color=sqrt, linewidth=123)
+    @test (@delete fp.data) === FPlot(nothing, (@o _+1), (@o _^2), color=sqrt, linewidth=123)
     fp_nov = FPlot(nothing, (@o _+1), (@o _^2), color=sqrt)
     @test (@insert fp_nov.data = 1:10) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt)
     
-    @test (@set fp.color = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sin)
-    @test (@delete fp.color) === FPlot(1:10, (@o _+1), (@o _^2))
-    @test (@insert fp.markersize = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, markersize=sin)
+    @test (@set fp.color = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sin, linewidth=123)
+    @test (@delete fp.color) === FPlot(1:10, (@o _+1), (@o _^2), linewidth=123)
+    @test (@insert fp.markersize = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=sin)
     @test (@set fp[:color] = sin) === @set fp.color = sin
+    @test (@set fp[(:linewidth, :color)] = (sin, cos)) === FPlot(1:10, (@o _+1), (@o _^2), color=cos, linewidth=sin)
     @test (@delete fp[:color]) === @delete fp.color
-    @test (@insert fp[:markersize] = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, markersize=sin)
+    @test (@delete fp[(:linewidth, :color)]) === FPlot(1:10, (@o _+1), (@o _^2))
+    @test (@insert fp[:markersize] = sin) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=sin)
+    @test (@insert fp[(:markersize, :abc)] = (sin, cos)) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=sin, abc=cos)
     
-    @test (@set fp[1] = @o _+2) === FPlot(1:10, (@o _+2), (@o _^2), color=sqrt)
-    @test (@delete fp[1]) === FPlot(1:10, nothing, (@o _^2), color=sqrt)
-    @test (@insert fp[3] = @o _+2) === FPlot(1:10, (@o _+1), (@o _^2), (@o _+2), color=sqrt)
+    @test (@set fp[1] = @o _+2) === FPlot(1:10, (@o _+2), (@o _^2), color=sqrt, linewidth=123)
+    @test (@set fp[1:2] = (@o _+2), (@o _^3)) === FPlot(1:10, (@o _+2), (@o _^3), color=sqrt, linewidth=123)
+    @test (@delete fp[1]) === FPlot(1:10, nothing, (@o _^2), color=sqrt, linewidth=123)
+    @test (@delete fp[2]) === FPlot(1:10, (@o _+1), color=sqrt, linewidth=123)
+    @test (@delete fp[1:2]) === FPlot(1:10, color=sqrt, linewidth=123)
+    @test (@insert fp[3] = @o _+2) === FPlot(1:10, (@o _+1), (@o _^2), (@o _+2), color=sqrt, linewidth=123)
+    @test (@insert fp[3:4] = (@o _+2), (@o _^3)) === FPlot(1:10, (@o _+1), (@o _^2), (@o _+2), (@o _^3), color=sqrt, linewidth=123)
 end
 
 @testitem "basic" begin
