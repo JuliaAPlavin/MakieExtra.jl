@@ -59,7 +59,7 @@ macro define_plotfunc_conv(plotfuncs, Ts)
 					_lift(
 						x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
 						$argname);
-					axis..., _unselect_kwargs(kwargs, used_attrs)...
+					axis, _unselect_kwargs(kwargs, used_attrs)...
 				)
 			end
 
@@ -70,7 +70,7 @@ macro define_plotfunc_conv(plotfuncs, Ts)
 					_lift(
 						x -> _convert_arguments_singlestep($plottype, x; _select_kwargs(kwargs, used_attrs)...) |> only,
 						$argname);
-					axis..., _unselect_kwargs(kwargs, used_attrs)...
+					axis, _unselect_kwargs(kwargs, used_attrs)...
 				)
 			end
 
