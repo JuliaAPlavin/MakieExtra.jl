@@ -60,6 +60,9 @@ end
 Accessors.insert(X::FPlot, p::PropertyLens, v) = @insert X.kwargfuncs |> p = v
 Accessors.delete(X::FPlot, p::PropertyLens) = @delete X.kwargfuncs |> p
 
+Accessors.insert(X::FPlot, ::PropertyLens{:axis}, v) = @set X.axis = v
+Accessors.delete(X::FPlot, ::PropertyLens{:axis}) = @set X.axis = (;)
+
 Accessors.delete(X::FPlot, ::PropertyLens{:data}) = @set X.data = nothing
 Accessors.insert(X::FPlot, ::PropertyLens{:data}, v) = (@assert isnothing(X.data); @set X.data = v)
 
