@@ -553,6 +553,11 @@ end
     @test string("abc " * rich("x", color=:red)) == string(rich("abc ", rich("x", color=:red)))
 end
 
+@testitem "geoaxis_radians" begin
+    # smoke test only
+    MakieExtra.GeoAxis_radians!()
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
