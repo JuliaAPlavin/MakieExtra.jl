@@ -1,9 +1,9 @@
-Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:doaxis, :_axis, :reorder_args, intersect(Makie.attribute_names(T), (:direction,))...)
+Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = (:reorder_args, intersect(Makie.attribute_names(T), (:direction,))...)
 Makie.used_attributes(T::Type{<:Plot}, _, fplt::FPlot) = Makie.used_attributes(T, fplt)
 
 Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 
-function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=false, _axis=(;), reorder_args=true, kwargs...)
+function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; reorder_args=true, kwargs...)
 	@assert !isnothing(X.data)
 	pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
 		getval(X.data, f) |> convert_to_categorical_if_needed
@@ -13,14 +13,6 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 		getval(X.data, k, f)
 	end
 	pspec = Makie.to_plotspec(ct, pargs; pkws..., kwargs...)
-	if doaxis
-		S = Makie.SpecApi
-		# can set axis attributes (eg xylabels), but cannot be plotted on existing axes
-		S.GridLayout([S.Axis(plots=[pspec]; axis_attributes(ct, X, (;reorder_args, kwargs...))..., _axis...)])
-	else
-		# can be plotted either from scratch or on existing axes, but cannot set axis attributes
-		pspec
-	end
 end
 
 @inline getval(data, f) = getval(data, nothing, f)

@@ -51,32 +51,21 @@ end
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt), linewidth=15)
     @test ax.xlabel[] == ""
     @test plt.linewidth[] == 15
-    plt = lines!(1:10, Observable(FPlot(x->x+1, (@o _^2), color=sqrt, linewidth=Ref(10))))
+
+    fplt = Observable(FPlot(x->x+1, (@o _^2), color=sqrt, linewidth=Ref(10)))
+    plt = lines!(1:10, fplt)
     @test plt.linewidth[] == 10
+    fplt[] = FPlot(x->x+1, (@o _^2), color=sqrt, linewidth=Ref(15))
+    @test plt.linewidth[] == 15
+
+    fplt = Observable(FPlot(x->x+1, (@o _^2), color=sqrt))
+    plt = lines!(1:10, fplt, linewidth=10)
+    @test plt.linewidth[] == 10
+    fplt[] = FPlot(x->x+1, (@o _^2), color=log)
+    @test plt.linewidth[] == 10
+
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
-end
-
-@testitem "doaxis" begin
-    using Accessors
-    using CairoMakie
-
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), axis=(ylabel="Abc",))
-    lines!(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt))
-    @test content(fig[1,1]).xlabel[] == ""
-    @test content(fig[1,1]).ylabel[] == "Abc"
-    Makie.colorbuffer(current_figure(); backend=CairoMakie)
-
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), doaxis=true, _axis=(ylabel="Abc",))
-    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
-    @test content(fig[1,1]).xlabel[] == "_ + 1"
-    @test content(fig[1,1]).ylabel[] == "Abc"
-    Makie.colorbuffer(current_figure(); backend=CairoMakie)
-
-    fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(ylabel="Abc",)), doaxis=true)
-    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
-    @test content(fig[1,1]).xlabel[] == "_ + 1"
-    @test content(fig[1,1]).ylabel[] == "Abc"
-    Makie.colorbuffer(current_figure(); backend=CairoMakie)
+    @test plt.linewidth[] == 15
 end
 
 @testitem "axplot" begin
@@ -90,13 +79,13 @@ end
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
     ax, plt = axplot(lines)(current_figure()[2,1], FPlot(1:10, (@o _+1), (@o _^2), color=sqrt), axis=(ylabel="Abc",))
-    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
+    # lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
     @test content(fig[2,1]).xlabel[] == "_ + 1"
     @test content(fig[2,1]).ylabel[] == "Abc"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
     fig, ax, plt = axplot(lines, autolimits_refresh=false)(Observable(FPlot(1:10, (@o _+1), (@o _^2); color=sqrt, axis=(ylabel="Abc",))))
-    lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
+    # lines!(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), doaxis=true)
     @test content(fig[1,1]).xlabel[] == "_ + 1"
     @test content(fig[1,1]).ylabel[] == "Abc"
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
@@ -105,16 +94,16 @@ end
 @testitem "categorical" begin
     using Accessors
 
-    lines(FPlot(1:10, string, (@o _^2), color=sqrt), doaxis=true)
+    axplot(lines)(FPlot(1:10, string, (@o _^2), color=sqrt))
     @test current_axis().xlabel[] == "string(_)"
 
-    lines(FPlot(1:10, string, (@o _^2), color=(@o _ > 5 ? :blue : :red)), doaxis=true)
+    axplot(lines)(FPlot(1:10, string, (@o _^2), color=(@o _ > 5 ? :blue : :red)))
 end
 
 @testitem "unitful" begin
     using Accessors, Unitful
 
-    lines(FPlot((1:10)u"m", (@o ustrip(u"cm", 2*_)), (@o ustrip(_^2))), doaxis=true)
+    axplot(lines)(FPlot((1:10)u"m", (@o ustrip(u"cm", 2*_)), (@o ustrip(_^2))))
     @test current_axis().xlabel[] == "2 * _ (cm)"
     @test_broken current_axis().ylabel[] == "^(_, 2) (m^2)"
 end
@@ -125,31 +114,36 @@ end
     using Uncertain
 
     ## reorder_args = false
-    barplot(FPlot(1:10, (@o _), (@o _^2)), doaxis=true, reorder_args=false)
+    axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)), reorder_args=false)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "_ ^ 2"
 
-    barplot(FPlot(1:10, (@o _), (@o _^2)), direction=:x, doaxis=true, reorder_args=false)
+    axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)), direction=:x, reorder_args=false)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == "_"
 
-    rangebars(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), doaxis=true, reorder_args=false)
+    axplot(rangebars)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), reorder_args=false)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
-    rangebars(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), direction=:x, doaxis=true, reorder_args=false)
+    axplot(rangebars)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), direction=:x, reorder_args=false)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test current_axis().xlabel[] == "(_ ^ 2) ±ᵤ 3"
     @test current_axis().ylabel[] == "_"
 
-    scatter(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), doaxis=true, reorder_args=false)
+    axplot(scatter)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), reorder_args=false)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
@@ -157,49 +151,57 @@ end
 
 
     ## reorder_args = true
-    barplot(FPlot(1:10, (@o _), (@o _^2)), doaxis=true)
+    axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)))
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "_ ^ 2"
 
-    barplot(FPlot(1:10, (@o _), (@o _^2)), direction=:x, doaxis=true)
+    axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)), direction=:x)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "_ ^ 2"
 
-    rangebars(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), doaxis=true)
+    axplot(rangebars)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)))
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
-    rangebars(FPlot(1:10, (@o _ ±ᵤ 0.5), (@o _^2 ±ᵤ 3)), direction=:x, doaxis=true)
+    axplot(rangebars)(FPlot(1:10, (@o _ ±ᵤ 0.5), (@o _^2 ±ᵤ 3)), direction=:x)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_ ±ᵤ 0.5"
     @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
-    vlines(FPlot(1:10, (@o _^2), (@o _^3)), doaxis=true)
+    axplot(vlines)(FPlot(1:10, (@o _^2), (@o _^3)))
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ -4..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ 0..10  rtol=0.2
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == ""
 
-    hlines(FPlot(1:10, (@o _^2 ±ᵤ 0.5), (@o _^3 ±ᵤ 5)), doaxis=true)
+    axplot(hlines)(FPlot(1:10, (@o _^2 ±ᵤ 0.5), (@o _^3 ±ᵤ 5)))
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -50..1050  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == "(_ ^ 3) ±ᵤ 5"
     
-    hist(FPlot(1:10, (@o _^2), (@o _^3)), doaxis=true)
+    axplot(hist)(FPlot(1:10, (@o _^2), (@o _^3)))
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 0..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -0.1..2.1  rtol=0.2
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == ""
     
-    hist(FPlot(1:10, nothing, (@o _^3)), doaxis=true, direction=:x)
+    axplot(hist)(FPlot(1:10, nothing, (@o _^3)), direction=:x)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ -0.2..4.2  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -49..1050  rtol=0.2
     @test current_axis().xlabel[] == ""
@@ -210,25 +212,28 @@ end
     using Accessors
     using MakieExtra: xint, yint
 
-    barplot(FPlot(1:10, (@o _ + 1)), doaxis=true)
+    axplot(barplot)(FPlot(1:10, (@o _ + 1)))
     @test xint(current_axis().targetlimits[]) ≈ 0.1..11  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -0.5..11.5  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == ""
 
-    barplot(FPlot(1:10, (@o (_ + 1, _^2))), doaxis=true)
+    axplot(barplot)(FPlot(1:10, (@o (_ + 1, _^2))))
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == ""
 
-    barplot(FPlot(1:10, (@o (_ + 1, _^2))), doaxis=true, direction=:x)
+    axplot(barplot)(FPlot(1:10, (@o (_ + 1, _^2))), direction=:x)
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == ""
 
-    scatter(FPlot(1:10, (@o (_ + 1, _^2))), doaxis=true)
+    axplot(scatter)(FPlot(1:10, (@o (_ + 1, _^2))))
+    autolimits!()
     @test xint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
     @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
     @test_broken current_axis().xlabel[] == ""
@@ -239,7 +244,7 @@ end
     using Accessors
     using CairoMakie
 
-    res = multiplot((Scatter, lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), doaxis=true, _axis=(;width=1234))
+    res = multiplot((axplot(scatter), lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), axis=(;width=1234))
     @test res[1] isa Makie.FigureAxisPlot
     ax = content(res[1].figure[:,:])
     @test ax.xlabel[] == "Abc"
@@ -247,7 +252,7 @@ end
     @test ax.width[] == 1234
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
-    res = multiplot(current_figure()[1,2], (scatter, Lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), doaxis=true, _axis=(;width=1234))
+    res = multiplot(current_figure()[1,2], (axplot(scatter), Lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), axis=(;width=1234))
     @test current_axis().xlabel[] == "Abc"
     @test current_axis().ylabel[] == "_ ^ 2"
     @test current_axis().width[] == 1234
@@ -258,22 +263,22 @@ end
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
 
-    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true)
+    # fig, ax, plt = axplot(lines)(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10)
     # ax = content(fig[1,1])
     # @test ax.xlabel[] == "Abcdef"
     # @test ax.ylabel[] == "^(_, 2)"
     # @test ax.yscale[] == log10
-    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=true, axis=(ylabel="Def",))
+    # fig, ax, plt = axplot(lines)(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, axis=(ylabel="Def",))
     # ax = content(fig[1,1])
     # @test ax.xlabel[] == "Abcdef"
     # @test ax.ylabel[] == "Def"
     # @test ax.yscale[] == log10
-    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=false, axis=(ylabel="Def",))
+    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, axis=(ylabel="Def",))
     # ax = content(fig[1,1])
     # @test ax.xlabel[] == ""
     # @test ax.ylabel[] == "Def"
     # @test ax.yscale[] == identity
-    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10, doaxis=false)
+    # fig, ax, plt = lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, axis=(xlabel="Abcdef", yscale=log10)), linewidth=10)
     # @test ax.xlabel[] == ""
     # @test ax.ylabel[] == ""
     # @test ax.yscale[] == identity
@@ -366,19 +371,19 @@ end
     dc = DataCursor(lines=(;color=:black, linestyle=:dot))
     rs = RectSelection(poly=(;color=:orange, alpha=0.3))
 
-    fig,_,_ = with_widgets(scatter, [dc, rs])(fplt1, doaxis=true)
+    fig,_,_ = axplot(scatter, widgets=[dc, rs])(fplt1)
 
     axplot(hist, widgets=[dc, rs])(fig[2,1], fplt1)
 
     fplt2 = @set fplt1[1] = @o _[3]
-    with_widgets(scatter, [dc, rs])(fig[1,2], fplt2, doaxis=true, _axis=(;yscale=SymLog(0.1)))
+    axplot(scatter, widgets=[dc, rs])(fig[1,2], fplt2, axis=(;yscale=SymLog(0.1)))
 end
 
 @testitem "conversion to FPlot" begin
     using Accessors
 
     struct MyObj end
-    Makie.convert_arguments(ct::Type{<:AbstractPlot}, ::MyObj; kwargs...) = Makie.convert_arguments(ct, FPlot(1:10, (@o _+1), (@o _^2), color=sqrt); doaxis=true, kwargs...)
+    Makie.convert_arguments(ct::Type{<:AbstractPlot}, ::MyObj; kwargs...) = Makie.convert_arguments(ct, FPlot(1:10, (@o _+1), (@o _^2), color=sqrt); kwargs...)
 
     lines(MyObj(); linewidth=15)
     lines(MyObj())

@@ -39,11 +39,14 @@ keep_attrs(plt::Type{<:Plot}, kwargs, args...) = kwargs[collect(
 )]
 keep_attrs(plt::Function, kwargs, args...) = keep_attrs(Plot{plt}, kwargs, args...)
 keep_attrs((plt, _)::Pair, kwargs, args...) = keep_attrs(plt, kwargs, args...)
+keep_attrs(plt::AxplotFunc, kwargs, args...) = keep_attrs(plt.plotf, kwargs, args...)
 
 function plotfunc((F, kws)::Pair)
     F = plotfunc(F)
     (args...; newkwargs...) -> F(args...; newkwargs..., kws...)
 end
+
+plotfunc(f::AxplotFunc) = f
 
 function plotfunc!((F, kws)::Pair)
     F! = plotfunc!(F)
