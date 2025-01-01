@@ -109,6 +109,8 @@ end
 
 # XXX: should upstream all of these!
 
+_which_to_ix(which::Integer) = which == -1 ? 1 : which == 1 ? 2 : error("which must be -1 or 1, got $which")
+corner(r::Makie.GeometryBasics.HyperRectangle{2}, which::NTuple{2,Integer}) = Point(extrema(r)[_which_to_ix(which[1])][1], extrema(r)[_which_to_ix(which[2])][2])
 corners(r::Makie.GeometryBasics.HyperRectangle{2}) = (bottomleft(r), topleft(r), topright(r), bottomright(r))
 
 Makie.project(s, r::Makie.GeometryBasics.HyperRectangle) = Makie.GeometryBasics.HyperRectangle(Makie.project(s, r.origin), Makie.project(s, r.origin + r.widths) - Makie.project(s, r.origin))
