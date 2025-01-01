@@ -403,7 +403,16 @@ end
     @test obsmap(x, 1:5, @lift (;x=$x, y=$y)) == [(x=1, y=2), (x=2, y=3), (x=3, y=4), (x=4, y=5), (x=5, y=6)]
 end
 
+@testitem "record" begin
+    import CairoMakie
+
+    t = Observable(1)
+    fig, ax, plt = scatter(@lift ($t, $t))
+    Record(fig, t, 1:10)
+end
+
 @testitem "func2type" begin
+    # upstreamed to Makie
     using MakieExtra: func2type
     @test func2type(scatter) == Scatter
     @test func2type(scatter!) == Scatter
