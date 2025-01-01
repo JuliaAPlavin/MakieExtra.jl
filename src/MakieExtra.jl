@@ -77,6 +77,10 @@ function show_gl_icon_in_dock(show::Bool)
 end
 
 
+to_x_attrs(;kwargs...) = to_x_attrs(NamedTuple(kwargs))
+to_y_attrs(;kwargs...) = to_y_attrs(NamedTuple(kwargs))
+to_xy_attrs(;kwargs...) = to_xy_attrs(NamedTuple(kwargs))
+
 function to_x_attrs(attrs)
     attrs_nospecial = delete(attrs, (@maybe _.size) ++ (@maybe _.limit))
     res = @modify(k -> Symbol(:x, k), keys(attrs_nospecial)[∗])
