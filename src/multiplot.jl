@@ -49,7 +49,8 @@ end
 
 function plotfunc!(P)
 	F = plotfunc(P)
-	return eval(Symbol(nameof(F), :!))
+	name = Symbol(nameof(F), :!)
+	return getproperty(parentmodule(F), name)
 end
 function plotfunc!((F, kws)::Pair)
 	F! = plotfunc!(F)
