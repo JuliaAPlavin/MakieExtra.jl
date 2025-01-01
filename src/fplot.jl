@@ -41,7 +41,18 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; doaxis=fals
 	@assert !isnothing(X.data)
 	pargs = if reorder_args
 		ixs = argixs_xy_axes(ct, X, kwargs)
-		argfuncs = isnothing(ixs) ? X.argfuncs : X.argfuncs[collect(ixs)]
+		argfuncs =
+			if isnothing(ixs)
+				# default behavior if argixs_xy_axes is not defined
+				X.argfuncs
+			elseif maximum(ixs) ≤ length(X.argfuncs)
+				# reorder args according to argixs_xy_axes
+				X.argfuncs[collect(ixs)]
+			else
+				# got fewer args than argixs_xy_axes expects, use args as-is
+				# this handles stuff like scatter() and many others with a single argument
+				X.argfuncs
+			end
 		map(argfuncs) do f
 			getval(f, X.data)
 		end
@@ -77,6 +88,10 @@ _xlabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 1)
 _ylabel(ct, X::FPlot, kwargs) = _xylabel(ct, X, kwargs, 2)
 function _xylabel(ct, X::FPlot, kwargs, i)
 	argixs = argixs_xy_axes(ct, X, kwargs)
+	if !isnothing(argixs) && !all(∈(eachindex(X.argfuncs)), argixs)
+		# got fewer args than argixs_xy_axes expects, likely something unusual like scatter() and many others with a single argument
+		return shortlabel(nothing)
+	end
 	argix = kwargs.reorder_args ?
 		(isnothing(argixs) || i ∈ argixs ? i : nothing) :
 		get(argixs, i, nothing)
