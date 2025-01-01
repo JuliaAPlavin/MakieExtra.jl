@@ -1,4 +1,4 @@
-function zoom_lines!(ax1, ax2; strokewidth=1.5, strokecolor=:black, color=(:black, 0))
+function zoom_lines!(ax1, ax2; strokewidth=1.5, strokecolor=:black, color=(:black, 0), rectattrs=(;), lineattrs=(;))
     pscene = parent(parent(Makie.parent_scene(ax1)))
     @assert parent(parent(Makie.parent_scene(ax2))) === pscene
     obs = lift(ax1.finallimits, ax2.finallimits, ax1.scene.viewport, ax2.scene.viewport, ax1.scene.camera.projectionview, ax2.scene.camera.projectionview, Makie.transform_func(ax1), Makie.transform_func(ax2)) do _...
@@ -28,10 +28,10 @@ function zoom_lines!(ax1, ax2; strokewidth=1.5, strokecolor=:black, color=(:blac
         )
     end
 
-    rectattrs = (; strokewidth, strokecolor, color, xautolimits=false, yautolimits=false)
+    rectattrs = (; strokewidth, strokecolor, color, xautolimits=false, yautolimits=false, rectattrs...)
     poly!(ax1, (@lift $obs.rect1); rectattrs...)
     poly!(ax2, (@lift $obs.rect2); rectattrs...)
-    plt = linesegments!(pscene, (@lift $obs.slines), color=strokecolor, linewidth=strokewidth, linestyle=:dot)
+    plt = linesegments!(pscene, (@lift $obs.slines); color=strokecolor, linewidth=strokewidth, linestyle=:dot, lineattrs...)
     translate!(plt, 0, 0, 1000)
     return nothing
 end
