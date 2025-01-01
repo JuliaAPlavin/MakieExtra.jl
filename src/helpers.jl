@@ -12,23 +12,25 @@ macro define_plotfunc(plotfuncs, Ts)
         argnames = map(i -> Symbol(:x, i) |> esc, 1:length(Ts))
         args_obs = map((n, T) -> :($n::Observable{<:$T}), argnames, Ts)
         args_any = map((n, T) -> :($n::Union{$T,Observable{<:$T}}), argnames, Ts)
+        fullname = isdefined(Makie, plotf) ? :(Makie.$plotf) : plotf
+        fullname_excl = isdefined(Makie, plotf) ? :(Makie.$plotf_excl) : :($__module__.$plotf_excl)
         quote
-            Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_any...); kwargs...) = $plotf(pos, $(map(n -> :(_ensure_observable($n)), argnames)...); kwargs...)
+            $fullname(pos::Union{GridPosition, GridSubposition}, $(args_any...); kwargs...) = $plotf(pos, $(map(n -> :(_ensure_observable($n)), argnames)...); kwargs...)
             
-            function Makie.$plotf($(args_any...); figure=(;), kwargs...)
+            function $fullname($(args_any...); figure=(;), kwargs...)
                 fig = Figure(; figure...)
                 ax, plt = $plotf(fig[1,1], $(argnames...); kwargs...)
                 Makie.FigureAxisPlot(fig, ax, plt)
             end
             
-            function Makie.$plotf(pos::Union{GridPosition, GridSubposition}, $(args_obs...); axis=(;), kwargs...)
+            function $fullname(pos::Union{GridPosition, GridSubposition}, $(args_obs...); axis=(;), kwargs...)
                 ax_kwargs = merge($default_axis_attributes($plottype, $(argnames...); kwargs...), axis)
                 ax = Axis(pos; ax_kwargs...)
                 plt = $plotf_excl(ax, $(argnames...); kwargs...)
                 Makie.AxisPlot(ax, plt)
             end
 
-            Makie.$plotf_excl($(args_any...); kwargs...) = $plotf_excl(current_axis(), $(argnames...); kwargs...)
+            $fullname_excl($(args_any...); kwargs...) = $plotf_excl(current_axis(), $(argnames...); kwargs...)
         end
     end
     Expr(:block, exprs...)
