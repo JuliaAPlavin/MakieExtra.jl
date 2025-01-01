@@ -8,6 +8,9 @@ end
 FPlot(data, argfuncs...; axis=false, kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs), axis)
 
 Makie.used_attributes(T::Type{<:Plot}, ::FPlot) = Tuple(Makie.attribute_names(T))
+Makie.used_attributes(T::Type{<:Plot}, _, ::FPlot) = Tuple(Makie.attribute_names(T))
+
+Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 
 function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; kwargs...)
 	@assert !isnothing(X.data)
