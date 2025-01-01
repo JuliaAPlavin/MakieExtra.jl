@@ -4,27 +4,27 @@
     poly = (;)
 end
 
-function sel_ints(rs::RectSelection, fplt::FPlot)
+function sel_ints(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
     @lift let
-        map(fplt.argfuncs) do afunc
+        map(argfuncs_for_xy(plt, fplt; reorder_args=true, kwargs...)) do afunc
             vs = @p $(rs.vals) |> filter(((o, v),) -> o == afunc) |> map(last)
             v = @oget only(vs) NaN..NaN
         end
     end
 end
 
-function sel_poly(rs::RectSelection, fplt::FPlot)
+function sel_poly(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
     emptyval = Rect2(NaN..NaN, NaN..NaN)
-    ints = sel_ints(rs, fplt)
+    ints = sel_ints(rs, fplt, plt; kwargs...)
     @lift let
         length($ints) == 2 || return emptyval
         Rect2($ints...)
     end
 end
 
-function sel_span(rs::RectSelection, fplt::FPlot, i::Int)
+function sel_span(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}, i::Int; kwargs...)
     emptyval = NaN..NaN
-    ints = sel_ints(rs, fplt)
+    ints = sel_ints(rs, fplt, plt; kwargs...)
     @lift let
         length($ints) == 2 && all(i -> all(!isnan, endpoints(i)), $ints) && return emptyval # 2d rect is shown instead
         get($ints, i, emptyval)
@@ -32,9 +32,9 @@ function sel_span(rs::RectSelection, fplt::FPlot, i::Int)
 end
 
 function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
-    poly!(ax, sel_poly(rs, fplt); rs.poly...)
-    vspan!(ax, sel_span(rs, fplt, 1); rs.poly...)
-    hspan!(ax, sel_span(rs, fplt, 2); rs.poly...)
+    poly!(ax, sel_poly(rs, fplt, plt; kwargs...); rs.poly...)
+    vspan!(ax, sel_span(rs, fplt, plt, 1; kwargs...); rs.poly...)
+    hspan!(ax, sel_span(rs, fplt, plt, 2; kwargs...); rs.poly...)
 
     isrecting = Observable(false)
     on(events(ax).mousebutton, priority=100) do evt
