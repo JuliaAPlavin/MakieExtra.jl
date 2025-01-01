@@ -182,6 +182,21 @@ end
     lines!(MyObj(), linewidth=10)
 end
 
+@testitem "arrowline" begin
+    using MakieExtra: split_arrowstyle
+
+    @test split_arrowstyle("<-|>") == (lmk = "<", rmk = "|>", linek = "-")
+    @test split_arrowstyle("<|-->") == (lmk = "<|", rmk = ">", linek = "--")
+    @test split_arrowstyle("->") == (lmk = "", rmk = ">", linek = "-")
+    @test split_arrowstyle("-|>") == (lmk = "", rmk = "|>", linek = "-")
+    @test split_arrowstyle("<->") == (lmk = "<", rmk = ">", linek = "-")
+    @test split_arrowstyle("<-") == (lmk = "<", rmk = "", linek = "-")
+
+    arrowlines([(0, 0), (1, 0.5)])
+    arrowlines!([(0, 0), (1, 0.5)], markersize=50)
+    arrowlines!([(0, 0), (1, 0.5)], arrowstyle="<-|>")
+end
+
 @testitem "@define_plotfunc" begin
     struct MyType end
     struct MyTypeVec <: AbstractVector{Float64} end
