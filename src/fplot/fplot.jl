@@ -62,24 +62,12 @@ include("makieconvert.jl")
 include("axisorder.jl")
 include("interactive.jl")
 
-# should go into AccessorsExtra?
-
 shortlabel(::Nothing) = ""
 function shortlabel(f)
-	o, unit = _split_unit(f)
+	o, unit = AccessorsExtra._split_unitstr_from_optic(f)
 	ostr = AccessorsExtra.barebones_string(o)
 	isnothing(unit) ? ostr : "$ostr ($unit)"
 end
-
-_split_unit(o) = (o, nothing)
-_split_unit(::typeof(rad2deg)) = (identity, "°")
-function _split_unit(o::ComposedFunction)
-    oshow, unit = _split_unit(o.outer)
-    (_stripidentity(oshow ∘ o.inner), unit)
-end
-
-_stripidentity(o::ComposedFunction) = @delete Accessors.decompose(o) |> filter(==(identity))
-_stripidentity(o) = o
 
 # XXX: upstream cleaner version!
 Makie.plot!(ax::Axis, plot::Plot{plot, Tuple{Makie.GridLayoutSpec}}) = plotlist!(ax, plot.converted[][].content[].second.plots[])

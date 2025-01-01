@@ -16,14 +16,12 @@ StructHelpers = "4093c41a-2008-41fd-82b8-e3f9d02b504f"
 
 [weakdeps]
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
-Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [extensions]
 GLMakieExt = "GLMakie"
-UnitfulExt = "Unitful"
 
 [compat]
-AccessorsExtra = "0.1.75"
+AccessorsExtra = "0.1.89"
 DataManipulation = "0.1.16"
 DataPipes = "0.3.16"
 GLMakie = "0.10.13"
@@ -33,5 +31,4 @@ ObjectiveC = "3.1.0"
 PyFormattedStrings = "0.1"
 Reexport = "1.2.2"
 StructHelpers = "1"
-Unitful = "1"
 julia = "1.9"
