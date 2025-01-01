@@ -374,6 +374,17 @@ end
     x[] = 1
     x[] = 1
     @test yupds == [1, 2, 1]
+
+    x = Observable{Any}(1)
+    yupds = []
+    y = lift(changes(x)) do x
+        push!(yupds, x)
+    end
+    x[] = 1
+    x[] = "2"
+    x[] = "2"
+    x[] = 1
+    @test yupds == [1, "2", 1]
 end
 
 @testitem "obsmap" begin

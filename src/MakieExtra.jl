@@ -140,14 +140,12 @@ end
 Returns an `Observable` that only forwards `obs` updates when its value changes.
 """
 function changes(obs::Makie.AbstractObservable{T}) where {T}
-    result = Observable{T}(obs[])
-    oldobs = Observable{T}(obs[])
-    on(obs) do val
-        if val != oldobs[]
-            result[] = val
-            oldobs[] = val
-        end
-    end
+    # could just be:
+    # map(identity, obs, ignore_equal_values=true)
+    # but this could narrow the Observable type from T
+
+    result = Observable{T}(obs[], ignore_equal_values=true)
+    map!(identity, result, obs)
     return result
 end
 
