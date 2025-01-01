@@ -64,15 +64,10 @@ remove_defaults_str(s) = @p let
     strip(__, ['(', ')', ','])
     __ == "NamedTuple" ? "" : "; $__"
 end
-remove_defaults(s::SymLog) = @p let
-    Accessors.getproperties(s)[(:base, :linscale, :vmin, :vmax)]
-    __.base == 10 ? (@delete __.base) : __
-    __.linscale == 1 ? (@delete __.linscale) : __
-    __.vmin == -Inf ? (@delete __.vmin) : __
-    __.vmax == Inf ? (@delete __.vmax) : __
-end
-remove_defaults(s::AsinhScale) = @p let
-    Accessors.getproperties(s)[(:vmin, :vmax)]
-    __.vmin == -Inf ? (@delete __.vmin) : __
-    __.vmax == Inf ? (@delete __.vmax) : __
+remove_defaults(x::SymLog) = remove_same(getproperties(x)[(:base, :linscale, :vmin, :vmax)], kwdef_defaults(SymLog))
+remove_defaults(x::AsinhScale) = remove_same(getproperties(x)[(:vmin, :vmax)], kwdef_defaults(SymLog))
+
+function remove_same(a::NamedTuple, b::NamedTuple)
+    ks = @p keys(a) filter(a[_] != get(b, _, nothing))
+    return NamedTuple{ks}(a)
 end
