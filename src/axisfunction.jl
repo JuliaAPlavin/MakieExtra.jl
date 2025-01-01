@@ -21,6 +21,3 @@ for plotf in (
 end
 
 default_axis_attributes(_ignore, ::Function; kwargs...) = (;)
-
-xint(rect::Makie.Rect) = minimum(rect)[1]..maximum(rect)[1]
-yint(rect::Makie.Rect) = minimum(rect)[2]..maximum(rect)[2]
