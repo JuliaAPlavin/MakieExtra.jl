@@ -49,6 +49,7 @@ _symlog_formatter(x) = x
 
 @kwdef struct EngTicks
     kind::Symbol = :number
+    suffix::String = ""
     digits::Int = 0
 end
 
@@ -80,7 +81,7 @@ Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
     else
         error("Unknown EngTicks kind: $(t.kind)")
     end
-    rich(f"{v / 10.0^pow3:.{t.digits}f}", suffix)
+    rich(f"{v / 10.0^pow3:.{t.digits}f}", suffix, t.suffix)
 end
 
 
