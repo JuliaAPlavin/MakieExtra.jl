@@ -7,11 +7,6 @@ GeometryBasics.HyperRectangle{N}(ints::Vararg{Interval, N}) where {N} = HyperRec
     Vec(rightendpoint.(ints) .- leftendpoint.(ints))
 )
 
-function GeometryBasics.HyperRectangle{N}(r::HyperRectangle) where {N}
-    @assert N ≤ length(r.origin)
-    return HyperRectangle(r.origin[Vec{N}(1:N)], r.widths[Vec{N}(1:N)])
-end
-
 Base.:(⊆)(a::HyperRectangle, b::HyperRectangle) = all(map(⊆, intervals(a), intervals(b)))
 Base.:(⊇)(a::HyperRectangle, b::HyperRectangle) = b ⊆ a
 

@@ -1,7 +1,7 @@
 name = "MakieExtra"
 uuid = "54e234d5-9986-40d8-815f-a5e42de435f6"
 authors = ["Alexander Plavin <alexander@plav.in>"]
-version = "0.1.47"
+version = "0.1.48"
 
 [deps]
 AccessorsExtra = "33016aad-b69d-45be-9359-82a41f556fd4"
@@ -25,10 +25,10 @@ GLMakieExt = "GLMakie"
 AccessorsExtra = "0.1.91"
 DataManipulation = "0.1.16"
 DataPipes = "0.3.16"
-GLMakie = "0.10.13"
+GLMakie = "0.11"
 InverseFunctions = "0.1.14"
 KwdefHelpers = "0.1.0"
-Makie = "0.21.18"
+Makie = "0.22"
 ObjectiveC = "3.1.0 - 3.3.0"
 PyFormattedStrings = "0.1"
 Reexport = "1.2.2"
