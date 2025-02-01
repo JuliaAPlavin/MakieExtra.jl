@@ -63,7 +63,7 @@ include("geometry.jl")
 # adapted from https://github.com/sarvex/ObjectiveC.jl/blob/e2974864b13e91dd72fab85544b12bb782066cca/src/cocoa/cocoa.jl
 using ObjectiveC: id, Object, NSString, NSObject, @objc, @objcwrapper
 @objcwrapper NSApplication <: NSObject
-function show_gl_icon_in_dock(show::Bool)
+function show_gl_icon_in_dock(show::Bool=true)
     path = "/System/Library/Frameworks/AppKit.framework"
 
     path = NSString(path)
