@@ -1,3 +1,10 @@
+"""    textwithbox(position; kwargs...)
+
+Like `text()` and supports all `text()` attributes, but also draws a box around the text for legibility.
+
+The box is drawn with the `poly()` recipe, pass required attributes as the `poly=...` argument.
+Also, the `poly.padding::Rect` attribute can be used to add padding around the text, measured in pixels.
+"""
 @recipe TextWithBox (position,) begin
     poly = Attributes()
     documented_attributes(Makie.Text)...
