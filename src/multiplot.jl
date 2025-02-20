@@ -1,3 +1,21 @@
+"""    multiplot([pos], plts, args...; kwargs...)
+
+Make multiple plots with the same data.
+
+Any combination of `plts` that take the same data is supported.
+Common examples include:
+- `(lines, band)`,
+- `(scatter, rangebars)`,
+- `(scatter, rangebars, rangebars => (;direction=:x))`
+"""
+function multiplot end
+
+"""    multiplot!([ax], plts, args...; kwargs...)
+
+Like `multiplot`, but plots on an existing axis.
+"""
+function multiplot! end
+
 function multiplot!(plts, args...; kwargs...)
     map(plts) do plt
         plotfunc!(plt)(args...; keep_attrs(plt, kwargs, args...)...)

@@ -1,3 +1,8 @@
+"""    contourf_fast(X; kwargs...)
+
+Should result in the same output as `contourf()` when pixels are small enough, but is faster.
+`contourf_fast()` quantizes the input data and displays it as an image, instead of finding explicit contours like `contourf()` does.
+"""
 @recipe Contourf_Fast (X,) begin
     levels = 10
     colormap = @inherit colormap

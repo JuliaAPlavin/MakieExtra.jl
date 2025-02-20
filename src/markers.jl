@@ -3,6 +3,10 @@ const _markerlock = ReentrantLock()
 const _markercache = Dict{Symbol, Vector{Pair}}()
 const _marker_lw_max_Δ = 0.02
 
+"""    marker_lw(base::Symbol, lw_mul::Real)
+
+Adjust the line width of a `base` marker by a factor of `lw_mul`.
+"""
 function marker_lw(base, lw_mul)
     lock(_markerlock) do
         cache = get!(_markercache, base, Pair[])

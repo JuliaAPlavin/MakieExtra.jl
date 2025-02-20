@@ -1,3 +1,10 @@
+"""    linesglow(positions; kwargs...)
+
+Like `lines()`, but with a glowing effect.
+Use `glowwidth`, `glowalpha` and `glowcolor` to control the glow appearance.
+
+Under the hood, `linesglow()` draws multiple lines with increasing width and decreasing alpha to create the glow effect.
+"""
 @recipe LinesGlow (positions,) begin
     glowwidth = 0
     glowalpha = 1
@@ -25,6 +32,10 @@ function Makie.plot!(p::LinesGlow)
 end
 
 
+"""    textglow(position; kwargs...)
+
+Like `text()` and accepts the same attributes, but glowing doesn't cause artifacts.
+"""
 @recipe TextGlow (position,) begin
     documented_attributes(Makie.Text)...
 end

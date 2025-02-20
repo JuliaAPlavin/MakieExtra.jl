@@ -1,3 +1,11 @@
+"""    radiobuttons(cbs::Checkbox...; cb_attributes=...)
+
+Turn a set of checkboxes into radiobuttons:
+- only one can be checked at a time;
+- apply attributes from `cb_attributes` to adjust the look of all checkboxes.
+
+The selected index is stored in the `selix::Observable` field of the returned object.
+"""
 function radiobuttons(cbs::Checkbox...; cb_attributes=(roundness=1, checkmark=Circle, checkmarksize=0.3))
 	selix = Observable{Int}(findonly(cb -> cb.checked[], cbs))
 	for (i, cb) in enumerate(cbs)
