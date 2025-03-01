@@ -31,7 +31,7 @@ function Makie.plot!(p::TextWithBox)
 	    map(glyphcolls, pos) do glyphcoll, pos
 	        rect = Rect2f(Makie.unchecked_boundingbox(glyphcoll, pos, Makie.to_rotation(t.rotation[])))
             @reset rect.origin .+= offset
-            isnothing(padding) ? rect : dilate(rect, padding)
+            isnothing(padding) ? rect : dilate(rect, to_rect_padding(padding))
 	    end
 	end
     poly!(p, pattrs, bboxes)
