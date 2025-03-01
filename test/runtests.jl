@@ -562,9 +562,27 @@ end
     @test rbs.selix[] == 1
 end
 
-@testitem "geoaxis_radians" begin
+@testitem "geoaxis" begin
     # smoke test only
+    using GeoMakie
+    using MakieExtra.IntervalSets
+    import CairoMakie
+
     MakieExtra.GeoAxis_radians!()
+    MakieExtra.GeoAxis_splitwrap!()
+
+	fig = Figure()
+	ax = GeoAxis(fig[1,1], dest="+proj=moll")
+
+	lines!(map(x->(x/50, x/1000), 1:20:1000))
+	poly!([
+		Rect(0±0.2, 0.5±0.1),
+		Rect(3±0.2, -0.5±0.1),
+	])
+	poly!(Rect(3±0.2, 0.5±0.1))
+	poly!(Circle(Point2(-3.1, 0), 0.1))
+
+    colorbuffer(fig)
 end
 
 @testitem "_" begin
