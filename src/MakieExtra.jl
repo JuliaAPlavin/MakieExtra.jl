@@ -289,12 +289,13 @@ transform_val_space(ax, which::Symbol, args...) = transform_val_space(ax, Dict(:
 function transform_val_space(ax::Axis, which::Int, spaces::Pair{Symbol,Symbol}, orig::Union{Tuple,AbstractVector})
     scene = Makie.get_scene(ax)
     lift(scene.camera.projectionview, Makie.plots(ax)[1].model, Makie.transform_func(ax), scene.viewport, orig) do _, _, tf, _, orig
+        tf_cur = @set tf[3-which] = identity
         if spaces[1] == :data
-            orig = map(|>, orig, @set tf[3-which] = identity)
+            orig = map(|>, orig, tf_cur)
         end
         new = Makie.project(scene.camera, spaces..., Point2(orig))
         if spaces[2] == :data
-            new = Point2(map(|>, new, Accessors.inverse.(@set tf[3-which] = identity)))
+            new = Point2(map(|>, new, Accessors.inverse.(tf_cur)))
         end
         @set orig[which] = new[which]
     end
