@@ -76,6 +76,8 @@ end
 
     plt = lines!(1:10, FPlot(x->x+1, (@o _^2), color=sqrt, markersize=identity), linewidth=15)
     @test plt.linewidth[] == 15
+
+    text(FPlot(1:10, (@o _+1), (@o _^2), text=string))
 end
 
 @testitem "axplot" begin
