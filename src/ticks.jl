@@ -51,6 +51,7 @@ _symlog_formatter(x) = x
     kind::Symbol = :number
     suffix::String = ""
     digits::Int = 0
+    space::Bool = false
 end
 
 EngTicks(kind; kwargs...) = EngTicks(; kind, kwargs...)
@@ -64,7 +65,8 @@ Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
     elseif t.kind == :number
         rich("×10", superscript(string(pow3)))
     elseif t.kind == :symbol
-        " " * Dict(
+        spc = t.space ? " " : ""
+        spc * Dict(
             -15 => "f",
             -12 => "p",
             -9 => "n",
