@@ -51,7 +51,7 @@ _symlog_formatter(x) = x
     kind::Symbol = :number
     suffix::String = ""
     digits::Int = 0
-    space::Bool = false
+    space::Bool = true
 end
 
 EngTicks(kind; kwargs...) = EngTicks(; kind, kwargs...)
