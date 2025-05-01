@@ -94,6 +94,7 @@ function split_curve(data::AbstractVector{<:Point2}; rng::Interval, closed::Bool
 		end
 	else
 		ixs = findall(i -> is_wrap(data[i], data[i + 1]), I[begin:end-1])
+		isempty(ixs) && return [data]
 		start_ixs = [firstindex(data); ixs .+ 1]
 		end_ixs = [ixs; lastindex(data)]
 		map(start_ixs, end_ixs) do a, b
