@@ -65,8 +65,15 @@ using TestItemRunner
     @test SymLog(1, linscale=2)(10) ≈ 1 + 2*unityval
     @test SymLog(1, linscale=2)(100) ≈ 2 + 2*unityval
 
+    @test SymLog(1, linscale=0)(0) == 0
+    @test SymLog(1, linscale=0)(0.5) ≈ 0
+    @test SymLog(1, linscale=0)(1) ≈ 0
+    @test SymLog(1, linscale=0)(10) ≈ 1
+    @test SymLog(1, linscale=0)(100) ≈ 2
+
     # smoke tests to probee the actual inverse:
     Makie.ReversibleScale(SymLog(1))
+    Makie.ReversibleScale(SymLog(1; linscale=0))
     Makie.ReversibleScale(AsinhScale(1))
 
     bmt = BaseMulTicks([1,2,5])
