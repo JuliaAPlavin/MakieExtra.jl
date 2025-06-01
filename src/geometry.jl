@@ -30,3 +30,6 @@ Accessors.set(obj::Makie.Polygon, ::typeof(Makie.coordinates), val) = Makie.Poly
 
 dilate(o::HyperRectangle, kern::HyperRectangle) = Rect(o.origin + kern.origin, o.widths + kern.widths)
 erode(o::HyperRectangle, kern::HyperRectangle) = Rect(o.origin - kern.origin, o.widths - kern.widths)
+
+Makie.defaultlimits(userlimits::Rect2, xscale, yscale) = userlimits
+Makie.convert_limit_attribute(lims::Rect2) = Tuple(tuple.(lims.origin, lims.origin .+ lims.widths))

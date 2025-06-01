@@ -594,6 +594,9 @@ end
     @test dilate(Rect2(Vec(0, 1), Vec(2, 3)), Rect2(Vec(-1, -2), Vec(3, 5))) == Rect2(Vec(-1, -1), Vec(5, 8))
     @test erode(Rect2(Vec(0, 1), Vec(3, 5)), Rect2(Vec(-1, -2), Vec(2, 3))) == Rect2(Vec(1, 3), Vec(1, 2))
     @test erode(Rect2(Vec(0, 1), Vec(3, 5)), Rect2(Vec(-1, -2), Vec(20, 30))) == Rect2(Vec(1, 3), Vec(-17, -25))
+
+    # smoke test for limits=Rect
+    Axis(Figure()[1,1], limits=Rect2(Vec(0, 1), Vec(2, 3)))
 end
 
 @testitem "polygons" begin
