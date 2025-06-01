@@ -28,8 +28,14 @@ function Makie.plot!(p::BandStroke)
     end
     # use pb[] instead of p[] to ensure all Band conversions are performed
     # is it possible to miss the convert_arguments() methods defined above?
-    lines!(p, att, pb[1])
-    lines!(p, att, pb[2])
+	if p.direction[] == :y
+	    lines!(p, att, @lift reverse.($(pb[1])))
+	    lines!(p, att, @lift reverse.($(pb[2])))
+	else
+		@assert p.direction[] == :x
+	    lines!(p, att, pb[1])
+	    lines!(p, att, pb[2])
+	end
     return p
 end
 
