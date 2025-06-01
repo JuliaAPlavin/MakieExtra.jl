@@ -1,5 +1,5 @@
 @testitem "fplot structure" begin
-    using Accessors
+    using AccessorsExtra
 
     fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123)
     
@@ -38,6 +38,11 @@
 
     @test (@set fp.axis = (;title="Abc")) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;title="Abc"))
     @test (@insert fp.axis = (;title="Abc")) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;title="Abc"))
+    
+    @test set(fp, (@maybe _[1]), sin) === FPlot(1:10, sin, (@o _^2), color=sqrt, linewidth=123)
+    @test set(fp, (@maybe _.color), log) === FPlot(1:10, (@o _+1), (@o _^2), color=log, linewidth=123)
+    @test set(fp, (@maybe _.markersize), exp) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=exp)
+    @test set(FPlot(1:10, (@o _+1)), (@maybe _[2]), (@o _^3)) === FPlot(1:10, (@o _+1), (@o _^3))
 
     fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;limits=(1..2, nothing)))
     @test FPlot(fp, markersize=5) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=5, axis=(;limits=(1..2, nothing)))
@@ -45,6 +50,45 @@
     @test FPlot(fp, axis=(;limits=(nothing, (0, nothing)))) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;limits=(nothing, (0, nothing))))
     @test FPlot(fp, log) === FPlot(1:10, log, (@o _^2), color=sqrt, linewidth=123, axis=(;limits=(1..2, nothing)))
     @test FPlot(fp, color=log, data=10:15) === FPlot(10:15, (@o _+1), (@o _^2), color=log, linewidth=123, axis=(;limits=(1..2, nothing)))
+end
+
+@testitem "fplot merge" begin
+    using Accessors
+
+    # Test merge functionality with overlapping kwargfuncs and axis attributes
+    fplt1 = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, alpha=0.3, axis=(;xlabel="X", title="First", limits=(0..5, nothing)))
+    fplt2 = FPlot(1:5, (@o _*2), (@o _-1), (@o _^3), color=log, markersize=456, alpha=0.8, axis=(;ylabel="Y", title="Second", scale=log))
+    
+    @test merge(fplt1, fplt2) === FPlot(1:5, (@o _*2), (@o _-1), (@o _^3), color=log, linewidth=123, alpha=0.8, markersize=456, axis=(;xlabel="X", title="Second", limits=(0..5, nothing), ylabel="Y", scale=log))
+
+    # Test merge with different argument counts and overlapping kwargfuncs/axis attributes
+    fplt_short = FPlot(1:3, (@o _/2), color=exp, alpha=0.9, linewidth=999, axis=(;limits=(10..20, nothing), xlabel="New X"))
+    @test merge(fplt1, fplt_short) === FPlot(1:3, (@o _/2), (@o _^2), color=exp, linewidth=999, alpha=0.9, axis=(;xlabel="New X", title="First", limits=(10..20, nothing)))
+    
+    # Test merge with empty argfuncs and overlapping kwargfuncs/axis attributes
+    fplt_empty = FPlot(1:7, color=sin, markersize=999, axis=(;scale=log, title="Empty Plot"))
+    @test merge(fplt1, fplt_empty) === FPlot(1:7, (@o _+1), (@o _^2), color=sin, linewidth=123, alpha=0.3, markersize=999, axis=(;xlabel="X", title="Empty Plot", limits=(0..5, nothing), scale=log))
+    
+    # Test data merging behavior
+    # Both have data - take from right
+    fplt_data1 = FPlot(1:10, (@o _+1), color=sqrt)
+    fplt_data2 = FPlot(5:8, (@o _*2), alpha=0.5)
+    @test merge(fplt_data1, fplt_data2) === FPlot(5:8, (@o _*2), color=sqrt, alpha=0.5)
+    
+    # Left has data, right has nothing - take from left
+    fplt_with_data = FPlot(1:5, (@o _+1), color=sqrt)
+    fplt_no_data = FPlot(nothing, (@o _*2), alpha=0.5)
+    @test merge(fplt_with_data, fplt_no_data) === FPlot(1:5, (@o _*2), color=sqrt, alpha=0.5)
+    
+    # Left has nothing, right has data - take from right
+    fplt_no_data2 = FPlot(nothing, (@o _+1), color=sqrt)
+    fplt_with_data2 = FPlot(10:12, (@o _*2), alpha=0.5)
+    @test merge(fplt_no_data2, fplt_with_data2) === FPlot(10:12, (@o _*2), color=sqrt, alpha=0.5)
+    
+    # Both have nothing - result has nothing
+    fplt_nothing1 = FPlot(nothing, (@o _+1), color=sqrt)
+    fplt_nothing2 = FPlot(nothing, (@o _*2), alpha=0.5)
+    @test merge(fplt_nothing1, fplt_nothing2) === FPlot(nothing, (@o _*2), color=sqrt, alpha=0.5)
 end
 
 @testitem "basic" begin
