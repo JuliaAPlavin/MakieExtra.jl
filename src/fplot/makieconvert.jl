@@ -21,6 +21,7 @@ Makie.convert_arguments(ct::Type{<:Makie.Text}, fplt::FPlot) = @invoke convert_a
 @inline getval(data, f) = getval(data, nothing, f)
 @inline getval(data, k, f) =
     isempty(methods(f)) ? f :
+	k ∈ (:colormap, :direction) ? f :
     k == :inspector_label ? (self, i, p) -> f(data[i]) :
     k == :inspector_hover ? (self, p, i, _...) -> f(data[i]) :
     map(f, data)
