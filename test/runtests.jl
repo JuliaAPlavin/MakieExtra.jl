@@ -76,6 +76,14 @@ using TestItemRunner
     Makie.ReversibleScale(SymLog(1; linscale=0))
     Makie.ReversibleScale(AsinhScale(1))
 
+    bmt = BaseMulTicks()
+    @test Makie.get_tickvalues(bmt, identity, 0.25, 100) == [0.5, 1, 2, 5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, identity, 3, 100) == [3, 5, 10, 20, 30, 50, 100]
+    @test Makie.get_tickvalues(bmt, log10, 3, 100) == [3, 5, 10, 20, 30, 50, 100]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 100) == [0, 0.5, 1, 2, 5, 10, 20, 50, 100]
+    @test Makie.get_tickvalues(bmt, SymLog(1), -70, 100) == [-30, -10, -3, -1, 0, 1, 3, 10, 30, 100]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0, 1e10) == [0.0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000]
+
     bmt = BaseMulTicks([1,2,5])
     @test Makie.get_tickvalues(bmt, identity, 0.25, 100) == [0.5, 1, 2, 5, 10, 20, 50, 100]
     @test Makie.get_tickvalues(bmt, identity, 3, 100) == [5, 10, 20, 50, 100]
@@ -86,9 +94,9 @@ using TestItemRunner
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 1) == [0, 0.5, 1]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 0.2) == [0, 0.1, 0.2]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 0.099) ≈ [0, 0.01, 0.02, 0.05]
-    @test Makie.get_tickvalues(bmt, SymLog(1), 0.09, 0.11) ≈ [0.1]
-    @test Makie.get_tickvalues(bmt, SymLog(1), 9, 11) ≈ [10]
-    @test Makie.get_tickvalues(bmt, SymLog(1), 9, 9.5) == []
+    @test Makie.get_tickvalues(bmt, SymLog(1), 0.09, 0.11) == [0.09, 0.095, 0.1, 0.105, 0.11]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 9, 11) == [9.0, 9.5, 10.0, 10.5, 11.0]
+    @test Makie.get_tickvalues(bmt, SymLog(1), 9, 9.5) ≈ [9.0, 9.1, 9.2, 9.3, 9.4, 9.5]
     @test Makie.get_ticks(bmt, identity, Makie.Automatic(), 0.25, 100) == (
         [0.5, 1, 2, 5, 10, 20, 50, 100],
         ["0.5", "1", "2", "5", "10", "20", "50", "100"]
