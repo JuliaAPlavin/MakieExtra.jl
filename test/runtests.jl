@@ -647,6 +647,23 @@ end
     ]
 end
 
+@testitem "annotation conversion" begin
+    struct MyS1
+    end
+    Makie.convert_arguments(::PointBased, ::MyS1) = Makie.convert_arguments(PointBased(), Point2(1, 2))
+
+    struct MyS2
+    end
+    Makie.convert_arguments(::PointBased, ::MyS2) = ([Point2(1, 2), Point2(3, 4)],)
+
+    scatter(MyS1())
+    scatter(MyS2())
+    annotation(MyS1(), text="A")
+    annotation(MyS2(), text=["A", "B"])
+    annotation((5, 10), MyS1(), text="Hello World")
+    annotation([(5, 10), (5, 10)], MyS2(), text=["Hello", "World"])
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
