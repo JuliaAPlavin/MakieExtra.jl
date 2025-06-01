@@ -247,6 +247,11 @@ end
     @test yint(current_axis().targetlimits[]) ≈ -49..1050  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == "_ ^ 3"
+
+    # smoke tests only:
+    band(FPlot(1:10, (@o _+1), (@o _ .. (_+1))))
+    band(FPlot(1:10, (@o _+1), (@o _ .. (_+1))), direction=:x)
+    band(FPlot(1:10, (@o _ .. (_+1)), (@o _+1)), direction=:y)
 end
 
 @testitem "smaller number of args" begin
