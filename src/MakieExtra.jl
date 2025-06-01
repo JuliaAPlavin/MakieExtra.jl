@@ -37,7 +37,8 @@ export
     mouse_position_obs,
     intervals, dilate, erode, boundingbox2d,
     liftT,
-    offset_texts_auto_1d!
+    offset_texts_auto_1d!,
+    Slider₊, Checkbox₊, SliderGridObj
 
 include("lift.jl")
 include("scales.jl")
@@ -57,7 +58,9 @@ include("axisfunction.jl")
 include("multiplot.jl")
 include("fplot/fplot.jl")
 include("avoid_overlaps.jl")
-include("radiobuttons.jl")
+include("ui/radiobuttons.jl")
+include("ui/labeledwidgets.jl")
+include("ui/slidergridobj.jl")
 
 
 # XXX: should try upstreaming all of these!
