@@ -63,7 +63,7 @@ function Makie.get_ticks(ticks, scale::SymLogLike, formatter, vmin, vmax)
     (tickvalues, Makie.get_ticklabels(_symlog_formatter(formatter), tickvalues))
 end
 
-_symlog_ticks(::Makie.Automatic) = BaseMulTicks([1])
+_symlog_ticks(::Makie.Automatic) = BaseMulTicks()
 _symlog_ticks(x) = x
 
 _symlog_formatter(::Makie.Automatic) = Base.Broadcast.BroadcastFunction(x -> Makie.showoff_minus([x])[])
