@@ -38,6 +38,7 @@ export
     intervals, dilate, erode, boundingbox2d,
     liftT,
     offset_texts_auto_1d!,
+    autohide_axlabels!,
     Slider₊, Checkbox₊, SliderGridObj
 
 include("lift.jl")
@@ -200,6 +201,23 @@ function mouse_position_obs(ax::Axis; key=Makie.Mouse.left, priority=10, consume
         end
     end
     return res
+end
+
+
+function autohide_axlabels!(pos)
+    layout = @oget pos.layout pos.parent
+    rows = @oget pos.rows pos.span.rows
+    cols = @oget pos.cols pos.span.cols
+	for ax in contents(layout[rows, cols[2:end]])
+		ax.ylabelvisible = false
+		ax.yticksvisible = false
+		ax.yticklabelsvisible = false
+	end
+	for ax in contents(layout[rows[1:end-1], cols])
+		ax.xlabelvisible = false
+		ax.xticksvisible = false
+		ax.xticklabelsvisible = false
+	end
 end
 
 
