@@ -15,7 +15,7 @@ for plotf in (
 
     fullname_excl = isdefined(Makie, plotf) ? :(Makie.$plotf_excl) : :($(@__MODULE__).$plotf_excl)
     @eval function $fullname_excl(ax::Axis, f::Union{Function,Observable{<:Function}}; kwargs...)
-        interval = lift(xint, ax.finallimits)
+        interval = lift(l -> intervals(l).x, ax.finallimits)
         $plotf_excl(ax, interval, f; merge((; xautolimits=false), kwargs)...)
     end
 end

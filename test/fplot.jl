@@ -222,42 +222,41 @@ end
 
 @testitem "modified/reordered args" begin
     using Accessors
-    using MakieExtra: xint, yint
     using Uncertain
 
     ## reorder_args = false
     axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)), reorder_args=false)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "_ ^ 2"
 
     axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)), direction=:x, reorder_args=false)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ 0.1..10  rtol=0.2
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == "_"
 
     axplot(rangebars)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), reorder_args=false)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
     axplot(rangebars)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), direction=:x, reorder_args=false)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ 0.1..10  rtol=0.2
     @test current_axis().xlabel[] == "(_ ^ 2) ±ᵤ 3"
     @test current_axis().ylabel[] == "_"
 
     axplot(scatter)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)), reorder_args=false)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
@@ -265,57 +264,57 @@ end
     ## reorder_args = true
     axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)))
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "_ ^ 2"
 
     axplot(barplot)(FPlot(1:10, (@o _), (@o _^2)), direction=:x)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "_ ^ 2"
 
     axplot(rangebars)(FPlot(1:10, (@o _), (@o _^2 ±ᵤ 3)))
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_"
     @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
     axplot(rangebars)(FPlot(1:10, (@o _ ±ᵤ 0.5), (@o _^2 ±ᵤ 3)), direction=:x)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == "_ ±ᵤ 0.5"
     @test current_axis().ylabel[] == "(_ ^ 2) ±ᵤ 3"
 
     axplot(vlines)(FPlot(1:10, (@o _^2), (@o _^3)))
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ -4..105  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ 0..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ -4..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ 0..10  rtol=0.2
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == ""
 
     axplot(hlines)(FPlot(1:10, (@o _^2 ±ᵤ 0.5), (@o _^3 ±ᵤ 5)))
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..10  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -50..1050  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..10  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -50..1050  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == "(_ ^ 3) ±ᵤ 5"
     
     axplot(hist)(FPlot(1:10, (@o _^2), (@o _^3)))
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 0..105  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -0.1..2.1  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -0.1..2.1  rtol=0.2
     @test current_axis().xlabel[] == "_ ^ 2"
     @test current_axis().ylabel[] == ""
     
     axplot(hist)(FPlot(1:10, nothing, (@o _^3)), direction=:x)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ -0.2..4.2  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -49..1050  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ -0.2..4.2  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -49..1050  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == "_ ^ 3"
 
@@ -327,32 +326,31 @@ end
 
 @testitem "smaller number of args" begin
     using Accessors
-    using MakieExtra: xint, yint
 
     axplot(barplot)(FPlot(1:10, (@o _ + 1)))
-    @test xint(current_axis().targetlimits[]) ≈ 0.1..11  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -0.5..11.5  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 0.1..11  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -0.5..11.5  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == ""
 
     axplot(barplot)(FPlot(1:10, (@o (_ + 1, _^2))))
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 1.1..11.9  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == ""
 
     axplot(barplot)(FPlot(1:10, (@o (_ + 1, _^2))), direction=:x)
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ 1.1..11.9  rtol=0.2
     @test current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == ""
 
     axplot(scatter)(FPlot(1:10, (@o (_ + 1, _^2))))
     autolimits!()
-    @test xint(current_axis().targetlimits[]) ≈ 1.1..11.9  rtol=0.2
-    @test yint(current_axis().targetlimits[]) ≈ -5..105  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).x ≈ 1.1..11.9  rtol=0.2
+    @test intervals(current_axis().targetlimits[]).y ≈ -5..105  rtol=0.2
     @test_broken current_axis().xlabel[] == ""
     @test current_axis().ylabel[] == ""
 end
