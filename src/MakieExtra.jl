@@ -13,7 +13,7 @@ import Makie.GeometryBasics; using Makie.GeometryBasics: HyperRectangle, Rect
 using Makie.Unitful
 using Makie.LinearAlgebra: norm
 using DataPipes
-import DataManipulation: shift_range, filteronly, filterfirst, findonly, mapinsert, sortview
+import DataManipulation: shift_range, filteronly, filterfirst, findonly, mapinsert, sortview, group_vg, key
 using StructHelpers
 import Makie.MakieCore: plotfunc, plotfunc!, func2type
 using KwdefHelpers
