@@ -72,6 +72,7 @@ include("geometry.jl")
 using ObjectiveC: id, Object, NSString, NSObject, @objc, @objcwrapper
 @objcwrapper NSApplication <: NSObject
 function show_gl_icon_in_dock(show::Bool=true)
+    Sys.isapple() || return
     path = "/System/Library/Frameworks/AppKit.framework"
 
     path = NSString(path)
