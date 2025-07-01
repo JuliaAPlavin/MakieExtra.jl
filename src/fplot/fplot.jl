@@ -22,6 +22,7 @@ const NTUP_IX_TYPES = Union{Symbol,NTuple{<:Any,<:Symbol},AbstractVector{<:Symbo
 Base.getindex(X::FPlot, i::TUP_IX_TYPES) = X.argfuncs[i]
 Base.getindex(X::FPlot, i::NTUP_IX_TYPES) = X.kwargfuncs[i]
 Base.haskey(X::FPlot, i::Int) = i ∈ eachindex(X.argfuncs)
+Base.haskey(X::FPlot, name::Symbol) = haskey(X.kwargfuncs, name)
 Base.setindex(X::FPlot, v, i::TUP_IX_TYPES) = @set X.argfuncs[i] = v
 Base.setindex(X::FPlot, v, i::NTUP_IX_TYPES) = @set X.kwargfuncs[i] = v
 Accessors.insert(X::FPlot, p::IndexLens, v) = 
