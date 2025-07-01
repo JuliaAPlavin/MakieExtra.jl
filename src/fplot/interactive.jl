@@ -4,13 +4,12 @@ add!(addon::FPlotAddon, fplt::FPlot, plt::Plot; kwargs...) = add!(current_axis()
 
 with_widgets(plotf, ws) = function (args...; kwargs...)
     depwarn("with_widgets is deprecated, use axplot instead", :with_widgets)
-    result = plotf(args...; kwargs...)
+    plt = plotf(args...; kwargs...)
     fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
-    plt = func2type(plotf)
     for w in ws
         add!(w, fplt, plt; kwargs...)
     end
-    return result
+    return plt
 end
 
 include("datacursor.jl")

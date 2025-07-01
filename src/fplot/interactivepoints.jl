@@ -24,12 +24,12 @@ function MakieExtra.add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot
             if ispressed(ax, Exclusively(rs.add_key))
                 push!(rs.data[], eltype(rs.data[])(mouseposition(ax)))
                 notify(rs.data)
-                return Consume(true)
+                return Consume()
             elseif ispressed(ax, Exclusively(rs.delete_key))
                 if !isnothing(closest_ix)
                     deleteat!(rs.data[], closest_ix)
                     notify(rs.data)
-                    return Consume(true)
+                    return Consume()
                 end
             elseif ispressed(ax, Exclusively(rs.drag_key))
                 if isnothing(dragging_ix[]) && !isnothing(closest_ix)
@@ -37,7 +37,7 @@ function MakieExtra.add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot
                     rs.data[][dragging_ix[]] = eltype(rs.data[])(mouseposition(ax))
                     notify(rs.data)
                 end
-                return Consume(true)
+                return Consume()
             else
                 dragging_ix[] = nothing
             end
