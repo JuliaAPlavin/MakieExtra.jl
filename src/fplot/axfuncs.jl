@@ -12,6 +12,7 @@ ax_attrs_from_func(f) = (;label=shortlabel(f))
 ax_attrs_from_func(f::AxFunc) = (;ax_attrs_from_func(f.f)..., f.attrs...)
 
 
+shortlabel(f::AxFunc) = get(f.attrs, :label, shortlabel(f.f))
 shortlabel(::Nothing) = ""
 function shortlabel(f)
     o, unit = AccessorsExtra._split_unitstr_from_optic(f)
