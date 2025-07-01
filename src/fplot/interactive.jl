@@ -3,6 +3,7 @@ abstract type FPlotAddon end
 add!(addon::FPlotAddon, fplt::FPlot, plt::Type{<:Plot}; kwargs...) = add!(current_axis(), addon, fplt, plt; kwargs...)
 
 with_widgets(plotf, ws) = function (args...; kwargs...)
+    depwarn("with_widgets is deprecated, use axplot instead", :with_widgets)
     result = plotf(args...; kwargs...)
     fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
     plt = func2type(plotf)

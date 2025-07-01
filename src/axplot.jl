@@ -12,7 +12,14 @@ function (axp::Axplot)(pos::Union{GridPosition, GridSubposition}, args...; axis=
         axis_attributes(plotfunc(axp.plotf), to_value.(args)..., kwargs),
         axis
     )
-    res = with_widgets(axp.plotf, axp.widgets)(pos, args...; kwargs..., axis)
+
+    res = axp.plotf(pos, args...; kwargs..., axis)
+    fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
+    plt = func2type(axp.plotf)
+    for w in axp.widgets
+        add!(w, fplt, plt; kwargs...)
+    end
+
     ax = current_axis()
     if axp.autolimits_refresh
         on(args...) do _
@@ -28,7 +35,14 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
         axis_attributes(plotfunc(axp.plotf), to_value.(args)..., kwargs),
         axis
     )
-    res = with_widgets(axp.plotf, axp.widgets)(ax, args...; kwargs...)
+    
+    res = axp.plotf(ax, args...; kwargs...)
+    fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
+    plt = func2type(axp.plotf)
+    for w in axp.widgets
+        add!(w, fplt, plt; kwargs...)
+    end
+
     for (k, v) in pairs(axis)
         if v isa Observable
             map!(identity, getproperty(ax, k), v)
