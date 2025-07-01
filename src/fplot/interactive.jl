@@ -1,6 +1,6 @@
 abstract type FPlotAddon end
 
-add!(addon::FPlotAddon, fplt::FPlot, plt::Type{<:Plot}; kwargs...) = add!(current_axis(), addon, fplt, plt; kwargs...)
+add!(addon::FPlotAddon, fplt::FPlot, plt::Plot; kwargs...) = add!(current_axis(), addon, fplt, plt; kwargs...)
 
 with_widgets(plotf, ws) = function (args...; kwargs...)
     depwarn("with_widgets is deprecated, use axplot instead", :with_widgets)
@@ -15,3 +15,4 @@ end
 
 include("datacursor.jl")
 include("rectselect.jl")
+include("interactivepoints.jl")

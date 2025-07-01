@@ -4,16 +4,16 @@
     poly = (;)
 end
 
-function sel_ints(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
+function sel_ints(rs::RectSelection, fplt::FPlot, plt::Plot; kwargs...)
     @lift let
-        map(argfuncs_for_xy(plt, fplt; kwargs...)) do afunc
+        map(argfuncs_for_xy(typeof(plt), fplt; kwargs...)) do afunc
             vs = @p $(rs.vals) |> filter(((o, v),) -> o == afunc) |> map(last)
             v = @oget only(vs) NaN..NaN
         end
     end
 end
 
-function sel_poly(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
+function sel_poly(rs::RectSelection, fplt::FPlot, plt::Plot; kwargs...)
     emptyval = Rect2(NaN..NaN, NaN..NaN)
     ints = sel_ints(rs, fplt, plt; kwargs...)
     @lift let
@@ -22,7 +22,7 @@ function sel_poly(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
     end
 end
 
-function sel_span(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}, i::Int; kwargs...)
+function sel_span(rs::RectSelection, fplt::FPlot, plt::Plot, i::Int; kwargs...)
     emptyval = NaN..NaN
     ints = sel_ints(rs, fplt, plt; kwargs...)
     @lift let
@@ -31,7 +31,7 @@ function sel_span(rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}, i::Int; kwa
     end
 end
 
-function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Type{<:Plot}; kwargs...)
+function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Plot; kwargs...)
     # XXX: do x/yautolimits=false work? are they needed?
     poly!(ax, sel_poly(rs, fplt, plt; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)
     vspan!(ax, sel_span(rs, fplt, plt, 1; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)

@@ -492,13 +492,15 @@ end
     fplt1 = FPlot(data, (@o _[1]), (@o _[2]))
     dc = DataCursor(lines=(;color=:black, linestyle=:dot))
     rs = RectSelection(poly=(;color=:orange, alpha=0.3))
+    ip = InteractivePoints(map(x -> x[1:2], data))
 
-    fig,_,_ = axplot(scatter, widgets=[dc, rs])(fplt1)
+    fig,_,_ = axplot(scatter, widgets=[dc, rs, ip])(fplt1)
 
-    axplot(hist, widgets=[dc, rs])(fig[2,1], fplt1)
+    axplot(hist, widgets=[dc, rs, ip])(fig[2,1], fplt1)
 
     fplt2 = @set fplt1[1] = @o _[3]
-    axplot(scatter, widgets=[dc, rs])(fig[1,2], fplt2, axis=(;yscale=SymLog(0.1)))
+    axplot(scatter, widgets=[dc, rs, ip])(fig[1,2], fplt2, axis=(;yscale=SymLog(0.1)))
+    axplot(scatter!, widgets=[dc, rs, ip])(fplt2, axis=(;yscale=SymLog(0.1)))
 end
 
 @testitem "conversion to FPlot" begin
