@@ -176,6 +176,30 @@ end
     @test current_axis().xlabel[] == "Abc"
     @test current_axis().ylabel[] == "_ ^ 2"
     @test current_axis().xticks[] == -10:100
+
+    # axis attributes can be observable
+    label = Observable("Abc")
+    scale = Observable{Any}(identity)
+    fplt = @lift FPlot(1:10, AxFunc(x->x+1, label=$label, ticks=-10:100), AxFunc(x->x^2, label="Def", scale=$scale))
+    axplot(lines)(fplt)
+    @test current_axis().xlabel[] == "Abc"
+    @test current_axis().yscale[] == identity
+    label[] = "Xyz"
+    scale[] = log10
+    @test current_axis().xlabel[] == "Xyz"
+    @test current_axis().yscale[] == log10
+
+    ax = Axis(Figure()[1,1])
+    label = Observable("Abc")
+    scale = Observable{Any}(identity)
+    fplt = @lift FPlot(1:10, AxFunc(x->x+1, label=$label, ticks=-10:100), AxFunc(x->x^2, label="Def", scale=$scale))
+    axplot(lines!)(fplt)
+    @test current_axis().xlabel[] == "Abc"
+    @test current_axis().yscale[] == identity
+    label[] = "Xyz"
+    scale[] = log10
+    @test current_axis().xlabel[] == "Xyz"
+    @test current_axis().yscale[] == log10
 end
 
 @testitem "categorical" begin
