@@ -531,6 +531,8 @@ end
 @testitem "mouse_position_obs" begin
     using MakieExtra.Makie: StaticVector
 
+    Axis(Figure()[1,1])
+
     # smoke test only
     @test isequal(mouse_position_obs(current_axis())[]::StaticVector, [NaN, NaN])
     @test isequal(mouse_position_obs(current_axis(); consume=false)[]::StaticVector, [NaN, NaN])
