@@ -1,11 +1,10 @@
 function SliderGridObj(loc, obj, specs...)
 	sliderspecs = map(specs) do s
 		o = first(s)
-		@p let
-			last(s)
-			set(__, (@maybe _.label), @oget __.label AccessorsExtra.barebones_string(o))
-			set(__, (@maybe _.startvalue), @oget __.startvalue argmin(x -> abs(x - o(obj)), __.range))
-		end
+		merge((;
+			label=shortlabel(o),
+			startvalue=o(obj),
+		), last(s))
 	end
 	Label(loc[1,1], "$(nameof(typeof(obj))):", tellwidth=false)
 	sg = SliderGrid(loc[2,1], sliderspecs...)
