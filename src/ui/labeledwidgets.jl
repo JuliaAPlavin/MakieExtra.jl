@@ -8,7 +8,7 @@ function Slider₊(pos; range, label, startvalue=range[(begin+end)÷2], valuef=s
 		Label(p1, label; tellheight=false)
 		sl = Slider(p2[2,1]; range, startvalue, kwargs...)
 		Label(p2[1,1], (@lift $valuef($(sl.value))); )
-		return sl.value, sl
+		return _slider_value_bidi_obs(sl), sl
 	elseif length(rows) == 1 && length(cols) == 3
 		p1 = layout[rows[1], cols[1]]
 		p2 = layout[rows[1], cols[2]]
@@ -16,7 +16,7 @@ function Slider₊(pos; range, label, startvalue=range[(begin+end)÷2], valuef=s
 		Label(p1, label; tellheight=false)
 		sl = Slider(p2; range, startvalue, kwargs...)
 		Label(p3, (@lift $valuef($(sl.value))); )
-		return sl.value, sl
+		return _slider_value_bidi_obs(sl), sl
 	else
 		error()
 	end
@@ -40,3 +40,6 @@ function Checkbox₊(pos; label, startvalue=false, kwargs...)
 		error()
 	end
 end
+
+_slider_value_bidi_obs(sl::Slider) =
+	lift_getset(() -> sl.value[], v -> set_close_to!(sl, v), sl.value)
