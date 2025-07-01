@@ -68,23 +68,26 @@ include("ui/slidergridobj.jl")
 
 include("geometry.jl")
 
-# adapted from https://github.com/sarvex/ObjectiveC.jl/blob/e2974864b13e91dd72fab85544b12bb782066cca/src/cocoa/cocoa.jl
-using ObjectiveC: id, Object, NSString, NSObject, @objc, @objcwrapper
-@objcwrapper NSApplication <: NSObject
 function show_gl_icon_in_dock(show::Bool=true)
     Sys.isapple() || return
-    path = "/System/Library/Frameworks/AppKit.framework"
-
-    path = NSString(path)
-    bundle = @objc [NSBundle bundleWithPath:path::id{NSString}]::id{Object}
-    loaded = @objc [bundle::id{Object} load]::id{Object}
-
-    NSApp = Base.bitcast(id{Object}, cglobal(:NSApp, Ptr{Cvoid}) |> unsafe_load)
-    @objc [NSApplication sharedApplication]::id{Object}
-    NSApplicationActivationPolicyRegular   = 0
-    NSApplicationActivationPolicyAccessory = 1
-    val = show ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory
-    @objc [NSApp::id{Object} setActivationPolicy:val::Int]::id{Object}
+    try
+        # Get NSApplication class and selectors
+        nsapp_class = @ccall objc_getClass("NSApplication"::Cstring)::Ptr{Cvoid}
+        shared_app_sel = @ccall sel_registerName("sharedApplication"::Cstring)::Ptr{Cvoid}
+        set_policy_sel = @ccall sel_registerName("setActivationPolicy:"::Cstring)::Ptr{Cvoid}
+        
+        # Get NSApplication shared instance
+        nsapp = @ccall objc_msgSend(nsapp_class::Ptr{Cvoid}, shared_app_sel::Ptr{Cvoid})::Ptr{Cvoid}
+        
+        # Set activation policy
+        NSApplicationActivationPolicyRegular   = 0
+        NSApplicationActivationPolicyAccessory = 1
+        val = show ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory
+        
+        @ccall objc_msgSend(nsapp::Ptr{Cvoid}, set_policy_sel::Ptr{Cvoid}, val::Clong)::Ptr{Cvoid}
+    catch e
+        @warn "Failed to set dock icon visibility" e
+    end
 end
 
 
