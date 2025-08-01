@@ -1,4 +1,5 @@
 # https://github.com/jkrumbiegel/GridLayoutBase.jl/pull/65
+using Makie.GridLayoutBase: GridLayout, GridPosition, GridSubposition, firstrow, lastrow, firstcol, lastcol
 
 function Base.axes(g::GridLayout, d)
     if d == 1
