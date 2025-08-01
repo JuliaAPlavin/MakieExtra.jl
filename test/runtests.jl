@@ -736,6 +736,39 @@ end
     autohide_axlabels!(fig[1,1][3:3, 1:0])
 end
 
+@testitem "linking" begin
+	fig = Figure()
+	_,p1 = image(fig[1,1], rand(10, 10), colormap=:turbo, colorscale=sqrt, colorrange=(0, 4))
+	Colorbar(fig[0,1], p1, vertical=false)
+	_,p2 = heatmap(fig[1,2], 10 * rand(10, 10))
+	Colorbar(fig[0,2], p2, vertical=false)
+	_,p3 = scatter(fig[1,3], 1:100, color=range(0..5, 100))
+	Colorbar(fig[0,3], p3, vertical=false)
+
+	link_colormap!([p1, p2, p3])
+    for p in [p1, p2, p3]
+        @test p.colormap == :turbo
+        @test p.colorscale == sqrt
+        @test p.colorrange == (0, 4)
+    end
+
+
+    fig = Figure()
+	a1 = Axis(fig[1,1])
+	scatter!(0.1rand(10))
+	scatter!(rand(10), label="A")
+	lines!(rand(10), label="A")
+	scatter!(3rand(10), label="B")
+	axislegend(merge=true)
+	a2 = Axis(fig[1,2])
+	lines!(3rand(10), label="B")
+	scatter!(rand(10), label="A")
+	scatter!(-rand(10), label="C")
+	axislegend(merge=true)
+
+	link_legend!([a1, a2])
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))

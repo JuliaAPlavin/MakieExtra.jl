@@ -41,6 +41,7 @@ export
     liftT,
     offset_texts_auto_1d!,
     autohide_axlabels!,
+    link_colormap!, link_legend!,
     Slider₊, Checkbox₊, SliderGridObj,
     @plt
 
@@ -67,6 +68,7 @@ include("ui/labeledwidgets.jl")
 include("ui/slidergridobj.jl")
 include("layout.jl")
 include("observables.jl")
+include("linking.jl")
 
 
 # XXX: should try upstreaming all of these!
