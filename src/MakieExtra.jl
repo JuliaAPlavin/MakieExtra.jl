@@ -98,6 +98,10 @@ function show_gl_icon_in_dock(show::Bool=true)
 end
 
 
+# was in Makie before, but was removed at some point:
+function primary_resolution end
+
+
 # see https://github.com/MakieOrg/GeoMakie.jl/issues/293
 const GeoMakie_radians_source = """
     GEOGCRS["WGS 84",
