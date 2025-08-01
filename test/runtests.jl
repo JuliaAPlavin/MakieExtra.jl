@@ -730,8 +730,8 @@ end
     for i in 1:3, j in 1:2
         ax = Axis(fig[1,1][i,j])
     end
-    autohide_axlabels!(fig[1,1][1:3, 1:2])
-    autohide_axlabels!(fig[1,1][1:3, 1:1])
+    autohide_axlabels!(fig[1,1][1:3, 1:2]; hidex=false)
+    autohide_axlabels!(fig[1,1][1:3, 1:1]; hidey=false)
     autohide_axlabels!(fig[1,1][3:3, 1:2])
     autohide_axlabels!(fig[1,1][3:3, 1:0])
 end
