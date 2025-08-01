@@ -66,7 +66,7 @@ Similar to `Makie.@lift`, but:
 - works without any observables at all, resulting in a no-op.
 """
 macro lift(exp)
-    exp = @modify(exp |> RecursiveOfType(Expr) |> If(e -> Base.isexpr(e, :macrocall) && e.args[1] == Symbol("@f_str"))) do e
+    exp = @modify(exp |> RecursivePred(e -> Base.isexpr(e, :macrocall) && e.args[1] == Symbol("@f_str"))) do e
         macroexpand(__module__, e; recursive=true)
     end
 
