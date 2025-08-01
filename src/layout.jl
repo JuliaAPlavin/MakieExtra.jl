@@ -26,5 +26,3 @@ macro plt(expr)
     args = expr.args[2:end] .|> esc
     :($SinglePosSpec(pos -> $func(pos, $(args...))))
 end
-
-Base.getindex(pos::Union{GridPosition, GridSubposition}, ix::CartesianIndex{2}) = pos[ix[1], ix[2]]
