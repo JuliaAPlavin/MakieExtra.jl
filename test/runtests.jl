@@ -747,9 +747,9 @@ end
 
 	link_colormap!([p1, p2, p3])
     for p in [p1, p2, p3]
-        @test p.colormap == :turbo
-        @test p.colorscale == sqrt
-        @test p.colorrange == (0, 4)
+        @test p.colormap[] == :turbo
+        @test p.colorscale[] == sqrt
+        @test p.colorrange[] == (0, 4)
     end
 
 
