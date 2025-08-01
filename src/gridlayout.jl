@@ -1,5 +1,5 @@
 # https://github.com/jkrumbiegel/GridLayoutBase.jl/pull/65
-using Makie.GridLayoutBase: GridLayout, GridPosition, GridSubposition, firstrow, lastrow, firstcol, lastcol
+using Makie.GridLayoutBase: GridLayout, GridPosition, GridSubposition, firstrow, lastrow, firstcol, lastcol, rowgap!, colgap!
 
 function Base.axes(g::GridLayout, d)
     if d == 1
@@ -24,3 +24,7 @@ function Base.axes(gp::Union{GridPosition,GridSubposition}, d::Int)
 end
 
 Base.getindex(pos::Union{GridPosition, GridSubposition}, ix::CartesianIndex{2}) = pos[ix[1], ix[2]]
+
+
+colgap!(pos::Union{GridPosition,GridSubposition}, args...) = colgap!(content(pos)::GridLayout, args...)
+rowgap!(pos::Union{GridPosition,GridSubposition}, args...) = rowgap!(content(pos)::GridLayout, args...)
