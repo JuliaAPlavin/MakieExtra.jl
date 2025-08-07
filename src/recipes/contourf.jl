@@ -43,5 +43,5 @@ Makie.needs_tight_limits(c::Contourf_Fast) = true
 function Makie.plot!(ax::Makie.AbstractAxis, plot::Contourf_Fast)
     PT = typeof(plot)
     @invoke plot!(ax, plot::supertype(PT))
-    applicable(fill!, ax, only(plot.plots)) && fill!(ax, only(plot.plots))
+    applicable(fill!, ax, only(plot.plots)) && Base.fill!(ax, only(plot.plots))
 end
