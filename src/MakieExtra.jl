@@ -216,19 +216,23 @@ function mouse_position_obs(ax::Axis; key=true, priority=10, consume=true, hold=
     return res
 end
 
-function autohide_axlabels!(pos)
+function autohide_axlabels!(pos; hidex=true, hidey=true)
     layout = @oget pos.layout pos.parent
     rows = @oget pos.rows pos.span.rows
     cols = @oget pos.cols pos.span.cols
-	for ax in contents(layout[rows, cols[2:end]])
-		ax.ylabelvisible = false
-		ax.yticksvisible = false
-		ax.yticklabelsvisible = false
+	if hidey
+		for ax in contents(layout[rows, cols[2:end]])
+			ax.ylabelvisible = false
+			ax.yticksvisible = false
+			ax.yticklabelsvisible = false
+		end
 	end
-	for ax in contents(layout[rows[1:end-1], cols])
-		ax.xlabelvisible = false
-		ax.xticksvisible = false
-		ax.xticklabelsvisible = false
+	if hidex
+		for ax in contents(layout[rows[1:end-1], cols])
+			ax.xlabelvisible = false
+			ax.xticksvisible = false
+			ax.xticklabelsvisible = false
+		end
 	end
 end
 
