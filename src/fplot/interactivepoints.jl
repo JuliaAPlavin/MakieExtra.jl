@@ -7,7 +7,7 @@ end
 
 InteractivePoints(data; kwargs...) = InteractivePoints(data = convert(Observable, data), kwargs...)
 
-function MakieExtra.add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...)
+function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...)
     dragging_ix = Ref{Any}(nothing)
 
     onany(events(ax).mousebutton, events(ax).keyboardbutton) do _...
@@ -22,7 +22,8 @@ function MakieExtra.add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot
                 @oget __[2]
             end
             if ispressed(ax, Exclusively(rs.add_key))
-                push!(rs.data[], eltype(rs.data[])(mouseposition(ax)))
+				mpos = mouseposition(ax)
+                push!(rs.data[], construct(eltype(rs.data[]), fplt[1] => mpos[1], fplt[2] => mpos[2]))
                 notify(rs.data)
                 return Consume()
             elseif ispressed(ax, Exclusively(rs.delete_key))
@@ -34,7 +35,9 @@ function MakieExtra.add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot
             elseif ispressed(ax, Exclusively(rs.drag_key))
                 if isnothing(dragging_ix[]) && !isnothing(closest_ix)
                     dragging_ix[] = closest_ix
-                    rs.data[][dragging_ix[]] = eltype(rs.data[])(mouseposition(ax))
+					elt = rs.data[][dragging_ix[]]
+					mpos = mouseposition(ax)
+                    rs.data[][dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
                     notify(rs.data)
                 end
                 return Consume()
@@ -53,7 +56,9 @@ function MakieExtra.add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot
         end
         if !isnothing(dragging_ix[])
             try
-                rs.data[][dragging_ix[]] = eltype(rs.data[])(mouseposition(ax))
+				elt = rs.data[][dragging_ix[]]
+				mpos = mouseposition(ax)
+				rs.data[][dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
                 notify(rs.data)
             catch ex
                 @error "While updating dragged point" exc=(ex, catch_backtrace())
