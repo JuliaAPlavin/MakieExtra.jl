@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Install Julia
               uses: julia-actions/setup-julia@v2
@@ -33,7 +33,7 @@ jobs:
                 DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia -e 'using Pkg
                   Pkg.activate(mktempdir())
                   Pkg.add([
-                    Pkg.PackageSpec(name="PlutoSliderServer", version="0.3.2-0.3"),
+                    Pkg.PackageSpec(name="PlutoSliderServer", version="1"),
                     Pkg.PackageSpec(name="MsgPack"),
                   ])
 
