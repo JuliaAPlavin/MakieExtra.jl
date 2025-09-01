@@ -21,7 +21,7 @@ function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::Unio
 	color_isnumeric = hasproperty(fplt₀, :color) && fplt₀.color(first(fplt₀.data)) isa Number
     common_kws = (;)
     if hasproperty(fplt₀, :color) && color_isnumeric
-        colorrange = @p fplt₀.data extrema(fplt₀.color)
+        colorrange = @oget fplt₀.colorrange extrema(fplt₀.color.attrs.limit) extrema(fplt₀.color, fplt₀.data)
         common_kws = (;colorrange)
     end
     if any(f -> f isa ToAes && f.aes == :row, fplt₀.argfuncs)
