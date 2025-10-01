@@ -736,7 +736,7 @@ end
     autohide_axlabels!(fig[1,1][3:3, 1:0])
 end
 
-@testitem "linking" begin
+@testitem "link_colormap" begin
 	fig = Figure()
 	_,p1 = image(fig[1,1], rand(10, 10), colormap=:turbo, colorscale=sqrt, colorrange=(0, 4))
 	Colorbar(fig[0,1], p1, vertical=false)
@@ -752,7 +752,38 @@ end
         @test p.colorrange[] == (0, 4)
     end
 
+    fig = Figure()
+    _,p1 = image(fig[1,1], reshape(1:12, 3, 4))
+    _,p2 = heatmap(fig[1,2], 10 .+ reshape(1:12, 3, 4))
+    link_colormap!([p1, p2])
+    for p in [p1, p2]
+        @test p.colormap[] == [:black, :white]
+        @test p.colorscale[] == identity
+        @test p.colorrange[] == (1, 22)
+    end
 
+    fig = Figure()
+    _,p1 = scatter(fig[1,1], [1,2], [3,4], color=[5,6])
+    _,p2 = heatmap(fig[1,2], 10 .+ reshape(1:12, 3, 4), colormap=:turbo)
+    link_colormap!([p1, p2])
+    for p in [p1, p2]
+        @test p.colormap[] == :viridis  # XXX: can it prefer explicitly specified colormap?
+        @test p.colorscale[] == identity
+        @test p.colorrange[] == (5, 22)
+    end
+
+    fig = Figure()
+    _,p1 = scatter(fig[1,1], [1,2], [3,4]; color=[5,6], colormap=:turbo)
+    _,p2 = heatmap(fig[1,2], 10 .+ reshape(1:12, 3, 4), colorscale=sqrt)
+    link_colormap!([p1, p2])
+    for p in [p1, p2]
+        @test p.colormap[] == :turbo
+        @test p.colorscale[] == sqrt
+        @test p.colorrange[] == (5, 22)
+    end
+end
+
+@testitem "link_legend" begin
     fig = Figure()
 	a1 = Axis(fig[1,1])
 	scatter!(0.1rand(10))
