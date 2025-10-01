@@ -9,7 +9,7 @@ Should result in the same output as `contourf()` when pixels are small enough, b
     extendlow = nothing
     extendhigh = nothing
     nan_color = :transparent
-    Makie.MakieCore.mixin_generic_plot_attributes()...
+    Makie.mixin_generic_plot_attributes()...
 end
 
 function Makie.plot!(p::Contourf_Fast)
