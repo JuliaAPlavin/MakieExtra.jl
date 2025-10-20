@@ -31,14 +31,26 @@ end
 
 function link_colormap!(plots)
 	plt_with_colorrange = @oget filterfirst(p -> p.colorrange[] != Makie.Automatic(), $plots) nothing
-	isnothing(plt_with_colorrange) && error("All plots have automatic colorrange, linking not implemented in this scenario")
-	otherplots = filter(p -> p !== plt_with_colorrange, plots)
-	@assert length(otherplots) == length(plots) - 1
-	for key in [:colormap, :colorscale, :colorrange]
-		on(getproperty(plt_with_colorrange, key); update=true) do val
-			for p in otherplots
-				getproperty(p, key)[] = val
+	if !isnothing(plt_with_colorrange)
+		# found a plot with explicit colorrange, will use it as the reference to set attributes on the others
+		otherplots = filter(p -> p !== plt_with_colorrange, plots)
+		@assert length(otherplots) == length(plots) - 1
+		for key in [:colormap, :colorscale, :colorrange]
+			on(getproperty(plt_with_colorrange, key); update=true) do val
+				for p in otherplots
+					getproperty(p, key)[] = val
+				end
 			end
+		end
+	else
+		# no plot with explicit colorrange, will use calculated colors
+		colormap = @p plots map(_.colormap[]) filterfirst(!isnothing)
+		colorscale = @p plots map(_.calculated_colors[].scale[]) filter(_ != identity) (@oget first(__) identity)
+		colorrange = @p plots map(_.calculated_colors[].colorrange[]) flatten extrema
+		for p in plots
+			p.colormap[] = colormap
+			p.colorscale[] = colorscale
+			p.colorrange[] = colorrange
 		end
 	end
 end
