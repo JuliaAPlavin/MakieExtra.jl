@@ -29,11 +29,11 @@ function Makie.plot!(p::ECDFPlotFull)
     
 
     scatter!(
-        p, Makie.shared_attributes(p, Scatter),
+        p, attributes(p),
         vs, @lift (1:$n) ./ $n)
 
     lines!(
-        p, Makie.shared_attributes(p, Lines),
+        p, attributes(p),
         (@lift [first($lrval); repeat($vs, inner=2); last($lrval)]),
         (@lift repeat((0:$n) ./ $n, inner=2));
         # xautolimits=false  # XXX: doesn't work at all
