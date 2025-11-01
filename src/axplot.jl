@@ -34,13 +34,6 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
         axis_attributes(plotfunc(axp.plotf), args..., kwargs),
         axis
     )
-    
-    plt = axp.plotf(ax, args...; kwargs...)
-    fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
-    for w in axp.widgets
-        add!(ax, w, fplt, plt; kwargs...)
-    end
-
     for (k, v) in pairs(axis)
         if v isa Observable
             map!(identity, getproperty(ax, k), v)
@@ -48,6 +41,13 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
             getproperty(ax, k)[] = v
         end
     end
+    
+    plt = axp.plotf(ax, args...; kwargs...)
+    fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
+    for w in axp.widgets
+        add!(ax, w, fplt, plt; kwargs...)
+    end
+
     if axp.autolimits_refresh
         on(args...) do _
             reset_limits!(ax)
