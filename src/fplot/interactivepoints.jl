@@ -3,6 +3,7 @@
     add_key = Keyboard.a
     delete_key = Keyboard.d
     drag_key = Keyboard.m
+    priority::Int = 100
 end
 
 InteractivePoints(data; kwargs...) = InteractivePoints(; data = convert(Observable, data), kwargs...)
@@ -10,7 +11,7 @@ InteractivePoints(data; kwargs...) = InteractivePoints(; data = convert(Observab
 function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...)
     dragging_ix = Ref{Any}(nothing)
 
-    onany(events(ax).mousebutton, events(ax).keyboardbutton) do _...
+    onany(events(ax).mousebutton, events(ax).keyboardbutton, priority=rs.priority) do _...
         is_mouseinside(ax) || return
         try
             root = Makie.root(Makie.parent_scene(ax))
