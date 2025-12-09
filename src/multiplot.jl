@@ -55,7 +55,7 @@ keep_attrs(plt::Type{<:Plot}, kwargs, args...) = kwargs[collect(
         used_attributes(plt, args...)
     )
 )]
-keep_attrs(plt::Function, kwargs, args...) = keep_attrs(Plot{plt}, kwargs, args...)
+keep_attrs(plt::Function, kwargs, args...) = keep_attrs(func2type(plt), kwargs, args...)
 keep_attrs((plt, _)::Pair, kwargs, args...) = keep_attrs(plt, kwargs, args...)
 keep_attrs(plt::Axplot, kwargs, args...) = merge(keep_attrs(plt.plotf, kwargs, args...), kwargs[keys(kwargs) ∩ (:axis,)])
 
