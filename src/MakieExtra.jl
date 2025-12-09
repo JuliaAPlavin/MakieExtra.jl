@@ -261,17 +261,45 @@ function autohide_axlabels!(pos; hidex=true, hidey=true)
     rows = @oget pos.rows pos.span.rows
     cols = @oget pos.cols pos.span.cols
 	if hidey
-		for ax in contents(layout[rows, cols[2:end]])
+		for ax in contents(layout[rows, cols[2:end-1]])
 			ax.ylabelvisible = false
 			ax.yticksvisible = false
 			ax.yticklabelsvisible = false
 		end
+        for ax in contents(layout[rows, cols[1]])
+            if to_value(ax.yaxisposition) == :right
+                ax.ylabelvisible = false
+                ax.yticksvisible = false
+                ax.yticklabelsvisible = false
+            end
+        end
+        for ax in contents(layout[rows, cols[end]])
+            if to_value(ax.yaxisposition) == :left
+                ax.ylabelvisible = false
+                ax.yticksvisible = false
+                ax.yticklabelsvisible = false
+            end
+        end
 	end
 	if hidex
-		for ax in contents(layout[rows[1:end-1], cols])
+		for ax in contents(layout[rows[2:end-1], cols])
 			ax.xlabelvisible = false
 			ax.xticksvisible = false
 			ax.xticklabelsvisible = false
+		end
+		for ax in contents(layout[rows[1], cols])
+			if to_value(ax.xaxisposition) == :bottom
+				ax.xlabelvisible = false
+				ax.xticksvisible = false
+				ax.xticklabelsvisible = false
+			end
+		end
+		for ax in contents(layout[rows[end], cols])
+			if to_value(ax.xaxisposition) == :top
+				ax.xlabelvisible = false
+				ax.xticksvisible = false
+				ax.xticklabelsvisible = false
+			end
 		end
 	end
 end
