@@ -498,6 +498,7 @@ end
     dc = DataCursor(lines=(;color=:black, linestyle=:dot))
     rs = RectSelection(poly=(;color=:orange, alpha=0.3))
     ip = InteractivePoints(map(x -> x[1:2], data))
+    ip = InteractivePoints(map(x -> x[1:2], data); drag_key=Keyboard.k)
 
     fig,_,_ = axplot(scatter, widgets=[dc, rs, ip])(fplt1)
 
