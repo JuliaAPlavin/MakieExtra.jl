@@ -5,9 +5,11 @@ end
 
 AxFunc(f; kwargs...) = AxFunc(f, NamedTuple(kwargs))
 AxFunc(f::AxFunc; kwargs...) = AxFunc(f.f, merge(f.attrs, kwargs))
+
 (fa::AxFunc)(args...; kwargs...) = fa.f(args...; kwargs...)
 Accessors.set(obj, f::AxFunc, val) = set(obj, f.f, val)
 
+Base.getproperty(f::AxFunc, s::Symbol) = hasfield(typeof(f), s) ? getfield(f, s) : getproperty(f.attrs, s)
 
 ax_attrs_from_func(f) = (;label=shortlabel(f))
 ax_attrs_from_func(f::AxFunc) = (;ax_attrs_from_func(f.f)..., f.attrs...)
