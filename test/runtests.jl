@@ -767,6 +767,22 @@ end
 	axislegend(merge=true)
 
 	link_legend!([a1, a2])
+
+
+	fig = Figure()
+	a1 = Axis(fig[1,1])
+	scatter!(FPlot(0.1rand(10), identity))
+	scatter!(FPlot(rand(10), identity), label="A")
+	lines!(FPlot(rand(10), identity), label="A")
+	scatter!(FPlot(3rand(10), identity), label="B", color=:red)
+	axislegend(merge=true)
+	a2 = Axis(fig[1,2])
+	lines!(FPlot(3rand(10), identity), label="B")
+	scatter!(FPlot(rand(10), identity), label="A")
+	scatter!(FPlot(-rand(10), identity), label="C")
+	axislegend(merge=true)
+
+	link_legend!([a1, a2])
 end
 
 @testitem "_" begin
