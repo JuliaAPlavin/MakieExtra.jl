@@ -23,7 +23,7 @@ function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...
                 @oget __[2]
             end
             if ispressed(ax, Exclusively(rs.add_key))
-				mpos = mouseposition(ax)
+				mpos = _mouseposition(ax)
                 push!(rs.data[], construct(eltype(rs.data[]), fplt[1] => mpos[1], fplt[2] => mpos[2]))
                 notify(rs.data)
                 return Consume()
@@ -37,7 +37,7 @@ function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...
                 if isnothing(dragging_ix[]) && !isnothing(closest_ix)
                     dragging_ix[] = closest_ix
 					elt = rs.data[][dragging_ix[]]
-					mpos = mouseposition(ax)
+					mpos = _mouseposition(ax)
                     rs.data[][dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
                     notify(rs.data)
                 end
@@ -58,7 +58,7 @@ function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...
         if !isnothing(dragging_ix[])
             try
 				elt = rs.data[][dragging_ix[]]
-				mpos = mouseposition(ax)
+				mpos = _mouseposition(ax)
 				rs.data[][dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
                 notify(rs.data)
             catch ex
