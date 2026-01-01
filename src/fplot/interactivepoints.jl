@@ -5,7 +5,7 @@
     drag_key = Keyboard.m
 end
 
-InteractivePoints(data; kwargs...) = InteractivePoints(data = convert(Observable, data), kwargs...)
+InteractivePoints(data; kwargs...) = InteractivePoints(; data = convert(Observable, data), kwargs...)
 
 function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...)
     dragging_ix = Ref{Any}(nothing)
