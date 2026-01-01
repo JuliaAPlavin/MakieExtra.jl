@@ -19,6 +19,11 @@ Makie.plot(pos, spec::Matrix{<:Union{Nothing, SinglePosSpec}}) =
     for (ix, sspec) in zip(CartesianIndices(spec), spec)
         isnothing(sspec) || plot(pos[ix], sspec)
     end
+function Makie.plot(spec::Union{SinglePosSpec,Matrix{<:Union{Nothing, SinglePosSpec}}}; figure=(;))
+	fig = Figure(;figure...)
+	ax, plt = plot(fig[1,1], spec)
+	Makie.FigureAxisPlot(fig, ax, plt)
+end
 
 macro plt(expr)
     @assert Base.isexpr(expr, :call) "Expected a function call, got: $expr"
