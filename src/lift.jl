@@ -58,32 +58,12 @@ end
 replace_observable_expressions(x, exprdict) = x
 
 """
-Replaces an expression with `lift(argtuple -> expression, args...)`, where `args`
-are all expressions inside the main one that begin with \$.
+    @lift expr
+    @lift expr::T
 
-# Example:
-
-```julia
-x = Observable(rand(100))
-y = Observable(rand(100))
-```
-
-## before
-```julia
-z = lift((x, y) -> x .+ y, x, y)
-```
-
-## after
-```julia
-z = @lift(\$x .+ \$y)
-```
-
-You can also use parentheses around an expression if that expression evaluates to an observable.
-
-```julia
-nt = (x = Observable(1), y = Observable(2))
-@lift(\$(nt.x) + \$(nt.y))
-```
+Similar to `Makie.@lift`, but:
+- supports specifying the target observable type `T`;
+- works without any observables at all, resulting in a no-op.
 """
 macro lift(exp)
     exp = @modify(exp |> RecursiveOfType(Expr) |> If(e -> Base.isexpr(e, :macrocall) && e.args[1] == Symbol("@f_str"))) do e

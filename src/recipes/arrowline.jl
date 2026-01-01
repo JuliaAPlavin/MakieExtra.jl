@@ -1,3 +1,12 @@
+"""    arrowlines(positions; arrowstyle="-|>", ...)
+
+Like `lines()`, but with arrows at one or both ends of the line.
+Supports all `lines()` and `scatter()` attributes.
+
+Adds the `arrowstyle` attribute, a string with the following format:
+`<left marker><line style><right marker>`
+where `<left marker>` and `<right marker>` are one of `"", "<", "<|", ">", "|>"`, and `<line style>` is one of `"-", "--", ".."`.
+"""
 @recipe ArrowLines () begin
     arrowstyle = "-|>"
     documented_attributes(Lines)...

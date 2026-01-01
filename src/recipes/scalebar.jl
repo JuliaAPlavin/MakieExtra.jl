@@ -1,3 +1,16 @@
+"""    scalebar(scale; kwargs...)
+
+Add a scalebar to the plot.
+
+Supports all `lines()` and `text()` attributes, forwarding them to the respective plot calls.
+The `position` attribute defines the position of the scalebar in relative `Axis` coordinates.
+The `target_ax_frac` attribute defines the fraction of the axis width the scalebar should span.
+The multiple of `scale` will be chosen automatically (from `muls`) so that the scalebar length is closest to `target_ax_frac`.
+
+Typically, `scale` is a `Unitful` quantity that defines the size of one plot unit.
+For example, `scalebar!(1u"mm")` means that the plot units are millimeters.
+Alternatively, `scale` can be a tuple `(number, function)` where `function` is called for the string representation.
+"""
 @recipe Scalebar (scale,) begin
     @modify($(documented_attributes(Lines)).d) do d
         filter_keys(∉([:color]), d)
@@ -20,8 +33,6 @@ Makie.boundingbox(::Scalebar, space::Symbol=:data) = Rect3f(Point3f(NaN), Vec3f(
 
 
 function Makie.plot!(p::Scalebar)
-    target_ax_frac = 0.2
-
     scene = Makie.parent_scene(p)
     @assert Makie.transform_func(scene)[1] == identity
 
@@ -33,7 +44,7 @@ function Makie.plot!(p::Scalebar)
         end
 
         units_in_data = units_in_dataunit($(p.scale))
-        mul = argmin(m -> abs(1 / units_in_data * m - target_ax_frac * width(xlims)), $(p.muls))
+        mul = argmin(m -> abs(1 / units_in_data * m - $(p.target_ax_frac) * width(xlims)), $(p.muls))
         length_data = 1 / units_in_data * mul
 
         length_ax = length_data / width(xlims)
