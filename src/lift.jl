@@ -14,6 +14,13 @@ function lift(f, args...; kwargs...)
 end
 
 
+function liftT(f::Function, T::Type, args...)
+	res = Observable{T}(f(to_value.(args)...))
+	map!(f, res, args...)
+	return res
+end
+
+
 """
 Returns a set of all sub-expressions in an expression that look like \$some_expression
 """
@@ -102,13 +109,23 @@ macro lift(exp)
     # the lifted function itself
     function_expression = Expr(Symbol(:->), argtuple, exp)
 
-    # the full expression
-    lift_expression = Expr(
-        Symbol(:call),
-        Symbol(:lift),
-        esc(function_expression),
-        esc.(observable_expressions_without_dollar)...
-    )
-
-    return lift_expression
+    if Base.isexpr(exp, Symbol("::"))
+        # the full expression
+        T = exp.args[2]
+        return Expr(
+            Symbol(:call),
+            Symbol(:liftT),
+            esc(function_expression),
+            esc(T),
+            esc.(observable_expressions_without_dollar)...
+        )
+    else
+        # the full expression
+        return Expr(
+            Symbol(:call),
+            Symbol(:lift),
+            esc(function_expression),
+            esc.(observable_expressions_without_dollar)...
+        )
+    end
 end

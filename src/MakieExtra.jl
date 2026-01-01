@@ -34,7 +34,8 @@ export
     @rich,
     obsmap,
     mouse_position_obs,
-    intervals, dilate, erode, boundingbox2d
+    intervals, dilate, erode, boundingbox2d,
+    liftT
 
 include("lift.jl")
 include("scales.jl")

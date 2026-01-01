@@ -396,6 +396,35 @@ end
     @test t7[] == "abc 1.00 def"
 end
 
+@testitem "liftT" begin
+    u_noobs = "a"
+    x = Observable(1.0)
+
+    t = liftT(identity, Int, x)
+    @test t isa Observable{Int}
+    @test t[] == 1
+    x[] = 2.; @test t[] == 2
+    @test_throws InexactError x[] = 2.5
+
+    x = Observable(1.0)
+    t = liftT(x -> x > 2 ? nothing : x, Union{Int,Nothing}, x)
+    @test t isa Observable{Union{Int,Nothing}}
+    @test t[] == 1
+    x[] = 3.; @test t[] == nothing
+
+    x = Observable(1.0)
+    t = @lift $x > 2 ? "a" : 1
+    @test t isa Observable{Int}
+    @test t[] == 1
+    @test_throws "Cannot `convert" x[] = 3
+
+    x = Observable(1.0)
+    t = @lift ($x > 2 ? "a" : 1)::Union{Int,String}
+    @test t isa Observable{Union{Int,String}}
+    @test t[] == 1
+    x[] = 3; @test t[] == "a"
+end
+
 @testitem "obs changes" begin
     # https://github.com/JuliaGizmos/Observables.jl/pull/115
     x = Observable(1)
