@@ -13,11 +13,10 @@ function (axp::Axplot)(pos::Union{GridPosition, GridSubposition}, args...; axis=
         axis
     )
 
-    res = axp.plotf(pos, args...; kwargs..., axis)
+    axplt = axp.plotf(pos, args...; kwargs..., axis)
     fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
-    plt = func2type(axp.plotf)
     for w in axp.widgets
-        add!(w, fplt, plt; kwargs...)
+        add!(w, fplt, axplt.plot; kwargs...)
     end
 
     ax = current_axis()
@@ -26,7 +25,7 @@ function (axp::Axplot)(pos::Union{GridPosition, GridSubposition}, args...; axis=
             reset_limits!(ax)
         end
     end
-    res
+    axplt
 end
 
 function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
@@ -36,9 +35,8 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
         axis
     )
     
-    res = axp.plotf(ax, args...; kwargs...)
+    plt = axp.plotf(ax, args...; kwargs...)
     fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
-    plt = func2type(axp.plotf)
     for w in axp.widgets
         add!(w, fplt, plt; kwargs...)
     end
@@ -55,7 +53,7 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
             reset_limits!(ax)
         end
     end
-    res
+    plt
 end
 
 function (axp::Axplot)(args...; figure=(;), kwargs...)

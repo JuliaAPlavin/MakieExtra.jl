@@ -30,7 +30,7 @@ export
     multiplot, multiplot!,
     changes,
     FPlot, AxFunc,
-    DataCursor, RectSelection, with_widgets, is_selected, selected_data, mark_selected_data,
+    DataCursor, RectSelection, InteractivePoints, with_widgets, is_selected, selected_data, mark_selected_data,
     axplot,
     @rich,
     obsmap,
