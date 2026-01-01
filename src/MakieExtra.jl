@@ -191,18 +191,22 @@ end
 
 
 # see https://github.com/MakieOrg/Makie.jl/issues/4107 and https://github.com/MakieOrg/Makie.jl/issues/4291
-function mouse_position_obs(ax::Axis; key=Makie.Mouse.left, priority=10, consume=true)
-    res = Observable(map(Returns(NaN), mouseposition(ax)))
+function mouse_position_obs(ax::Axis; key=true, priority=10, consume=true, hold=true)
+    emptypoint = Point2(NaN, NaN)
+    res = Observable(emptypoint)
     scene = Makie.parent_scene(ax)
-    on(events(scene).mouseposition; priority) do pos
+    onany(events(scene).mouseposition, events(scene).mousebutton; priority) do _...
         if is_mouseinside(ax) && ispressed(scene, key)
             res[] = mouseposition(ax)
             consume && return Consume()
+        else
+            if !hold && res[] != emptypoint
+                res[] = emptypoint
+            end
         end
     end
     return res
 end
-
 
 function autohide_axlabels!(pos)
     layout = @oget pos.layout pos.parent
