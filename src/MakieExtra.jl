@@ -306,4 +306,12 @@ function transform_val_space(ax::Axis, which::Int, spaces::Pair{Symbol,Symbol}, 
     return @lift $new[which]
 end
 
+
+# see also https://github.com/MakieOrg/Makie.jl/issues/4887
+to_rect_padding(p::Rect) = p
+function to_rect_padding(p)
+    l, r, b, t = Makie.to_lrbt_padding(p)
+    return Rect(-l..r, -b..t)
+end
+
 end
