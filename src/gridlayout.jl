@@ -1,5 +1,6 @@
 # https://github.com/jkrumbiegel/GridLayoutBase.jl/pull/65
-using Makie.GridLayoutBase: GridLayout, GridPosition, GridSubposition, firstrow, lastrow, firstcol, lastcol, rowgap!, colgap!
+using Makie.GridLayoutBase: GridLayout, GridPosition, GridSubposition, firstrow, lastrow, firstcol, lastcol
+import Makie.GridLayoutBase: rowgap!, colgap!
 
 function Base.axes(g::GridLayout, d)
     if d == 1
