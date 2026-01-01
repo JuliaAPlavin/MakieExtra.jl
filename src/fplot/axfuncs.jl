@@ -4,6 +4,7 @@ struct AxFunc{F}
 end
 
 AxFunc(f; kwargs...) = AxFunc(f, NamedTuple(kwargs))
+AxFunc(f::AxFunc; kwargs...) = AxFunc(f.f, merge(f.attrs, kwargs))
 (fa::AxFunc)(args...; kwargs...) = fa.f(args...; kwargs...)
 
 
