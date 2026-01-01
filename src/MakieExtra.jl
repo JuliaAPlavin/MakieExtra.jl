@@ -11,6 +11,7 @@ using Makie.IntervalSets: width
 using Makie: mean
 import Makie.GeometryBasics; using Makie.GeometryBasics: HyperRectangle, Rect
 using Makie.Unitful
+using Makie.GeometryBasics.StaticArrays
 using Makie.LinearAlgebra: norm
 using DataPipes
 import DataManipulation: shift_range, filteronly, filterfirst, findonly, mapinsert, sortview, group_vg, key
