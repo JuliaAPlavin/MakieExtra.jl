@@ -618,6 +618,18 @@ end
     colorbuffer(fig)
 end
 
+@testitem "geoaxis splitting" begin
+    import GeoMakie
+    using MakieExtra.IntervalSets
+
+    split_curve = Base.get_extension(MakieExtra, :GeoMakieExt).split_curve
+    @test split_curve(Point2.([(1.,0), (2.,1)]), rng=0±π, closed=false) == [Point2.([(1.,0), (2.,1)])]
+    @test split_curve(Point2.([(1.,0), (4.,1)]), rng=0±π, closed=false) ≈ [
+        Point2.([[π, 0.7138642029621032], [1.0, 0.0], [π, 0.7138642029621032]]),
+        Point2.([[π, 0.7138642327644256], [4.0, 1.0], [π, 0.7138642327644256]]),
+    ]
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
