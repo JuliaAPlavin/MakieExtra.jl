@@ -164,6 +164,9 @@ end
     axplot(lines!)(FPlot(1:10, (@o _/1), (@o _+2), color=sqrt), axis=(;xlabel=Observable("Abc"),))
     @test content(fig[1,1]).xlabel[] == "Abc"
     @test content(fig[1,1]).ylabel[] == "_ + 2"
+
+    ax = Axis(fig[1,2])
+    axplot(lines!)(FPlot(1:10, (@o _+1), (@o _^2); axis=(;xscale=log10)))
 end
 
 @testitem "axfunc" begin
