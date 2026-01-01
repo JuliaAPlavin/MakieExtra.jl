@@ -208,6 +208,18 @@ end
     @test marker_lw(:vline, 0.5) != marker_lw(:vline, 0.53)
 end
 
+@testitem "offset_texts" begin
+    scatter([1], [1])
+    texts = [text!((0,0), text="Abc"), text!((0,0), text="Def")]
+    offset_texts_auto_1d!(texts; direction=:x)
+    offset_texts_auto_1d!(texts; direction=:y)
+    offset_texts_auto_1d!(texts; direction=:y, height_frac_mindist=0.5, height_frac_for_line=0.1, Lines=(;linewidth=4))
+    texts = [textwithbox!((0,0), text="Abc"), textwithbox!((0,0), text="Def")]
+    offset_texts_auto_1d!(texts; direction=:x)
+    texts = [textglow!((0,0), text="Abc"), textglow!((0,0), text="Def")]
+    offset_texts_auto_1d!(texts; direction=:x)
+end
+
 @testitem "kwargs merging" begin
     using MakieExtra: merge_plot_kwargs, merge_axis_kwargs, merge_limits
 

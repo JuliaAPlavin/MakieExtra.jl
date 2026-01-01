@@ -8,11 +8,12 @@ using Makie: left, right, bottom, top, bottomleft, topleft, bottomright, toprigh
 using Makie.MakieCore: documented_attributes
 using Makie.IntervalSets
 using Makie.IntervalSets: width
+using Makie: mean
 import Makie.GeometryBasics; using Makie.GeometryBasics: HyperRectangle, Rect
 using Makie.Unitful
 using Makie.LinearAlgebra: norm
 using DataPipes
-import DataManipulation: shift_range, filteronly, filterfirst, findonly, mapinsert
+import DataManipulation: shift_range, filteronly, filterfirst, findonly, mapinsert, sortview
 using StructHelpers
 import Makie.MakieCore: plotfunc, plotfunc!, func2type
 using KwdefHelpers
@@ -35,7 +36,8 @@ export
     obsmap,
     mouse_position_obs,
     intervals, dilate, erode, boundingbox2d,
-    liftT
+    liftT,
+    offset_texts_auto_1d!
 
 include("lift.jl")
 include("scales.jl")
@@ -54,6 +56,7 @@ include("recipes/textwithbox.jl")
 include("axisfunction.jl")
 include("multiplot.jl")
 include("fplot/fplot.jl")
+include("avoid_overlaps.jl")
 include("radiobuttons.jl")
 
 
