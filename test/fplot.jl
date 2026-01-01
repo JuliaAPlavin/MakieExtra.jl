@@ -130,7 +130,7 @@ end
     using Accessors
 
     axplot(lines)(FPlot(1:10, string, (@o _^2), color=sqrt))
-    @test current_axis().xlabel[] == "string(_)"
+    @test current_axis().xlabel[] == "string"
 
     axplot(lines)(FPlot(1:10, string, (@o _^2), color=(@o _ > 5 ? :blue : :red)))
 end
