@@ -19,6 +19,7 @@ using StructHelpers
 import Makie: plotfunc, plotfunc!, func2type
 using KwdefHelpers
 
+using Makie: Text
 @reexport using Makie
 export Makie
 
@@ -44,10 +45,12 @@ export
     Slider₊, Checkbox₊, SliderGridObj,
     @plt
 
+
+filter_keys(pred, d::Dict) = Dict(k => v for (k, v) in pairs(d) if pred(k))
+
 include("lift.jl")
 include("scales.jl")
 include("ticks.jl")
-include("helpers.jl")
 include("axplot.jl")
 include("zoom_lines.jl")
 include("markers.jl")
@@ -312,28 +315,6 @@ function changes(obs::Makie.AbstractObservable{T}) where {T}
 end
 
 
-# https://github.com/MakieOrg/Makie.jl/pull/4037
-# Base.setindex(x::Attributes, value, key::Symbol) = merge(Attributes(; NamedTuple{(key,)}((value,))...), x)
-function Base.setindex(x::Attributes, value::Observable, key::Symbol)
-    y = copy(x)
-    y[key] = value
-    return y
-end
-Base.setindex(x::Attributes, value, key::Symbol) = Base.setindex(x, Observable(value), key)
-
-function Accessors.insert(attrs::Attributes, il::IndexLens, val)
-    res = copy(attrs)
-    res[only(il.indices)] = val
-    return res
-end
-
-function Accessors.delete(attrs::Attributes, il::IndexLens)
-    res = copy(attrs)
-    delete!(res, only(il.indices))
-    return res
-end
-
-
 # XXX: hack, ignore kwargs that Makie erroneously propagates
 # this is very low-specificity method that should only trigger when no kwargs-accepting methods exist
 # this method is relied upon in, for example, VLBIPlots.jl
@@ -377,11 +358,7 @@ end
 
 
 # see also https://github.com/MakieOrg/Makie.jl/issues/4887
-to_rect_padding(p::Rect) = p
-function to_rect_padding(p)
-    l, r, b, t = Makie.to_lrbt_padding(p)
-    return Rect(-l..r, -b..t)
-end
+Makie.to_lrbt_padding(p::Rect2) = (-left(p), right(p), -bottom(p), top(p))
 
 # see discussion in https://github.com/MakieOrg/Makie.jl/pull/5034
 Makie.convert_arguments(::Type{<:Annotation}, p) = convert_arguments(Annotation, convert_arguments(PointBased(), p) |> only)

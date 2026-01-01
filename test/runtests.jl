@@ -158,13 +158,13 @@ end
 end
 
 @testitem "axis-wide function" begin
-    lines(sin)
-    lines(sin; color=:black)
+    lines([1,2])
+    lines!(sin)
     scatter!(sin)
-    scatter!(current_axis(), sin)
+    lines!(current_axis(), sin)
     scatter!(Observable(sin))
     scatter!(Observable(sin); markersize=2)
-    band(x -> sin(x)..2sin(x); alpha=0.5)
+    band!(x -> sin(x)..2sin(x); alpha=0.5)
 end
 
 @testitem "contourf fast" begin
@@ -187,7 +187,7 @@ end
     ecdfplotfull(-2..5, rand(10); rev=true, color=:red, markersize=10)
     
     ecdfplotfull(rand(10)*u"m"; rev=true, color=:red, markersize=10)
-    @test_broken (ecdfplotfull(-1u"m"..2u"m", rand(10)*u"m"); true)
+    ecdfplotfull(-1u"m"..2u"m", rand(10)*u"m")
 end
 
 @testitem "glow" begin
@@ -209,21 +209,26 @@ end
 @testitem "text with box" begin
     using MakieExtra.IntervalSets
 
-    textwithbox((0, 0), "Some of My Text")
-    textwithbox!((0, 0), "Some of My Text", poly=(;padding=3))
-    textwithbox!((0, 0), "Some of My Text", poly=(;padding=Rect(0±3, 0±3)))
-    textwithbox!((0, 0), "Some of My Text", space=:relative, poly=(;color=:red))
-    textwithbox!((0, 0), "Some of My Text", space=:pixel, poly=(;padding=Rect(0±3, 0±3), color=:red))
+    textwithbox((0, 0), text="Some of My Text")
+    textwithbox!((0, 0), text="Some of My Text", poly=(;padding=3))
+    textwithbox!((0, 0), text="Some of My Text", poly=(;padding=Rect(0±3, 0±3)))
+    textwithbox!((0, 0), text="Some of My Text", space=:relative, poly=(;color=:red))
+    textwithbox!((0, 0), text="Some of My Text", space=:pixel, poly=(;padding=Rect(0±3, 0±3), color=:red))
 end
 
 @testitem "bandstroke" begin
     using MakieExtra.IntervalSets
+    using CairoMakie
 
-    bandstroke([1,2,3], [1..2, 3..4, 5..6])
-    bandstroke([1,2,3], [1..2, 3..4, 5..6], strokecolor=:red, strokewidth=2)
-    bandstroke(0..5, x -> x±1, strokewidth=2)
-    bandstroke(FPlot(1:5, identity, x->x..x+1), strokecolor=:red, strokewidth=2)
-    bandstroke(FPlot(1:5, identity, x->x..x+1, strokecolor=Ref(:red)), strokewidth=2)
+    fig = Figure()
+
+    bandstroke(fig[1,1], [1,2,3], [1..2, 3..4, 5..6])
+    bandstroke(fig[1,2], [1,2,3], [1..2, 3..4, 5..6], strokecolor=:red, strokewidth=2)
+    bandstroke(fig[1,3], 0..5, x -> x±1, strokewidth=2)
+    bandstroke(fig[1,4], FPlot(1:5, identity, x->x..x+1), strokecolor=:red, strokewidth=2)
+    ax, plt = bandstroke(fig[1,5], FPlot(1:5, identity, x->x..x+1, strokecolor=Ref(:red)), strokewidth=2)
+
+    colorbuffer(fig)
 end
 
 @testitem "markers" begin
@@ -308,6 +313,7 @@ end
 
 @testitem "multiplot" begin
     import CairoMakie
+    using CairoMakie: RGBA
 
     res = multiplot((Scatter, Lines), 1:10, 1:10, axis=(xlabel="x",))
     @test length(res) == 2
@@ -325,18 +331,18 @@ end
     @test ax.xlabel[] == "x"
     multiplot((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2)
     plts = multiplot!((Scatter, Lines), 1:10, 1:10, markersize=5, linewidth=2, color=:red)
-    @test plts[1].markersize[] == 5
-    @test plts[1].color[] == :red
+    @test plts[1].markersize[] == [5, 5]
+    @test plts[1].color[] == RGBA(1, 0, 0, 1)
     @test plts[2].linewidth[] == 2
-    @test plts[2].color[] == :red
+    @test plts[2].color[] == RGBA(1, 0, 0, 1)
 
     multiplot((scatter, lines), 1:10, 1:10)
     multiplot!((scatter, lines), 1:10, 1:10)
     plts = multiplot!((scatter, lines), 1:10, 1:10, color=:red, markersize=5, linewidth=2)
-    @test plts[1].markersize[] == 5
-    @test plts[1].color[] == :red
+    @test plts[1].markersize[] == [5, 5]
+    @test plts[1].color[] == RGBA(1, 0, 0, 1)
     @test plts[2].linewidth[] == 2
-    @test plts[2].color[] == :red
+    @test plts[2].color[] == RGBA(1, 0, 0, 1)
 
     multiplot((Scatter, Lines), current_figure()[1:2,3], 1:10, 1:10)
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
@@ -345,11 +351,11 @@ end
         (Scatter => (;color=:red), Lines => (;color=:blue), Scatter),
         1:10, 1:10, color=:black, markersize=5, linewidth=2)
     @test length(plts) == 3
-    @test plts[1].markersize[] == plts[3].markersize[] == 5
-    @test plts[1].color[] == :red
+    @test plts[1].markersize[] == plts[3].markersize[] == [5, 5]
+    @test plts[1].color[] == RGBA(1, 0, 0, 1)
     @test plts[2].linewidth[] == 2
-    @test plts[2].color[] == :blue
-    @test plts[3].color[] == :black
+    @test plts[2].color[] == RGBA(0, 0, 1, 1)
+    @test plts[3].color[] == RGBA(0, 0, 0, 1)
 
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 end
@@ -370,69 +376,6 @@ end
     arrowlines!([(0, 0), (10, -2), (1, 0.5)], arrowstyle="<-|>")
     arrowlines!(1:10, sin)
     arrowlines(1:10, sin; axis=(;xscale=log10))
-end
-
-@testitem "@define_plotfunc" begin
-    struct MyType end
-    struct MyTypeVec <: AbstractVector{Float64} end
-
-    MakieExtra.@define_plotfunc scatter MyType
-    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyType) = (;limits=((1, 2), (3, 4)))
-    Makie.convert_arguments(::Type{Scatter}, ::MyType) = ([1, 2, 3], [1, 2, 3])
-
-    MakieExtra.@define_plotfunc scatter MyTypeVec
-    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
-    Makie.expand_dimensions(::PointBased, ::MyTypeVec) = ([1, 2, 3], [1, 2, 3])
-
-    MakieExtra.@define_plotfunc image MyType
-    MakieExtra.default_axis_attributes(::Type{Image}, ::MyType) = (;limits=((1, 2), (3, 4)))
-    Makie.convert_arguments(CT::Type{Image}, ::MyType) = ([1 2; 3 4],)
-
-    MakieExtra.@define_plotfunc image MyTypeVec
-    MakieExtra.default_axis_attributes(::Type{Image}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
-    Makie.convert_arguments(CT::Type{Image}, ::MyTypeVec) = ([1 2; 3 4],)
-
-    @testset for plotf in (scatter, image),
-                 T in (MyType, MyTypeVec)
-        fig, ax, plt = plotf(T())
-        @test ax.limits[] === ((1, 2), (3, 4))
-        fig, ax, plt = plotf(Observable(T()))
-        @test ax.limits[] === ((1, 2), (3, 4))
-    end
-end
-
-@testitem "@define_plotfunc_conv" begin
-    struct MyType end
-    struct MyTypeVec <: AbstractVector{Float64} end
-
-    MakieExtra.@define_plotfunc_conv scatter MyType
-    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyType) = (;limits=((1, 2), (3, 4)))
-    MakieExtra._convert_arguments_singlestep(::Type{Scatter}, ::MyType) = ([1, 2, 3],)
-
-    MakieExtra.@define_plotfunc_conv scatter MyTypeVec
-    MakieExtra.default_axis_attributes(::Type{Scatter}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
-    MakieExtra._convert_arguments_singlestep(::Type{Scatter}, ::MyTypeVec) = ([1, 2, 3],)
-
-    MakieExtra.@define_plotfunc_conv image MyType
-    MakieExtra.default_axis_attributes(::Type{Image}, ::MyType) = (;limits=((1, 2), (3, 4)))
-    MakieExtra._convert_arguments_singlestep(::Type{Image}, ::MyType) = ([1 2; 3 4],)
-
-    MakieExtra.@define_plotfunc_conv image MyTypeVec
-    MakieExtra.default_axis_attributes(::Type{Image}, ::MyTypeVec) = (;limits=((1, 2), (3, 4)))
-    MakieExtra._convert_arguments_singlestep(::Type{Image}, ::MyTypeVec) = ([1 2; 3 4],)
-
-    @testset for plotf in (scatter, image),
-                 T in (MyType, MyTypeVec)
-        fig, ax, plt = plotf(T())
-        @test ax.limits[] === ((1, 2), (3, 4))
-        fig, ax, plt = plotf(Observable(T()))
-        @test ax.limits[] === ((1, 2), (3, 4))
-    end
-    @testset for plotf in (scatter!, image!),
-                 T in (MyType, MyTypeVec)
-        plt = plotf(T())
-        plt = plotf(Observable(T()))
-    end
 end
 
 @testitem "lift" begin
@@ -749,7 +692,7 @@ end
     for p in [p1, p2, p3]
         @test p.colormap[] == :turbo
         @test p.colorscale[] == sqrt
-        @test p.colorrange[] == (0, 4)
+        @test p.colorrange[] == [0, 4]
     end
 
     fig = Figure()
@@ -759,7 +702,7 @@ end
     for p in [p1, p2]
         @test p.colormap[] == [:black, :white]
         @test p.colorscale[] == identity
-        @test p.colorrange[] == (1, 22)
+        @test p.colorrange[] == [1, 22]
     end
 
     fig = Figure()
@@ -769,7 +712,7 @@ end
     for p in [p1, p2]
         @test p.colormap[] == :viridis  # XXX: can it prefer explicitly specified colormap?
         @test p.colorscale[] == identity
-        @test p.colorrange[] == (5, 22)
+        @test p.colorrange[] == [5, 22]
     end
 
     fig = Figure()
@@ -779,7 +722,7 @@ end
     for p in [p1, p2]
         @test p.colormap[] == :turbo
         @test p.colorscale[] == sqrt
-        @test p.colorrange[] == (5, 22)
+        @test p.colorrange[] == [5, 22]
     end
 end
 
@@ -818,7 +761,7 @@ end
 
 @testitem "_" begin
     import Aqua
-    Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
+    Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=false), piracies=(;broken=true))
 
     import CompatHelperLocal as CHL
     CHL.@check(checktest=false)

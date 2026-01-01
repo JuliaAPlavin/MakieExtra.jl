@@ -24,7 +24,10 @@ function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly})
 
 	# XXX the only change from GeoMakie, this added:
     if MakieExtra.GEOMAKIE_SPLITWRAP[]
-	    plot.converted[] = @lift only(postprocess_plotargs(axis, typeof(plot), $(only(plot.converted))))
+		map!(plot, :converted, :converted) do converted
+			only(postprocess_plotargs(axis, typeof(plot), converted))
+		end
+	    # plot.converted = @lift only(postprocess_plotargs(axis, typeof(plot), $(plot.converted)...))
     end
 
     # actually plot

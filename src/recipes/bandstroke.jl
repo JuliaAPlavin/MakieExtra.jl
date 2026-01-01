@@ -20,21 +20,17 @@ end
 # end
 
 function Makie.plot!(p::BandStroke)
-    pb = band!(p, Makie.shared_attributes(p, Band), p.args...)
-    att = @p let
-        Makie.shared_attributes(p, Lines)
-        @set __[:linewidth] = p.strokewidth
-        @set __[:color] = @lift something($(p.strokecolor), $(p.color))
-    end
+    pb = band!(p, attributes(p), p[1], p[2])
+    extra_line_attrs = (linewidth=p.strokewidth, color=@lift something($(p.strokecolor), $(p.color)))
     # use pb[] instead of p[] to ensure all Band conversions are performed
     # is it possible to miss the convert_arguments() methods defined above?
 	if p.direction[] == :y
-	    lines!(p, att, @lift reverse.($(pb[1])))
-	    lines!(p, att, @lift reverse.($(pb[2])))
+	    lines!(p, attributes(p), @lift reverse.($(pb[1])); extra_line_attrs...)
+	    lines!(p, attributes(p), @lift reverse.($(pb[2])); extra_line_attrs...)
 	else
 		@assert p.direction[] == :x
-	    lines!(p, att, pb[1])
-	    lines!(p, att, pb[2])
+	    lines!(p, attributes(p), pb[1]; extra_line_attrs...)
+	    lines!(p, attributes(p), pb[2]; extra_line_attrs...)
 	end
     return p
 end

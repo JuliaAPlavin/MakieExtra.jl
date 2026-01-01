@@ -27,7 +27,8 @@ function offset_texts_auto_1d!(texts::AbstractVector; direction, height_frac_min
         t.offset[] = @set $(t.offset[])[dir_i] = o
         pixpos = Makie.project(t.parent, Makie.apply_transform(Makie.transform_func(t.parent), _tposition(t)))
         if !isnothing(Lines) && abs(o) ≥ height_frac_for_line*height
-            lines!(t.parent, [pixpos, pixpos .+ t.offset[]]; space=:pixel, Lines...)
+            @assert length(t.offset[]) == 2 || length(t.offset[]) == 3 && iszero(t.offset[][3])
+            lines!(t.parent, [pixpos, pixpos .+ t.offset[][1:2]]; space=:pixel, Lines...)
         end
     end
 end

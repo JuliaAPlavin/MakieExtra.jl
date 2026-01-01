@@ -1,8 +1,11 @@
+_cycled_attributes(c::Makie.Cycle) = flatten(Makie.attrsyms(c))
+_cycled_attributes(c::Nothing) = []
+
 function link_legend!(axes)
 	plts = @getall axes |> RecursiveOfType(Plot) |> If(p -> hasproperty(p, :label))
 	palette = @p axes map(_.scene.theme.palette) uniqueonly
 	current_attrvals = flatmap(plts) do plt
-		map(plt.cycle[]) do key
+		map(_cycled_attributes(plt.cycle[])) do key
 			(; label=plt.label[], key, value=getproperty(plt, key))
 		end
 	end
@@ -21,7 +24,7 @@ function link_legend!(axes)
 		end
 	end
 	for plt in plts
-		for key in plt.cycle[]
+		for key in _cycled_attributes(plt.cycle[])
 			val = @p target_attrvals filter(_.label == plt.label[] && _.key == key) (@oget first(__).value)
 			isnothing(val) && continue
 			getproperty(plt, key)[] = val
@@ -45,8 +48,8 @@ function link_colormap!(plots)
 	else
 		# no plot with explicit colorrange, will use calculated colors
 		colormap = @p plots map(_.colormap[]) filterfirst(!isnothing)
-		colorscale = @p plots map(_.calculated_colors[].scale[]) filter(_ != identity) (@oget first(__) identity)
-		colorrange = @p plots map(_.calculated_colors[].colorrange[]) flatten extrema
+		colorscale = @p plots map(_.colorscale[]) filter(_ != identity) (@oget first(__) identity)
+		colorrange = @p plots map(Makie.apply_scale(inverse(_.colorscale[]), _.scaled_colorrange[])) flatten extrema
 		for p in plots
 			p.colormap[] = colormap
 			p.colorscale[] = colorscale
