@@ -17,12 +17,13 @@ function Makie.plot!(p::TextWithBox)
     # solution by Julius Krumbiegel (jkrumbiegel) on slack
     scene = Makie.get_scene(p)
     glyphcolls = t.plots[1][1]
-	bboxes = lift(glyphcolls, scene.camera.projectionview, scene.viewport, padding) do glyphcolls, _, _, padding
+	bboxes = lift(glyphcolls, scene.camera.projectionview, scene.viewport, padding, tattrs.offset) do glyphcolls, _, _, padding, offset
 	    transformed = Makie.apply_transform(t.transformation.transform_func[], t[1][])
 	    pos = Makie.project.(Ref(scene.camera), t.space[], t.markerspace[], transformed)
 	
 	    map(glyphcolls, pos) do glyphcoll, pos
 	        rect = Rect2f(Makie.unchecked_boundingbox(glyphcoll, pos, Makie.to_rotation(t.rotation[])))
+            @reset rect.origin .+= offset
             isnothing(padding) ? rect : dilate(rect, padding)
 	    end
 	end
