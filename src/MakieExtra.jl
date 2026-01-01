@@ -105,7 +105,8 @@ GeoAxis_splitwrap!(b::Bool = true) = GEOMAKIE_SPLITWRAP[] = b
 
 
 # https://github.com/JuliaLang/julia/pull/57052
-Base.merge(a::Tuple, b::Tuple) = (b..., a[length(b) + 1:end]...)
+merge(a::Tuple, b::Tuple) = (b..., a[length(b) + 1:end]...)
+merge(args...) = Base.merge(args...)
 
 
 to_x_attrs(;kwargs...) = to_x_attrs(NamedTuple(kwargs))
