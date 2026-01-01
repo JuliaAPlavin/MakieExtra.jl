@@ -97,6 +97,39 @@ function show_gl_icon_in_dock(show::Bool=true)
     end
 end
 
+# from https://github.com/MakieOrg/Makie.jl/pull/5223#issuecomment-3198115783
+function set_gl_dock_icon(icon_path::String)
+    Sys.isapple() || return
+    try
+        # Get NSApplication and NSImage classes
+        nsapp_class = @ccall objc_getClass("NSApplication"::Cstring)::Ptr{Cvoid}
+        nsimage_class = @ccall objc_getClass("NSImage"::Cstring)::Ptr{Cvoid}
+        nsstring_class = @ccall objc_getClass("NSString"::Cstring)::Ptr{Cvoid}
+        
+        # Get selectors
+        shared_app_sel = @ccall sel_registerName("sharedApplication"::Cstring)::Ptr{Cvoid}
+        set_icon_sel = @ccall sel_registerName("setApplicationIconImage:"::Cstring)::Ptr{Cvoid}
+        init_with_path_sel = @ccall sel_registerName("initWithContentsOfFile:"::Cstring)::Ptr{Cvoid}
+        alloc_sel = @ccall sel_registerName("alloc"::Cstring)::Ptr{Cvoid}
+        string_with_utf8_sel = @ccall sel_registerName("stringWithUTF8String:"::Cstring)::Ptr{Cvoid}
+        
+        # Get NSApplication shared instance
+        nsapp = @ccall objc_msgSend(nsapp_class::Ptr{Cvoid}, shared_app_sel::Ptr{Cvoid})::Ptr{Cvoid}
+        
+        # Create NSString from path
+        nsstring = @ccall objc_msgSend(nsstring_class::Ptr{Cvoid}, string_with_utf8_sel::Ptr{Cvoid}, icon_path::Cstring)::Ptr{Cvoid}
+        
+        # Create NSImage
+        nsimage_alloc = @ccall objc_msgSend(nsimage_class::Ptr{Cvoid}, alloc_sel::Ptr{Cvoid})::Ptr{Cvoid}
+        nsimage = @ccall objc_msgSend(nsimage_alloc::Ptr{Cvoid}, init_with_path_sel::Ptr{Cvoid}, nsstring::Ptr{Cvoid})::Ptr{Cvoid}
+        
+        # Set application icon
+        @ccall objc_msgSend(nsapp::Ptr{Cvoid}, set_icon_sel::Ptr{Cvoid}, nsimage::Ptr{Cvoid})::Ptr{Cvoid}
+    catch e
+        @warn "Failed to set dock icon" e
+    end
+end
+
 
 # was in Makie before, but was removed at some point:
 function primary_resolution end
