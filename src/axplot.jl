@@ -9,7 +9,7 @@ axplot(plotf::Function; widgets=[], autolimits_refresh=false) = Axplot(plotf, wi
 function (axp::Axplot)(pos::Union{GridPosition, GridSubposition}, args...; axis=(;), kwargs...)
     @assert !haskey(kwargs, :doaxis) && !haskey(kwargs, :_axis)
     axis = merge(
-        axis_attributes(Makie.MakieCore.plotfunc(axp.plotf), to_value.(args)..., kwargs),
+        axis_attributes(plotfunc(axp.plotf), to_value.(args)..., kwargs),
         axis
     )
     res = with_widgets(axp.plotf, axp.widgets)(pos, args...; kwargs..., axis)
@@ -25,7 +25,7 @@ end
 function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
     @assert !haskey(kwargs, :doaxis) && !haskey(kwargs, :_axis)
     axis = merge(
-        axis_attributes(Makie.MakieCore.plotfunc(axp.plotf), to_value.(args)..., kwargs),
+        axis_attributes(plotfunc(axp.plotf), to_value.(args)..., kwargs),
         axis
     )
     res = with_widgets(axp.plotf, axp.widgets)(ax, args...; kwargs...)
