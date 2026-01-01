@@ -40,7 +40,7 @@ end
 
 
 argixs_xy_axes(ct, X::FPlot, kwargs) = nothing
-argixs_xy_axes(ct::Function, X::FPlot, kwargs) = argixs_xy_axes(Makie.MakieCore.func2type(ct), X, kwargs)
+argixs_xy_axes(ct::Function, X::FPlot, kwargs) = argixs_xy_axes(func2type(ct), X, kwargs)
 argixs_xy_axes(::Type{<:VLines}, X::FPlot, kwargs) = (1,)
 argixs_xy_axes(::Type{<:HLines}, X::FPlot, kwargs) = (2,)
 argixs_xy_axes(::Type{<:Union{BarPlot,Errorbars,Rangebars}}, X::FPlot, kwargs) = get(kwargs, :direction, :y) == :x ? (2, 1) : (1, 2)
