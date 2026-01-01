@@ -79,7 +79,11 @@ using TestItemRunner
     bmt = BaseMulTicks()
     @test Makie.get_tickvalues(bmt, identity, 0.25, 100) == [0.5, 1, 2, 5, 10, 20, 50, 100]
     @test Makie.get_tickvalues(bmt, identity, 3, 100) == [3, 5, 10, 20, 30, 50, 100]
+    @test Makie.get_tickvalues(bmt, identity, 3, 10) == [3, 4, 5, 6, 7, 8, 9, 10]
+    @test Makie.get_tickvalues(bmt, identity, 3, 4) == [3.0, 3.5, 4.0]
     @test Makie.get_tickvalues(bmt, log10, 3, 100) == [3, 5, 10, 20, 30, 50, 100]
+    @test Makie.get_tickvalues(bmt, log10, 3, 10) == [3, 4, 5, 6, 7, 8, 9, 10]
+    @test Makie.get_tickvalues(bmt, log10, 3, 4) == [3.0, 3.5, 4.0]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 100) == [0, 0.5, 1, 2, 5, 10, 20, 50, 100]
     @test Makie.get_tickvalues(bmt, SymLog(1), -70, 100) == [-30, -10, -3, -1, 0, 1, 3, 10, 30, 100]
     @test Makie.get_tickvalues(bmt, SymLog(1), 0, 1e10) == [0.0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000]

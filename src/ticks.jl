@@ -20,7 +20,7 @@ function Makie.get_tickvalues(t::BaseMulTicks, vmin, vmax)
             ticks = Makie.get_tickvalues((@set t.subs = subs), vmin, vmax)
             length(ticks) ≥ t.k_min && return ticks
         end
-        return ticks
+        return Makie.get_tickvalues(WilkinsonTicks(5), vmin, vmax)
     end
 end
 
