@@ -317,12 +317,12 @@ function Makie.convert_arguments(::Type{<:Annotation}, off, p)
 end
 Makie.convert_arguments(::Type{<:Annotation}, v1::VecTypes{2}, v2::AbstractVector{<:VecTypes{2}}) = convert_arguments(Annotation, v1, only(v2))
 
-# # https://github.com/MakieOrg/Makie.jl/pull/5037
-#  function closest_index_inexact(sliderrange, value::Number)
-#  	_, selected_i = findmin(sliderrange) do val
-#  		abs(val - value)
-#  	end
-#      return selected_i
-#  end
+# https://github.com/MakieOrg/Makie.jl/pull/5037
+function Makie.closest_index_inexact(sliderrange, value::Number)
+	_, selected_i = findmin(sliderrange) do val
+		abs(val - value)
+	end
+    return selected_i
+end
 
 end

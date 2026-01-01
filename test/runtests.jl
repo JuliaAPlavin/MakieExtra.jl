@@ -664,6 +664,28 @@ end
     annotation([(5, 10), (5, 10)], MyS2(), text=["Hello", "World"])
 end
 
+@testitem "unitful support in slider" begin
+    using Unitful
+
+    fig = Figure()
+
+    # needs full https://github.com/MakieOrg/Makie.jl/pull/5037
+    # sl = Slider(fig[1,1], range=(1:10)u"m")
+    # @test sl.value[] == 1u"m"
+    # set_close_to!(sl, 5u"m")
+    # set_close_to!(sl, 5.3u"m")
+
+    sl = Slider(fig[1,1], range=(1:10)u"m"; startvalue=5u"m")
+    @test sl.value[] == 5u"m"
+    set_close_to!(sl, 5u"m")
+    set_close_to!(sl, 5.3u"m")
+
+    sl = Slider(fig[1,1], range=(1:10)u"m"; startvalue=5.5u"m")
+    @test sl.value[] == 5u"m"
+    set_close_to!(sl, 5u"m")
+    set_close_to!(sl, 5.3u"m")
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
