@@ -73,6 +73,7 @@ include("linking.jl")
 # XXX: should try upstreaming all of these!
 
 include("geometry.jl")
+include("gridlayout.jl")
 
 function show_gl_icon_in_dock(show::Bool=true)
     Sys.isapple() || return
