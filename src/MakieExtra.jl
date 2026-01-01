@@ -78,6 +78,28 @@ function show_gl_icon_in_dock(show::Bool)
 end
 
 
+# see https://github.com/MakieOrg/GeoMakie.jl/issues/293
+const GeoMakie_radians_source = """
+    GEOGCRS["WGS 84",
+        DATUM["World Geodetic System 1984",
+            ELLIPSOID["WGS 84",6378137,298.257223563,
+                LENGTHUNIT["metre",1]],
+            ID["EPSG",6326]],
+        PRIMEM["Greenwich",0,
+            ANGLEUNIT["radian",1],
+            ID["EPSG",8901]],
+        CS[ellipsoidal,2],
+            AXIS["geodetic latitude (Lat)",north,
+                ORDER[1],
+                ANGLEUNIT["Rad",1]],
+            AXIS["geodetic longitude (Lon)",east,
+                ORDER[2],
+                ANGLEUNIT["Rad",1]]]
+"""
+GeoAxis_radians!() = update_theme!(GeoAxis_radians())
+GeoAxis_radians() = Theme(GeoAxis=(;source=GeoMakie_radians_source))
+
+
 # https://github.com/JuliaLang/julia/pull/57052
 Base.merge(a::Tuple, b::Tuple) = (b..., a[length(b) + 1:end]...)
 
