@@ -1,3 +1,5 @@
+# original code by Julius Krumbiegel, here adapted and extended
+
 """    radiobuttons(cbs::Checkbox...; cb_attributes=...)
 
 Turn a set of checkboxes into radiobuttons:
