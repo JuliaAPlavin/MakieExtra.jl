@@ -383,14 +383,12 @@ function to_rect_padding(p)
     return Rect(-l..r, -b..t)
 end
 
-if @isdefined Annotation
-    # see discussion in https://github.com/MakieOrg/Makie.jl/pull/5034
-    Makie.convert_arguments(::Type{<:Annotation}, p) = convert_arguments(Annotation, convert_arguments(PointBased(), p) |> only)
-    function Makie.convert_arguments(::Type{<:Annotation}, off, p)
-        p isa AbstractVector{<:Makie.VecTypes} && throw(MethodError(convert_arguments, (Annotation, off, p)))
-        convert_arguments(Annotation, off, convert_arguments(PointBased(), p) |> only)
-    end
-    Makie.convert_arguments(::Type{<:Annotation}, v1::VecTypes{2}, v2::AbstractVector{<:VecTypes{2}}) = convert_arguments(Annotation, v1, only(v2))
+# see discussion in https://github.com/MakieOrg/Makie.jl/pull/5034
+Makie.convert_arguments(::Type{<:Annotation}, p) = convert_arguments(Annotation, convert_arguments(PointBased(), p) |> only)
+function Makie.convert_arguments(::Type{<:Annotation}, off, p)
+    p isa AbstractVector{<:Makie.VecTypes} && throw(MethodError(convert_arguments, (Annotation, off, p)))
+    convert_arguments(Annotation, off, convert_arguments(PointBased(), p) |> only)
 end
+Makie.convert_arguments(::Type{<:Annotation}, v1::VecTypes{2}, v2::AbstractVector{<:VecTypes{2}}) = convert_arguments(Annotation, v1, only(v2))
 
 end
