@@ -285,6 +285,27 @@ end
     @test_broken (to_x_attrs(attrs); true)
 end
 
+@testitem "layout operators" begin
+    fig = Figure()
+    
+    # Test horizontal layout with | operator
+    plot(fig[1, 1], (@plt scatter(1:10, (1:10).^2)) | (@plt lines(1:10, sin.(1:10))))
+    
+    # Test vertical layout with / operator  
+    plot(fig[2:3, 1], (@plt scatter(1:5, 1:5)) / (@plt lines(1:5, cos.(1:5))))
+    
+    # Test that SinglePosSpec works
+    spec = @plt scatter(1:3, 1:3)
+    @test spec isa MakieExtra.SinglePosSpec
+    plot(fig[1, 3], spec)
+    
+    # Test matrix layout with nothing entries
+    plot(fig[2,3], [
+        (@plt scatter(1:5, 1:5)) (@plt lines(1:5, sin.(1:5)))
+        nothing (@plt heatmap(rand(3, 3)))
+    ])
+end
+
 @testitem "multiplot" begin
     import CairoMakie
 

@@ -40,7 +40,8 @@ export
     liftT,
     offset_texts_auto_1d!,
     autohide_axlabels!,
-    Slider₊, Checkbox₊, SliderGridObj
+    Slider₊, Checkbox₊, SliderGridObj,
+    @plt
 
 include("lift.jl")
 include("scales.jl")
@@ -63,6 +64,7 @@ include("avoid_overlaps.jl")
 include("ui/radiobuttons.jl")
 include("ui/labeledwidgets.jl")
 include("ui/slidergridobj.jl")
+include("layout.jl")
 
 
 # XXX: should try upstreaming all of these!
