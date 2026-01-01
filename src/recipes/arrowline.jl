@@ -40,21 +40,16 @@ function Makie.plot!(p::ArrowLines)
         @set __[:linestyle] = @lift $ast.linestyle
     end
     lines!(p, attrs, points)
-    if !isnothing(ast[].lm)
+    let
+        s_points = @lift [first($points), last($points)]
+        s_markers = @lift [$ast.lm, $ast.rm]
+        s_rotations = @lift [$markerangles[1] + deg2rad(180), $markerangles[2]]
         attrs = @p let
             Makie.shared_attributes(p, Scatter)
-            @set __[:marker] = @lift $ast.lm
-            @set __[:rotation] = @lift $markerangles[1] + deg2rad(180)
+            @set __[:marker] = s_markers
+            @set __[:rotation] = s_rotations
         end
-        scatter!(p, attrs, @lift first($points))
-    end
-    if !isnothing(ast[].rm)
-        attrs = @p let
-            Makie.shared_attributes(p, Scatter)
-            @set __[:marker] = @lift $ast.rm
-            @set __[:rotation] = @lift $markerangles[2]
-        end
-        scatter!(p, attrs, @lift last($points))
+        scatter!(p, attrs, s_points)
     end
 end
 
@@ -68,7 +63,7 @@ const marker_l_to_r = Dict(
 )
 
 const marker_rs = Dict(
-    "" => nothing,
+    "" => Makie.Polygon(Point2f[(0,0), (1e-10,1e-10)]),  # empty marker
     ">" => Makie.Polygon(Point2f[(0, 0), (-1, 0.5), (-0.5, 0), (-1, -0.5)]),
     "|>" => Makie.Polygon(Point2f[(0, 0), (-1, 0.5), (-1, -0.5)]),
     "<" => Makie.Polygon(Point2f[(-1, 0), (0, 0.5), (-0.5, 0), (0, -0.5)]),
