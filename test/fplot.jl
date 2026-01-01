@@ -168,11 +168,13 @@ end
     @test (@set f.attrs.label = "Def") === AxFunc(sin, label="Def", ticks=-10:100)
     @test (@insert f.attrs.scale = log) === AxFunc(sin, label="Abc", ticks=-10:100, scale=log)
     @test f === AxFunc(sin, label="Abc", ticks=-10:100)
+    @test MakieExtra.shortlabel(f) == "Abc"
+    @test MakieExtra.shortlabel(AxFunc(sin, ticks=-10:100)) == "sin"
 
-    fplt = FPlot(1:10, AxFunc(x->x+1, label="Abc", ticks=-10:100), AxFunc(x->x^2, label="Def"))
+    fplt = FPlot(1:10, AxFunc(x->x+1, label="Abc", ticks=-10:100), AxFunc(@o _^2))
     axplot(lines)(fplt)
     @test current_axis().xlabel[] == "Abc"
-    @test current_axis().ylabel[] == "Def"
+    @test current_axis().ylabel[] == "_ ^ 2"
     @test current_axis().xticks[] == -10:100
 end
 
