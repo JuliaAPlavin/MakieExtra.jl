@@ -36,6 +36,9 @@
     @test (@insert fp[3] = @o _+2) === FPlot(1:10, (@o _+1), (@o _^2), (@o _+2), color=sqrt, linewidth=123)
     @test (@insert fp[3:4] = (@o _+2), (@o _^3)) === FPlot(1:10, (@o _+1), (@o _^2), (@o _+2), (@o _^3), color=sqrt, linewidth=123)
 
+    @test (@set fp.axis = (;title="Abc")) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;title="Abc"))
+    @test (@insert fp.axis = (;title="Abc")) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;title="Abc"))
+
     fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;limits=(1..2, nothing)))
     @test FPlot(fp, markersize=5) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=5, axis=(;limits=((1,2), nothing)))
     @test FPlot(fp, color=log, markersize=5) === FPlot(1:10, (@o _+1), (@o _^2), color=log, linewidth=123, markersize=5, axis=(;limits=((1,2), nothing)))
