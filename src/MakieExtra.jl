@@ -65,6 +65,7 @@ include("ui/radiobuttons.jl")
 include("ui/labeledwidgets.jl")
 include("ui/slidergridobj.jl")
 include("layout.jl")
+include("observables.jl")
 
 
 # XXX: should try upstreaming all of these!
