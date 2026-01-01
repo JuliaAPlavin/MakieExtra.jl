@@ -19,3 +19,14 @@ function shortlabel(f)
     ostr = AccessorsExtra.barebones_string(o)
     isnothing(unit) ? ostr : "$ostr ($unit)"
 end
+
+extra_plot_kwargs(k::Symbol, f) = []
+extra_plot_kwargs(k::Symbol, f::AxFunc) =
+	if k == :color
+		res = []
+		haskey(f.attrs, :scale) && push!(res, :colorscale => f.attrs.scale)
+		haskey(f.attrs, :limit) && push!(res, :colorrange => extrema(f.attrs.limit))
+		return res
+	else
+		[]
+	end

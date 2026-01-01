@@ -13,14 +13,15 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; reorder_arg
     pkws = map(NamedTuple{pkws_keys}(pkws_keys), X.kwargfuncs[pkws_keys]) do k, f
         getval(X.data, k, f)
     end
-    pkws_extra = if haskey(X.kwargfuncs, :_attrs)
+    pkws_extra = @p pairs(X.kwargfuncs) collect flatmap(((k,v),) -> extra_plot_kwargs(k, v))
+    pkws_attrs = if haskey(X.kwargfuncs, :_attrs)
         @assert :_attrs ∉ anames
         vals = getval(X.data, nothing, X.kwargfuncs._attrs)
         getproperties(StructArray(vals))
     else
         (;)
     end
-    pspec = Makie.to_plotspec(ct, pargs; pkws..., pkws_extra..., kwargs...)
+    pspec = Makie.to_plotspec(ct, pargs; pkws..., pkws_extra..., pkws_attrs..., kwargs...)
 end
 
 # disambiguation:
