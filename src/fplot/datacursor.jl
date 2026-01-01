@@ -23,7 +23,7 @@ function add!(ax::Axis, dc::DataCursor, fplt::FPlot, plt::Plot; kwargs...)
         try
             if is_mouseinside(ax) && ispressed(ax, Exclusively(dc.key))
                 dc.vals[] = map(=>, argfuncs, _mouseposition(ax)[1:length(argfuncs)])
-                return Consume(true) 
+                return Consume() 
             end
         catch e
             @warn "" (e,catch_backtrace())
@@ -33,10 +33,10 @@ function add!(ax::Axis, dc::DataCursor, fplt::FPlot, plt::Plot; kwargs...)
         if event.key == dc.key
             if is_mouseinside(ax) && event.action == Keyboard.press
                 dc.vals[] = map(=>, argfuncs, _mouseposition(ax)[1:length(argfuncs)])
-                return Consume(true)
+                return Consume()
             elseif event.action == Keyboard.release
                 dc.vals[] = []
-                return Consume(true)
+                return Consume()
             end
         end
     end

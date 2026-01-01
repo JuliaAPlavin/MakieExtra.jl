@@ -45,7 +45,7 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Plot; kwargs...)
                 if is_mouseinside(ax) && evt.action == Mouse.press
                     rs.vals[] = map((o, m) -> o => m..m, argfuncs, _mouseposition(ax)[1:length(argfuncs)])
                     isrecting[] = true
-                    return Consume(true)
+                    return Consume()
                 end
                 if is_mouseinside(ax) && isrecting[] && evt.action == Mouse.release
                     if all(map((cur, m) -> leftendpoint(cur) == m, last.(rs.vals[]), _mouseposition(ax)[1:length(argfuncs)]))
@@ -54,23 +54,23 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, plt::Plot; kwargs...)
                         rs.vals[] = map((o, cur, m) -> o => leftendpoint(cur)..m, argfuncs, last.(rs.vals[]), _mouseposition(ax)[1:length(argfuncs)])
                     end
                     isrecting[] = false
-                    return Consume(true)
+                    return Consume()
                 end
             end
         catch e
             @warn "" (e,catch_backtrace())
-            return Consume(true)
+            return Consume()
         end
     end
     on(events(ax).mouseposition, priority=100) do event
         try
             if is_mouseinside(ax) && isrecting[] && ispressed(ax, Mouse.left)
                 rs.vals[] = map((o, cur, m) -> o => leftendpoint(cur)..m, argfuncs, last.(rs.vals[]), _mouseposition(ax)[1:length(argfuncs)])
-                return Consume(true)
+                return Consume()
             end
         catch e
             @warn "" (e,catch_backtrace())
-            return Consume(true)
+            return Consume()
         end
     end
 end
