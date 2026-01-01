@@ -477,6 +477,25 @@ end
     @test isequal(mouse_position_obs(current_axis(); key=Makie.Mouse.right)[]::StaticVector, [NaN, NaN])
 end
 
+@testitem "transform" begin
+    using MakieExtra: rel2data, data2rel
+
+    # smoke test only
+	fig,ax,plt = scatter(randn(100); axis=(;xscale=log10))
+
+	scatter!(@lift (10, 0) .+ $(rel2data(ax, :y, (0, 0.5))))
+	scatter!(@lift (0, 1) .+ $(rel2data(ax, :x, (0.5, 0))))
+
+	scatter!(@lift (10, 0 + $(rel2data(ax, :y, 0.5))))
+	scatter!(@lift (0 + $(rel2data(ax, :x, 0.5)), 1))
+
+	scatter!(space=:relative, @lift $(data2rel(ax, :x, (10, 0))) .+ (0, 0.5))
+	scatter!(space=:relative, @lift $(data2rel(ax, :y, (0, 1))) .+ (0.5, 0))
+
+	scatter!(space=:relative, @lift ($(data2rel(ax, :x, 10)) + 0, 0.5))
+	scatter!(space=:relative, @lift (0.5, $(data2rel(ax, :y, 1)) + 0))
+end
+
 @testitem "func2type" begin
     # upstreamed to Makie
     using MakieExtra: func2type

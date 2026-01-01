@@ -242,4 +242,33 @@ Makie.Record(figlike::Figure, obs::Observable, iter::AbstractVector; kw_args...)
         obs[] = i
     end
 
+
+
+rel2data(which::Symbol, orig) = rel2data(current_axis(), which::Symbol, orig)
+rel2data(ax::Axis, which::Symbol, orig) = transform_val_space(ax, which, :relative => :data, orig)
+
+data2rel(which::Symbol, orig) = data2rel(current_axis(), which::Symbol, orig)
+data2rel(ax::Axis, which::Symbol, orig) = transform_val_space(ax, which, :data => :relative, orig)
+
+transform_val_space(ax, which::Symbol, args...) = transform_val_space(ax, Dict(:x=>1, :y=>2)[which], args...)
+
+function transform_val_space(ax::Axis, which::Int, spaces::Pair{Symbol,Symbol}, orig::Union{Tuple,AbstractVector})
+    scene = Makie.get_scene(ax)
+    lift(scene.camera.projectionview, Makie.plots(ax)[1].model, Makie.transform_func(ax), scene.viewport, orig) do _, _, tf, _, orig
+        if spaces[1] == :data
+            orig = map(|>, orig, @set tf[3-which] = identity)
+        end
+        new = Makie.project(scene.camera, spaces..., Point2(orig))
+        if spaces[2] == :data
+            new = Point2(map(|>, new, Accessors.inverse.(@set tf[3-which] = identity)))
+        end
+        @set orig[which] = new[which]
+    end
+end
+
+function transform_val_space(ax::Axis, which::Int, spaces::Pair{Symbol,Symbol}, orig::Number)
+    new = transform_val_space(ax, which, spaces, set((1,1), (@o _[which]), orig))
+    return @lift $new[which]
+end
+
 end
