@@ -44,3 +44,24 @@ function axis_attributes(ct, X::FPlot, kwargs)
         X.axis,
     )
 end
+
+
+function axis_attributes(ct, X::Observable{<:FPlot}, kwargs) 
+    result_obs = @lift let
+        afuncs = argfuncs_for_xy(ct, $X; kwargs...)
+        merge_non_nothing(
+            merge_axis_kwargs(
+                (@oget to_x_attrs(ax_attrs_from_func(afuncs[1]))),
+                (@oget to_y_attrs(ax_attrs_from_func(afuncs[2]))),
+            ),
+            $X.axis,
+        )
+    end::Any
+    result = map(Observable{Any}, result_obs[])::NamedTuple
+    on(result_obs) do new_attrs
+        for (k, v) in pairs(new_attrs)
+            result[k][] = v
+        end
+    end
+    return result
+end
