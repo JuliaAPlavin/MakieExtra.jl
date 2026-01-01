@@ -540,6 +540,13 @@ end
     @test erode(Rect2(Vec(0, 1), Vec(3, 5)), Rect2(Vec(-1, -2), Vec(20, 30))) == Rect2(Vec(1, 3), Vec(-17, -25))
 end
 
+@testitem "polygons" begin
+    using Accessors
+
+    p = Makie.Polygon([Point(1,0), Point(0,1), Point(1,1)])
+    Accessors.test_getset_laws(Makie.coordinates, p, Point2f[Point(0,0), Point(1,1), Point(0,1), Point(-1, 0.5)], [Point(2,2), Point(3,3), Point(4,4)])
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))

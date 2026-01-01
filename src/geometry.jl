@@ -31,6 +31,7 @@ intervals(r::HyperRectangle) = Interval.(r.origin, r.origin + r.widths)
 
 Accessors.set(r::HyperRectangle, ::typeof(intervals), ints) = HyperRectangle(ints...)
 
+Accessors.set(obj::Makie.Polygon, ::typeof(Makie.coordinates), val) = Makie.Polygon(val)
 
 dilate(o::HyperRectangle, kern::HyperRectangle) = Rect(o.origin + kern.origin, o.widths + kern.widths)
 erode(o::HyperRectangle, kern::HyperRectangle) = Rect(o.origin - kern.origin, o.widths - kern.widths)
