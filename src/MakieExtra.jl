@@ -12,7 +12,7 @@ import Makie.GeometryBasics; using Makie.GeometryBasics: HyperRectangle, Rect
 using Makie.Unitful
 using Makie.LinearAlgebra: norm
 using DataPipes
-import DataManipulation: shift_range, filteronly, filterfirst, mapinsert
+import DataManipulation: shift_range, filteronly, filterfirst, findonly, mapinsert
 using StructHelpers
 import Makie.MakieCore: plotfunc, plotfunc!, func2type
 using KwdefHelpers
@@ -53,6 +53,7 @@ include("recipes/textwithbox.jl")
 include("axisfunction.jl")
 include("multiplot.jl")
 include("fplot/fplot.jl")
+include("radiobuttons.jl")
 
 
 # XXX: should try upstreaming all of these!
