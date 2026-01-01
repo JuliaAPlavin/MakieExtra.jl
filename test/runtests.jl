@@ -475,6 +475,9 @@ end
 
     t7 = @lift f"abc {$x:0.2f} def"
     @test t7[] == "abc 1.00 def"
+
+    t8 = @lift f"abc {$x:0.2f} def" * "x"
+    @test t8[] == "abc 1.00 defx"
 end
 
 @testitem "liftT" begin
