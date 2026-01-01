@@ -15,6 +15,9 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; reorder_arg
     pspec = Makie.to_plotspec(ct, pargs; pkws..., kwargs...)
 end
 
+# disambiguation:
+Makie.convert_arguments(ct::Type{<:Makie.Text}, fplt::FPlot) = @invoke convert_arguments(ct::Type{<:AbstractPlot}, fplt)
+
 @inline getval(data, f) = getval(data, nothing, f)
 @inline getval(data, k, f) =
     isempty(methods(f)) ? f :
