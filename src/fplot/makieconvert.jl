@@ -19,6 +19,7 @@ end
 @inline getval(data, k, f) =
     isempty(methods(f)) ? f :
     k == :inspector_label ? (self, i, p) -> f(data[i]) :
+    k == :inspector_hover ? (self, p, i) -> f(data[i]) :
     map(f, data)
 @inline getval(data, _, f::Ref) = f[]
 
