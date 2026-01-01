@@ -2,7 +2,7 @@
     data::Observable
     add_key = Keyboard.a
     delete_key = Keyboard.d
-    drag_key = Keyboard.m
+    drag_key = Mouse.left
     priority::Int = 100
 end
 
