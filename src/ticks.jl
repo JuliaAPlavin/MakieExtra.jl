@@ -47,10 +47,22 @@ _symlog_formatter(::Makie.Automatic) = Base.Broadcast.BroadcastFunction(x -> Mak
 _symlog_formatter(x) = x
 
 
+"""    EngTicks(kind=:number; suffix="", digits=0, space=true)
+
+Tick formatter that uses the engineering notation: like the scientific notation, but the exponent is always a multiple of 3.
+E.g., `10000` becomes `10×10³` when `kind=:number` and `10k` when `kind=:symbol`.
+
+## Arguments
+- `kind`: The kind of engineering notation to use. Can be `:number` or `:symbol`
+- `suffix`: A string to append to the tick labels, e.g. `suffix="m"` could result in labels like "10 km"
+- `digits`: The number of decimal places to display (experimental, may be removed if there are no usecases)
+- `space`: Whether to include a space between the number and the suffix
+"""
 @kwdef struct EngTicks
     kind::Symbol = :number
     suffix::String = ""
     digits::Int = 0
+    space::Bool = true
 end
 
 EngTicks(kind; kwargs...) = EngTicks(; kind, kwargs...)
@@ -64,7 +76,7 @@ Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
     elseif t.kind == :number
         rich("×10", superscript(string(pow3)))
     elseif t.kind == :symbol
-        " " * Dict(
+        si_symbol = Dict(
             -15 => "f",
             -12 => "p",
             -9 => "n",
@@ -78,6 +90,7 @@ Makie.get_ticklabels(t::EngTicks, values) = map(values) do v
             15 => "P",
             18 => "E",
         )[pow3]
+        (t.space ? " " : "") * si_symbol
     else
         error("Unknown EngTicks kind: $(t.kind)")
     end

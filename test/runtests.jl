@@ -32,6 +32,13 @@ using TestItemRunner
         (xs, mul .* xs)
         for mul in [1, 3, 10, 100]
     ], axis=(yscale=AsinhScale(1),))
+
+    vals = [1, 10, 1234, 3e4, 2e10, 1e-10, -1, -1e10]
+    @test map(String, Makie.get_ticklabels(EngTicks(), vals)) == ["1", "10", "1×103", "30×103", "20×109", "100×10-12", "-1", "-10×109"]
+    @test map(String, Makie.get_ticklabels(EngTicks(:symbol), vals)) == ["1", "10", "1 k", "30 k", "20 G", "100 p", "-1", "-10 G"]
+    @test map(String, Makie.get_ticklabels(EngTicks(:symbol, space=false), vals)) == ["1", "10", "1k", "30k", "20G", "100p", "-1", "-10G"]
+    @test map(String, Makie.get_ticklabels(EngTicks(suffix="abc"), vals)) == ["1abc", "10abc", "1×103abc", "30×103abc", "20×109abc", "100×10-12abc", "-1abc", "-10×109abc"]
+    @test map(String, Makie.get_ticklabels(EngTicks(:symbol, suffix="abc"), vals)) == ["1abc", "10abc", "1 kabc", "30 kabc", "20 Gabc", "100 pabc", "-1abc", "-10 Gabc"]
     
     ax, _ = lines(fig[1,5], xs, xs, axis=(xscale=SymLog(1), yscale=AsinhScale(1), xtickformat=EngTicks(suffix="abc"), ytickformat=EngTicks(:symbol)))
     lines!(ax, [Point(0, 0), Point(1, 1)], color=:black, linestyle=:dash, space=:relative)
