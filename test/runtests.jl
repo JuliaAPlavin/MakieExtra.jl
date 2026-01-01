@@ -150,6 +150,13 @@ end
     @test current_axis().xlabel[] == "a"
 end
 
+@testitem "ecdfplot" begin
+    ecdfplotfull(rand(10))
+    ecdfplotfull(rand(10); rev=true)
+    ecdfplotfull(-2..5, rand(10))
+    ecdfplotfull(-2..5, rand(10); rev=true)
+end
+
 @testitem "glow" begin
     textglow((0,1), text="Some of My Text")
     textglow((0,1), text="Some of My Text", glowwidth=10)
