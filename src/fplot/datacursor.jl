@@ -4,8 +4,9 @@
     lines = (;)
 end
 
-function cursor_vals(dc::DataCursor, fplt::FPlot, plt::Plot, i::Int; kwargs...)
-    afunc = get(argfuncs_for_xy(typeof(plt), fplt; kwargs...), i, nothing)
+cursor_vals(dc::DataCursor, fplt::FPlot, plt::Plot, i::Int; kwargs...) = cursor_vals(dc, fplt, typeof(plt), i; kwargs...)
+function cursor_vals(dc::DataCursor, fplt::FPlot, ::Type{plt}, i::Int; kwargs...) where {plt <: Plot}
+    afunc = get(argfuncs_for_xy(plt, fplt; kwargs...), i, nothing)
     emptyval = [NaN]
     isnothing(afunc) && return emptyval
     @lift let
