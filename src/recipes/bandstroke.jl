@@ -6,7 +6,7 @@ Propagates all supported line attributes from the call, adds `strokewidth` and `
 @recipe BandStroke begin
     strokewidth = 1
     strokecolor = nothing
-    Makie.MakieCore.documented_attributes(Makie.Band)...
+    documented_attributes(Makie.Band)...
 end
 
 # explicitly define same convert_arguments methods as Band does

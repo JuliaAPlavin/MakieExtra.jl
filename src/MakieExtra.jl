@@ -5,7 +5,7 @@ using AccessorsExtra
 using InverseFunctions
 using PyFormattedStrings
 using Makie: left, right, bottom, top, bottomleft, topleft, bottomright, topright, topline, bottomline, leftline, rightline
-using Makie.MakieCore: documented_attributes
+using Makie: documented_attributes
 using Makie.IntervalSets
 using Makie.IntervalSets: width
 using Makie: mean
@@ -16,7 +16,7 @@ using Makie.LinearAlgebra: norm
 using DataManipulation
 using DataManipulation.StructArrays
 using StructHelpers
-import Makie.MakieCore: plotfunc, plotfunc!, func2type
+import Makie: plotfunc, plotfunc!, func2type
 using KwdefHelpers
 
 @reexport using Makie
