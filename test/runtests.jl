@@ -686,6 +686,26 @@ end
     set_close_to!(sl, 5.3u"m")
 end
 
+@testitem "autohide_axlabels" begin
+    fig = Figure()
+    for i in 1:3, j in 1:2
+        ax = Axis(fig[i,j])
+    end
+    autohide_axlabels!(fig[1:3, 1:2])
+    autohide_axlabels!(fig[1:3, 1:1])
+    autohide_axlabels!(fig[3:3, 1:2])
+    autohide_axlabels!(fig[3:3, 1:0])
+
+    fig = Figure()
+    for i in 1:3, j in 1:2
+        ax = Axis(fig[1,1][i,j])
+    end
+    autohide_axlabels!(fig[1,1][1:3, 1:2])
+    autohide_axlabels!(fig[1,1][1:3, 1:1])
+    autohide_axlabels!(fig[1,1][3:3, 1:2])
+    autohide_axlabels!(fig[1,1][3:3, 1:0])
+end
+
 @testitem "_" begin
     import Aqua
     Aqua.test_all(MakieExtra; ambiguities=(;broken=true), undefined_exports=(;broken=true), piracies=(;broken=true))
