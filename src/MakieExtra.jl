@@ -78,6 +78,10 @@ function show_gl_icon_in_dock(show::Bool)
 end
 
 
+# https://github.com/JuliaLang/julia/pull/57052
+Base.merge(a::Tuple, b::Tuple) = (b..., a[length(b) + 1:end]...)
+
+
 to_x_attrs(;kwargs...) = to_x_attrs(NamedTuple(kwargs))
 to_y_attrs(;kwargs...) = to_y_attrs(NamedTuple(kwargs))
 to_xy_attrs(;kwargs...) = to_xy_attrs(NamedTuple(kwargs))

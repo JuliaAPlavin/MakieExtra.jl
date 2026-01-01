@@ -6,11 +6,16 @@ struct FPlot
 
     # to only have the constructor with correctly typed arguments, avoid auto convert attempts
     # when eg FPlot(data, f1, f2, f3) is passed
-    FPlot(data, argfuncs::Tuple, kwargfuncs::NamedTuple, axis::NamedTuple) = new(data, argfuncs, kwargfuncs, axis)
+    function FPlot(data, argfuncs::Tuple, kwargfuncs::NamedTuple, axis::NamedTuple)
+        @assert !(data isa FPlot)
+        new(data, argfuncs, kwargfuncs, axis)
+    end
 end
 @batteries FPlot
 
 FPlot(data, argfuncs...; axis::NamedTuple=(;), kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs), axis)
+
+FPlot(fplt::FPlot, args...; data=nothing, axis=(;), kwargs...) = FPlot(something(data, fplt.data), merge(fplt.argfuncs, args), merge(fplt.kwargfuncs, kwargs), merge_axis_kwargs(fplt.axis, axis))
 
 const TUP_IX_TYPES = Union{Integer,NTuple{<:Any,<:Integer},AbstractVector{<:Integer}}
 const NTUP_IX_TYPES = Union{Symbol,NTuple{<:Any,<:Symbol},AbstractVector{<:Symbol}}
