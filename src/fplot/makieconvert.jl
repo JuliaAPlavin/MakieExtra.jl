@@ -31,9 +31,11 @@ convert_to_categorical_if_needed(x::AbstractArray{<:Union{
 
 function axis_attributes(ct, X::FPlot, kwargs)
     afuncs = argfuncs_for_xy(ct, X; kwargs...)
-    merge_axis_kwargs(
-        (@oget to_x_attrs(ax_attrs_from_func(afuncs[1]))),
-        (@oget to_y_attrs(ax_attrs_from_func(afuncs[2]))),
+    merge_non_nothing(
+        merge_axis_kwargs(
+            (@oget to_x_attrs(ax_attrs_from_func(afuncs[1]))),
+            (@oget to_y_attrs(ax_attrs_from_func(afuncs[2]))),
+        ),
         X.axis,
     )
 end

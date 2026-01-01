@@ -40,11 +40,11 @@
     @test (@insert fp.axis = (;title="Abc")) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;title="Abc"))
 
     fp = FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;limits=(1..2, nothing)))
-    @test FPlot(fp, markersize=5) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=5, axis=(;limits=((1,2), nothing)))
-    @test FPlot(fp, color=log, markersize=5) === FPlot(1:10, (@o _+1), (@o _^2), color=log, linewidth=123, markersize=5, axis=(;limits=((1,2), nothing)))
-    @test FPlot(fp, axis=(;limits=(nothing, (0, nothing)))) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;limits=((1,2), (0, nothing))))
-    @test FPlot(fp, log) === FPlot(1:10, log, (@o _^2), color=sqrt, linewidth=123, axis=(;limits=((1,2), nothing)))
-    @test FPlot(fp, color=log, data=10:15) === FPlot(10:15, (@o _+1), (@o _^2), color=log, linewidth=123, axis=(;limits=((1,2), nothing)))
+    @test FPlot(fp, markersize=5) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, markersize=5, axis=(;limits=(1..2, nothing)))
+    @test FPlot(fp, color=log, markersize=5) === FPlot(1:10, (@o _+1), (@o _^2), color=log, linewidth=123, markersize=5, axis=(;limits=(1..2, nothing)))
+    @test FPlot(fp, axis=(;limits=(nothing, (0, nothing)))) === FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, linewidth=123, axis=(;limits=(nothing, (0, nothing))))
+    @test FPlot(fp, log) === FPlot(1:10, log, (@o _^2), color=sqrt, linewidth=123, axis=(;limits=(1..2, nothing)))
+    @test FPlot(fp, color=log, data=10:15) === FPlot(10:15, (@o _+1), (@o _^2), color=log, linewidth=123, axis=(;limits=(1..2, nothing)))
 end
 
 @testitem "basic" begin
