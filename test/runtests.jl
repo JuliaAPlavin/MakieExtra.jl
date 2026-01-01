@@ -100,15 +100,15 @@ end
 
     X = rand(100, 100)
     
-	heatmap(X, axis=(aspect=DataAspect(),), alpha=0.1)
-	scalebar!(0.15u"m")
-	scalebar!(0.15u"m", position=(0.8, 0.1), color=:black)
-	scalebar!((0.15u"m", x -> "a $x b"), position=(0.8, 0.1), color=:black)
-	scalebar!((0.15, x -> "a $x b"), color=:black)
-	scalebar!((0.15, x -> "a $x b"), color=:black, fontsize=20)
+    heatmap(X, axis=(aspect=DataAspect(),), alpha=0.1)
+    scalebar!(0.15u"m")
+    scalebar!(0.15u"m", position=(0.8, 0.1), color=:black)
+    scalebar!((0.15u"m", x -> "a $x b"), position=(0.8, 0.1), color=:black)
+    scalebar!((0.15, x -> "a $x b"), color=:black)
+    scalebar!((0.15, x -> "a $x b"), color=:black, fontsize=20)
     
-	heatmap(0..1e-5, 0..1e-5, X, axis=(aspect=DataAspect(),), alpha=0.1)
-	scalebar!(0.15u"m")  # XXX: should test that scalebar! call doesn't change limits
+    heatmap(0..1e-5, 0..1e-5, X, axis=(aspect=DataAspect(),), alpha=0.1)
+    scalebar!(0.15u"m")  # XXX: should test that scalebar! call doesn't change limits
 end
 
 @testitem "zoom_lines" begin
@@ -151,10 +151,10 @@ end
     linesglow([1,2,3], [4,5,6])
     linesglow([4,5,6])
     linesglow([(1,2),(3,4)])
-	linesglow(0..6, x->sin(x^2), glowwidth=15)
-	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowcolor=(:green, 0.4))
-	linesglow(0..6, x->-sin(x^2), glowwidth=70, glowalpha=0.5)
-	linesglow!(current_axis(), x->sin(x^2), glowwidth=70, glowalpha=0.5)
+    linesglow(0..6, x->sin(x^2), glowwidth=15)
+    linesglow(0..6, x->-sin(x^2), glowwidth=70, glowcolor=(:green, 0.4))
+    linesglow(0..6, x->-sin(x^2), glowwidth=70, glowalpha=0.5)
+    linesglow!(current_axis(), x->sin(x^2), glowwidth=70, glowalpha=0.5)
 
     linesglow(FPlot(1:5, identity, identity), glowwidth=15)
 end
@@ -481,19 +481,19 @@ end
     using MakieExtra: rel2data, data2rel
 
     # smoke test only
-	fig,ax,plt = scatter(randn(100); axis=(;xscale=log10))
+    fig,ax,plt = scatter(randn(100); axis=(;xscale=log10))
 
-	scatter!(@lift (10, 0) .+ $(rel2data(ax, :y, (0, 0.5))))
-	scatter!(@lift (0, 1) .+ $(rel2data(ax, :x, (0.5, 0))))
+    scatter!(@lift (10, 0) .+ $(rel2data(ax, :y, (0, 0.5))))
+    scatter!(@lift (0, 1) .+ $(rel2data(ax, :x, (0.5, 0))))
 
-	scatter!(@lift (10, 0 + $(rel2data(ax, :y, 0.5))))
-	scatter!(@lift (0 + $(rel2data(ax, :x, 0.5)), 1))
+    scatter!(@lift (10, 0 + $(rel2data(ax, :y, 0.5))))
+    scatter!(@lift (0 + $(rel2data(ax, :x, 0.5)), 1))
 
-	scatter!(space=:relative, @lift $(data2rel(ax, :x, (10, 0))) .+ (0, 0.5))
-	scatter!(space=:relative, @lift $(data2rel(ax, :y, (0, 1))) .+ (0.5, 0))
+    scatter!(space=:relative, @lift $(data2rel(ax, :x, (10, 0))) .+ (0, 0.5))
+    scatter!(space=:relative, @lift $(data2rel(ax, :y, (0, 1))) .+ (0.5, 0))
 
-	scatter!(space=:relative, @lift ($(data2rel(ax, :x, 10)) + 0, 0.5))
-	scatter!(space=:relative, @lift (0.5, $(data2rel(ax, :y, 1)) + 0))
+    scatter!(space=:relative, @lift ($(data2rel(ax, :x, 10)) + 0, 0.5))
+    scatter!(space=:relative, @lift (0.5, $(data2rel(ax, :y, 1)) + 0))
 end
 
 @testitem "func2type" begin

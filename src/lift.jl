@@ -15,9 +15,9 @@ end
 
 
 function liftT(f::Function, T::Type, args...)
-	res = Observable{T}(f(to_value.(args)...))
-	map!(f, res, args...)
-	return res
+    res = Observable{T}(f(to_value.(args)...))
+    map!(f, res, args...)
+    return res
 end
 
 

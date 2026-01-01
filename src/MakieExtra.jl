@@ -65,9 +65,9 @@ using ObjectiveC: id, Object, NSString, NSObject, @objc, @objcwrapper
 function show_gl_icon_in_dock(show::Bool)
     path = "/System/Library/Frameworks/AppKit.framework"
 
-	path = NSString(path)
-	bundle = @objc [NSBundle bundleWithPath:path::id{NSString}]::id{Object}
-	loaded = @objc [bundle::id{Object} load]::id{Object}
+    path = NSString(path)
+    bundle = @objc [NSBundle bundleWithPath:path::id{NSString}]::id{Object}
+    loaded = @objc [bundle::id{Object} load]::id{Object}
 
     NSApp = Base.bitcast(id{Object}, cglobal(:NSApp, Ptr{Cvoid}) |> unsafe_load)
     @objc [NSApplication sharedApplication]::id{Object}
@@ -138,27 +138,27 @@ boundingbox2d(args...) = Rect2(boundingbox(args...))
 
 
 function obsmap(x::Observable, xvals, res::Observable)
-	xval₀ = x[]
-	result = map(xvals) do x_
-		x[] = x_
-		return res[]
-	end
-	x[] = xval₀
-	return result
+    xval₀ = x[]
+    result = map(xvals) do x_
+        x[] = x_
+        return res[]
+    end
+    x[] = xval₀
+    return result
 end
 
 
 # see https://github.com/MakieOrg/Makie.jl/issues/4107 and https://github.com/MakieOrg/Makie.jl/issues/4291
 function mouse_position_obs(ax::Axis; key=Makie.Mouse.left, priority=10, consume=true)
-	res = Observable(map(Returns(NaN), mouseposition(ax)))
-	scene = Makie.parent_scene(ax)
-	on(events(scene).mouseposition; priority) do pos
-		if is_mouseinside(ax) && ispressed(scene, key)
-			res[] = mouseposition(ax)
-			consume && return Consume()
-		end
-	end
-	return res
+    res = Observable(map(Returns(NaN), mouseposition(ax)))
+    scene = Makie.parent_scene(ax)
+    on(events(scene).mouseposition; priority) do pos
+        if is_mouseinside(ax) && ispressed(scene, key)
+            res[] = mouseposition(ax)
+            consume && return Consume()
+        end
+    end
+    return res
 end
 
 
