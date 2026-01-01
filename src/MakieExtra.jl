@@ -196,18 +196,6 @@ function mouse_position_obs(ax::Axis; key=Makie.Mouse.left, priority=10, consume
 end
 
 
-# https://github.com/MakieOrg/Makie.jl/pull/4519
-Makie.resize_to_layout!() = resize_to_layout!(current_figure())
-Makie.xautolimits() = xautolimits(current_axis())
-Makie.yautolimits() = yautolimits(current_axis())
-Makie.hidexdecorations!(; kwargs...) = hidexdecorations!(current_axis(); kwargs...)
-Makie.hideydecorations!(; kwargs...) = hideydecorations!(current_axis(); kwargs...)
-Makie.hidedecorations!(; kwargs...) = hidedecorations!(current_axis(); kwargs...)
-Makie.hidespines!(spines::Symbol...) = hidespines!(current_axis(), spines...)
-Makie.tight_xticklabel_spacing!() = tight_xticklabel_spacing!(current_axis())
-Makie.tight_yticklabel_spacing!() = tight_yticklabel_spacing!(current_axis())
-Makie.tight_ticklabel_spacing!() = tight_ticklabel_spacing!(current_axis())
-
 Makie.Record(obs::Observable, iter::AbstractVector; kwargs...) = Record(current_figure(), obs, iter; kwargs...)
 Makie.Record(func::Function, iter::AbstractVector; kwargs...) = Record(func, current_figure(), iter; kwargs...)
 
