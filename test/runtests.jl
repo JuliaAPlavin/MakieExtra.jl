@@ -216,6 +216,9 @@ end
     @test to_x_attrs(attrs) == (xa=1, xb=123, xxyz="4", limits=(5, nothing), width=6)
     @test to_y_attrs(attrs) == (ya=1, yb=123, yxyz="4", limits=(nothing, 5), height=6)
     @test to_xy_attrs(attrs) == (xa=1, xb=123, xxyz="4", limits=(5, 5), width=6, ya=1, yb=123, yxyz="4", height=6)
+    @test to_x_attrs(a=1) === (xa=1,)
+    @test to_y_attrs(a=1) === (ya=1,)
+    @test to_xy_attrs(a=1) === (xa=1, ya=1)
 
     attrs = Attributes(attrs)
     @test NamedTuple(attrs).b[] == 123
