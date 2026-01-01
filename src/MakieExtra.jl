@@ -15,6 +15,7 @@ using Makie.GeometryBasics.StaticArrays
 using Makie.LinearAlgebra: norm
 using DataPipes
 import DataManipulation: shift_range, filteronly, filterfirst, findonly, mapinsert, sortview, group_vg, key
+using DataManipulation.StructArrays
 using StructHelpers
 import Makie.MakieCore: plotfunc, plotfunc!, func2type
 using KwdefHelpers

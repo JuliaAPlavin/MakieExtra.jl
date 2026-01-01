@@ -8,11 +8,19 @@ function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; reorder_arg
     pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
         getval(X.data, f) |> convert_to_categorical_if_needed
     end
-    pkws_keys = Tuple(keys(X.kwargfuncs) ∩ Makie.attribute_names(ct))
+    anames = Makie.attribute_names(ct)
+    pkws_keys = Tuple(keys(X.kwargfuncs) ∩ anames)
     pkws = map(NamedTuple{pkws_keys}(pkws_keys), X.kwargfuncs[pkws_keys]) do k, f
         getval(X.data, k, f)
     end
-    pspec = Makie.to_plotspec(ct, pargs; pkws..., kwargs...)
+    pkws_extra = if haskey(X.kwargfuncs, :_attrs)
+        @assert :_attrs ∉ anames
+        vals = getval(X.data, nothing, X.kwargfuncs._attrs)
+        getproperties(StructArray(vals))
+    else
+        (;)
+    end
+    pspec = Makie.to_plotspec(ct, pargs; pkws..., pkws_extra..., kwargs...)
 end
 
 # disambiguation:

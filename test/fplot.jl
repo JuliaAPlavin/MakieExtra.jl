@@ -129,6 +129,12 @@ end
     hist(FPlot(1:10, (@o _+1), color=sqrt))  # XXX: breaks when actually plotting because of colors vs bins mismatch
 end
 
+@testitem "_attrs" begin
+    _,_,plt = lines(FPlot(1:10, x->x+1, x->x^2, _attrs=x -> (color=x, linewidth=2x)))
+    @test plt.linewidth[] == 2:2:20
+    @test plt.color[] == 1:10
+end
+
 @testitem "axplot" begin
     using Accessors
     using CairoMakie
