@@ -274,6 +274,12 @@ end
     @test current_axis().width[] == 1234
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
 
+    scatter([0,0])
+    multiplot!((axplot(scatter), Lines), FPlot(1:10, (@o _), (@o _^2), axis=(xlabel="Abc",)), axis=(;width=1234))
+    @test current_axis().xlabel[] == "Abc"
+    @test current_axis().ylabel[] == "_ ^ 2"
+    @test current_axis().width[] == 1234
+
     fplt = FPlot(1:10, (@o _), (@o _^2))
     multiplot((Hist, HLines => (xmin=0, xmax=0.06, linewidth=0.5)), fplt, normalization=:pdf, direction=:x)
     Makie.colorbuffer(current_figure(); backend=CairoMakie)
