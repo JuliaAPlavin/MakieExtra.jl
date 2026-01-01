@@ -151,10 +151,16 @@ end
 end
 
 @testitem "ecdfplot" begin
+    using Unitful
+
     ecdfplotfull(rand(10))
     ecdfplotfull(rand(10); rev=true)
     ecdfplotfull(-2..5, rand(10))
     ecdfplotfull(-2..5, rand(10); rev=true)
+    ecdfplotfull(-2..5, rand(10); rev=true, color=:red, markersize=10)
+    
+    ecdfplotfull(rand(10)*u"m"; rev=true, color=:red, markersize=10)
+    @test_broken (ecdfplotfull(-1u"m"..2u"m", rand(10)*u"m"); true)
 end
 
 @testitem "glow" begin
