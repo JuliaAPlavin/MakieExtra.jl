@@ -21,6 +21,7 @@ const TUP_IX_TYPES = Union{Integer,NTuple{<:Any,<:Integer},AbstractVector{<:Inte
 const NTUP_IX_TYPES = Union{Symbol,NTuple{<:Any,<:Symbol},AbstractVector{<:Symbol}}
 Base.getindex(X::FPlot, i::TUP_IX_TYPES) = X.argfuncs[i]
 Base.getindex(X::FPlot, i::NTUP_IX_TYPES) = X.kwargfuncs[i]
+Base.haskey(X::FPlot, i::Int) = i ∈ eachindex(X.argfuncs)
 Base.setindex(X::FPlot, v, i::TUP_IX_TYPES) = @set X.argfuncs[i] = v
 Base.setindex(X::FPlot, v, i::NTUP_IX_TYPES) = @set X.kwargfuncs[i] = v
 Accessors.insert(X::FPlot, p::IndexLens, v) = 
@@ -65,6 +66,24 @@ Accessors.delete(X::FPlot, ::PropertyLens{:axis}) = @set X.axis = (;)
 
 Accessors.delete(X::FPlot, ::PropertyLens{:data}) = @set X.data = nothing
 Accessors.insert(X::FPlot, ::PropertyLens{:data}, v) = (@assert isnothing(X.data); @set X.data = v)
+
+function Base.merge(fplta::FPlot, fpltb::FPlot)
+    # Merge data: if both exist, take from fpltb; otherwise take the one that !isnothing
+    data = !isnothing(fpltb.data) ? fpltb.data :
+           !isnothing(fplta.data) ? fplta.data :
+           nothing
+    
+    # Merge argfuncs: take fpltb's argfuncs, but pad with fplta's if fpltb has fewer
+    argfuncs = (fpltb.argfuncs..., fplta.argfuncs[(length(fpltb.argfuncs)+1):end]...)
+    
+    # Merge kwargfuncs: fpltb takes precedence
+    kwargfuncs = merge(fplta.kwargfuncs, fpltb.kwargfuncs)
+    
+    # Merge axis: fpltb takes precedence
+    axis = merge(fplta.axis, fpltb.axis)
+    
+    return FPlot(data, argfuncs, kwargfuncs, axis)
+end
 
 include("axfuncs.jl")
 include("makieconvert.jl")
