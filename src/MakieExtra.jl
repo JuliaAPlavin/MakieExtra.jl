@@ -433,4 +433,39 @@ function Makie.closest_index_inexact(sliderrange, value::Number)
     return selected_i
 end
 
+
+full_bbox(block::Union{GridPosition,GridSubposition}) = full_bbox(Makie.get_layout!(block))
+function full_bbox(block)
+    bbox = block.layoutobservables.computedbbox[]
+    prot = block.layoutobservables.protrusions[]
+    
+    # RectSides has fields: left, right, bottom, top
+    x_min = minimum(bbox)[1] - prot.left
+    y_min = minimum(bbox)[2] - prot.bottom
+    x_max = maximum(bbox)[1] + prot.right
+    y_max = maximum(bbox)[2] + prot.top
+
+    if block isa Colorbar
+        pad = block.ticklabelsize[] * 0.6  # slightly more than half for safety
+        y_min -= pad
+        y_max += pad
+    end
+    
+    return Rect2f(Point2f(x_min, y_min), Vec2f(x_max - x_min, y_max - y_min))
+end
+
+Makie.get_scene(cb::Colorbar) = cb.blockscene
+
+function Makie.colorbuffer(cb::Union{GridPosition,GridSubposition,Colorbar}; colorbuffer_kws...)
+    root_scene = Makie.root(Makie.get_scene(cb))
+    img = colorbuffer(root_scene; update=false, colorbuffer_kws...)
+    scale_factor = first(size(img) ./ reverse(size(root_scene)))
+    bb = let
+        vp = full_bbox(cb)
+        mini, wh = minimum(vp), widths(vp)
+        Rect2(round.(Int, mini .* scale_factor), round.(Int, wh .* scale_factor))
+    end
+    return Makie.get_sub_picture(img, Makie.JuliaNative, bb)
+end
+
 end

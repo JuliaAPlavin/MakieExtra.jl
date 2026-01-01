@@ -1,6 +1,6 @@
 using TestItems
 using TestItemRunner
-@run_package_tests
+@run_package_tests filter=ti -> occursin("colorbuffer", ti.name)
 
 @testitem "scales, ticks" begin
     using PyFormattedStrings
@@ -627,6 +627,28 @@ end
 
     # smoke test for limits=Rect
     Axis(Figure()[1,1], limits=Rect2(Vec(0, 1), Vec(2, 3)))
+end
+
+@testitem "full_bbox colorbuffer" begin
+    import CairoMakie
+    using MakieExtra: full_bbox
+
+    fig = Figure()
+    Axis(fig[1, 1])
+    cb = Colorbar(fig[1, 2]; limits=(0, 1))
+    inner = GridLayout(fig[2, 1:2])
+    Axis(inner[1, 1])
+
+    # Test all Union types: GridPosition, GridSubposition, Colorbar
+    for block in (fig[1, 1], inner[1, 1], cb)
+        bbox = full_bbox(block)
+        @test bbox isa Rect2f
+        @test all(widths(bbox) .> 0)
+
+        img = colorbuffer(block; backend=CairoMakie)
+        @test img isa Matrix
+        @test !isempty(img)
+    end
 end
 
 @testitem "polygons" begin
