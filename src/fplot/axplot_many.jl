@@ -29,7 +29,7 @@ function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::FPlo
             fplt_cur = @set fplt[ix] = f
             @p fplt.data group_vg(fplt.col) enumerate map() do (igr, gr)
                 _to_axplot(plotf)(gl[irow, igr], (@set fplt_cur.data = gr); common_kws...,
-                                    axis=(;title=irow == 1 ? "$(MakieExtra.shortlabel(fplt.col)) = $(key(gr))" : ""))
+                                    axis=(;title=irow == 1 ? "$(shortlabel(fplt.col)) = $(key(gr))" : ""))
             end
             ix == 1 && linkxaxes!(contents(gl[irow, :])...)
             ix == 2 && linkyaxes!(contents(gl[irow, :])...)
@@ -41,8 +41,8 @@ function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::FPlo
             colixs = @p fplt.data map(fplt.col) unique Dict(__ .=> 1:length(__))
             rowixs = @p fplt.data map(fplt.row) unique Dict(__ .=> 1:length(__))
             @p fplt.data group_vg(x -> (;col=fplt.col(x), row=fplt.row(x))) map() do gr
-                rowlabel = "$(MakieExtra.shortlabel(fplt.row)) = $(key(gr).row)"
-                collabel = "$(MakieExtra.shortlabel(fplt.col)) = $(key(gr).col)"
+                rowlabel = "$(shortlabel(fplt.row)) = $(key(gr).row)"
+                collabel = "$(shortlabel(fplt.col)) = $(key(gr).col)"
                 ir, ic = rowixs[key(gr).row], colixs[key(gr).col]
                 _to_axplot(plotf)(
                     gl[ir, ic],
@@ -52,13 +52,13 @@ function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::FPlo
             linkyaxes!(contents(gl[:, :])...)
         elseif haskey(fplt, :col)
             @p fplt.data group_vg(fplt.col) enumerate map() do (igr, gr)
-                _to_axplot(plotf)(gl[1, igr], (@set fplt.data = gr); common_kws..., axis=(;title="$(MakieExtra.shortlabel(fplt.col)) = $(key(gr))"))
+                _to_axplot(plotf)(gl[1, igr], (@set fplt.data = gr); common_kws..., axis=(;title="$(shortlabel(fplt.col)) = $(key(gr))"))
             end
             linkxaxes!(contents(gl[:, :])...)
             linkyaxes!(contents(gl[:, :])...)
         elseif haskey(fplt, :row)
             @p fplt.data group_vg(fplt.row) enumerate map() do (igr, gr)
-                _to_axplot(plotf)(gl[igr, 1], (@set fplt.data = gr); common_kws..., axis=(;title="$(MakieExtra.shortlabel(fplt.row)) = $(key(gr))"))
+                _to_axplot(plotf)(gl[igr, 1], (@set fplt.data = gr); common_kws..., axis=(;title="$(shortlabel(fplt.row)) = $(key(gr))"))
             end
             linkxaxes!(contents(gl[:, :])...)
             linkyaxes!(contents(gl[:, :])...)
@@ -67,10 +67,10 @@ function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::FPlo
     autohide_axlabels!(gl[:, :])
 
     if hasproperty(fplt, :color) && get(legend, :color, true)
-        Label(gl[:,end+1][1,1], MakieExtra.shortlabel(fplt.color))
+        Label(gl[:,end+1][1,1], shortlabel(fplt.color))
         kws = (;)
         if hasproperty(fplt, :colormap)
-            kws = (;kws..., colormap=MakieExtra.getval(nothing, :colormap, fplt.colormap))
+            kws = (;kws..., colormap=getval(nothing, :colormap, fplt.colormap))
         end
         Colorbar(gl[:,end][2,1]; colorrange, kws...)
     end
