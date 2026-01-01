@@ -5,9 +5,8 @@
     vmin::Float64 = -Inf
     vmax::Float64 = Inf
 
-    _linscale_adj::Float64 = linscale / (1 - base^-1)
-    _fsmall::FS = @o _ * _linscale_adj
-    _flarge::FL = @o linthresh * (_linscale_adj + log(base, _ / linthresh))
+    _fsmall::FS = @o _ * linscale / (1 - base^-1)
+    _flarge::FL = @o _fsmall(linthresh) + log(base, _ / linthresh) * linthresh
 end
 
 SymLog(linthresh; kwargs...) = SymLog(; linthresh=Float64(linthresh), map(Float64, values(kwargs))...)
