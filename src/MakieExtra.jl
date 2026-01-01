@@ -260,6 +260,10 @@ function autohide_axlabels!(pos; hidex=true, hidey=true)
     layout = @oget pos.layout pos.parent
     rows = @oget pos.rows pos.span.rows
     cols = @oget pos.cols pos.span.cols
+    if isempty(rows) || isempty(cols)
+        # nothing to do here
+        return
+    end
 	if hidey
 		for ax in contents(layout[rows, cols[2:end-1]])
 			ax.ylabelvisible = false
