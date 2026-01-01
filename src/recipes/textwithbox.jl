@@ -14,14 +14,19 @@ function Makie.plot!(p::TextWithBox)
 
     padding = get(p.poly, :padding, nothing)
 
-    # XXX: ignores many observable updates, like the text itself or axis properties
-    # see https://github.com/MakieOrg/Makie.jl/issues/4632
-    rect = @lift @p let
-        boundingbox2d(t, :pixel)
-        @set __.origin .+= $(tattrs.offset)
-        isnothing(padding) ? __ : dilate(__, $padding)
-    end
-    poly!(p, pattrs, rect)
+    # solution by Julius Krumbiegel (jkrumbiegel) on slack
+    scene = Makie.get_scene(p)
+    glyphcolls = t.plots[1][1]
+	bboxes = lift(glyphcolls, scene.camera.projectionview, scene.viewport, padding) do glyphcolls, _, _, padding
+	    transformed = Makie.apply_transform(t.transformation.transform_func[], t[1][])
+	    pos = Makie.project.(Ref(scene.camera), t.space[], t.markerspace[], transformed)
+	
+	    map(glyphcolls, pos) do glyphcoll, pos
+	        rect = Rect2f(Makie.unchecked_boundingbox(glyphcoll, pos, Makie.to_rotation(t.rotation[])))
+            isnothing(padding) ? rect : dilate(rect, padding)
+	    end
+	end
+    poly!(p, pattrs, bboxes)
 
     reverse!(p.plots)
     return p
