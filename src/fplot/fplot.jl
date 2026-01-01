@@ -90,6 +90,7 @@ include("axfuncs.jl")
 include("makieconvert.jl")
 include("axisorder.jl")
 include("interactive.jl")
+include("axplot_many.jl")
 
 
 # XXX: upstream cleaner version!
