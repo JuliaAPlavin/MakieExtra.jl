@@ -13,7 +13,7 @@ Everyone is welcome to suggest new features and convenience utilities to include
 
 <img src="https://github.com/user-attachments/assets/22793e1d-a137-4002-b3ba-e04610e572b7" width="400">
 
-- [Composable and interactive plotting with `FPlot`](https://juliaaplavin.github.io/MakieExtraDocs.jl/notebooks/fplot.html)
+- [Composable and interactive plotting with `FPlot`](https://juliaaplavin.github.io/MakieExtraDocs.jl/notebooks/fplot.html). Featured in JuliaCon 2025 [talk](https://www.youtube.com/watch?v=fu4U04a3Hgk).
 
 <img src="https://github.com/user-attachments/assets/9e0c421b-dda2-4241-ab67-5871fe4f19de" width="400">
 
