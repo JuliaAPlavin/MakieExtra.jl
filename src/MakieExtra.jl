@@ -261,55 +261,34 @@ function autohide_axlabels!(pos; hidex=true, hidey=true)
     rows = @oget pos.rows pos.span.rows
     cols = @oget pos.cols pos.span.cols
     if isempty(rows) || isempty(cols)
-        # nothing to do here
         return
     end
-	if hidey
-		for ax in contents(layout[rows, cols[2:end-1]])
-			ax.ylabelvisible = false
-			ax.yticksvisible = false
-			ax.yticklabelsvisible = false
-		end
-        if length(cols) > 1
-            for ax in contents(layout[rows, cols[1]])
-                if to_value(ax.yaxisposition) == :right
-                    ax.ylabelvisible = false
-                    ax.yticksvisible = false
-                    ax.yticklabelsvisible = false
-                end
-            end
-            for ax in contents(layout[rows, cols[end]])
-                if to_value(ax.yaxisposition) == :left
+    if hidey && length(cols) > 1
+        for c in cols
+            for ax in contents(layout[rows, c])
+                is_outer = (c == first(cols) && to_value(ax.yaxisposition) == :left) ||
+                           (c == last(cols)  && to_value(ax.yaxisposition) == :right)
+                if !is_outer
                     ax.ylabelvisible = false
                     ax.yticksvisible = false
                     ax.yticklabelsvisible = false
                 end
             end
         end
-	end
-	if hidex
-		for ax in contents(layout[rows[2:end-1], cols])
-			ax.xlabelvisible = false
-			ax.xticksvisible = false
-			ax.xticklabelsvisible = false
-		end
-		if length(rows) > 1
-			for ax in contents(layout[rows[1], cols])
-				if to_value(ax.xaxisposition) == :bottom
-					ax.xlabelvisible = false
-					ax.xticksvisible = false
-					ax.xticklabelsvisible = false
-				end
-			end
-			for ax in contents(layout[rows[end], cols])
-				if to_value(ax.xaxisposition) == :top
-					ax.xlabelvisible = false
-					ax.xticksvisible = false
-					ax.xticklabelsvisible = false
-				end
-			end
-		end
-	end
+    end
+    if hidex && length(rows) > 1
+        for r in rows
+            for ax in contents(layout[r, cols])
+                is_outer = (r == last(rows)  && to_value(ax.xaxisposition) == :bottom) ||
+                           (r == first(rows) && to_value(ax.xaxisposition) == :top)
+                if !is_outer
+                    ax.xlabelvisible = false
+                    ax.xticksvisible = false
+                    ax.xticklabelsvisible = false
+                end
+            end
+        end
+    end
 end
 
 
