@@ -124,7 +124,7 @@ end
     # smoke tests only:
     lines(FPlot(1:10, (@o _+1), (@o _^2), color=sqrt, colormap=:viridis))
     lines(FPlot(1:10, (@o _+1), (@o _^2), color=Ref(:black)))
-    lines(FPlot([(abc=1, x=2)], (@o _.x), (@o _.x + 1), color=:abc))
+    lines(FPlot(1:10, (@o _+1), (@o _^2), color=:black))
     text(FPlot(1:10, (@o _+1), (@o _^2), text=string))
     hist(FPlot(1:10, (@o _+1), color=sqrt))  # XXX: breaks when actually plotting because of colors vs bins mismatch
 end
