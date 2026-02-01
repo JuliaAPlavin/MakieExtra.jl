@@ -34,22 +34,12 @@ function Makie.plot!(p::ArrowLines)
     end
 
     ast = @lift parse_arrowstyle($(p.arrowstyle))
-
-    attrs = @p let
-        Makie.shared_attributes(p, Lines)
-        @set __[:linestyle] = @lift $ast.linestyle
-    end
-    lines!(p, attrs, points)
+    lines!(p, attributes(p), points; linestyle=@lift $ast.linestyle)
     let
         s_points = @lift [first($points), last($points)]
         s_markers = @lift [$ast.lm, $ast.rm]
         s_rotations = @lift [$markerangles[1] + deg2rad(180), $markerangles[2]]
-        attrs = @p let
-            Makie.shared_attributes(p, Scatter)
-            @set __[:marker] = s_markers
-            @set __[:rotation] = s_rotations
-        end
-        scatter!(p, attrs, s_points)
+        scatter!(p, attributes(p), s_points; marker=s_markers, rotation=s_rotations)
     end
 end
 

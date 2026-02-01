@@ -15,17 +15,13 @@ end
 Makie.conversion_trait(::Type{<:LinesGlow}) = Makie.PointBased()
 
 function Makie.plot!(p::LinesGlow)
-    att = Makie.shared_attributes(p, Lines)
+    att = attributes(p)
     nsteps = max(5, ceil(Int, p.glowwidth[] / 2))
-    glowcolor = @lift @something($(p.glowcolor), $(p.color))
+    glowcolor = Makie.@lift @something($(p.glowcolor), $(p.color))
     for x in range(1, 0, length=nsteps)
-        attg = @p let
-            att
-            @set __[:color] = glowcolor
-            @set __[:linewidth] = @lift $(__[:linewidth]) + $(p.glowwidth) * x
-            @set __[:alpha] = @lift (1-x)/nsteps*1.5 * $(p.glowalpha)
-        end
-        lines!(p, attg, p.positions)
+        alpha = (Makie.@lift (1-x)/nsteps*1.5 * $(p.glowalpha))
+        linewidth = (Makie.@lift $(att.linewidth) + $(p.glowwidth) * x)
+        lines!(p, att, p.positions; color=glowcolor, linewidth, alpha)
     end
     lines!(p, att, p.positions)
     return p
@@ -41,8 +37,8 @@ Like `text()` and accepts the same attributes, but glowing doesn't cause artifac
 end
 
 function Makie.plot!(p::TextGlow)
-    att = Makie.attributes(p)
-    text!(p, (@set att[:color] = att[:glowcolor]), p.position)
-    text!(p, (@set att[:glowwidth] = 0), p.position)
+    att = attributes(p)
+    text!(p, att, p.position; color=att.glowcolor)
+    text!(p, att, p.position; glowwidth=0)
     return p
 end

@@ -25,17 +25,10 @@ function Makie.plot!(p::Contourf_Fast)
             x
         end
     end
-    attrs = @p let
-        p.attributes
-        @delete __[:levels]
-        @delete __[:extendlow]
-        @delete __[:extendhigh]
-        @insert __[:colormap] = colormap_c
-        @insert __[:colorrange] = colorrange
-        @insert __[:lowclip] = @lift isnothing($(p.extendlow)) ? nothing : Makie.compute_lowcolor($(p.extendlow), $(p.colormap))
-        @insert __[:highclip] = @lift isnothing($(p.extendhigh)) ? nothing : Makie.compute_highcolor($(p.extendhigh), $(p.colormap))
-    end
-    image!(p, attrs, X_c)
+    image!(p, attributes(p), X_c;
+           colormap=colormap_c, colorrange,
+           lowclip=(@lift isnothing($(p.extendlow)) ? nothing : Makie.compute_lowcolor($(p.extendlow), $(p.colormap))),
+           highclip=(@lift isnothing($(p.extendhigh)) ? nothing : Makie.compute_highcolor($(p.extendhigh), $(p.colormap))))
 end
 
 Makie.needs_tight_limits(c::Contourf_Fast) = true
