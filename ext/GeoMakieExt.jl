@@ -24,10 +24,9 @@ function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly})
 
 	# XXX the only change from GeoMakie, this added:
     if MakieExtra.GEOMAKIE_SPLITWRAP[]
-		map!(plot, :converted, :converted) do converted
+		splice_converted!(plot) do converted
 			only(postprocess_plotargs(axis, typeof(plot), converted))
 		end
-	    # plot.converted = @lift only(postprocess_plotargs(axis, typeof(plot), $(plot.converted)...))
     end
 
     # actually plot
@@ -45,6 +44,39 @@ function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly})
     end
 
     return plot
+end
+
+# Splice a processing step between :converted and its downstream consumers in the ComputeGraph.
+# Creates :converted → f → :_converted_split, then rewires the destructure edge to read from :_converted_split.
+# Must be called before the plot is added to a scene (before any TypedEdge is created).
+# Relies on ComputeGraph internals; assertions guard against unexpected Makie changes.
+function splice_converted!(f, plot)
+    attr = plot.attributes
+
+    @assert haskey(attr.outputs, :converted) "Expected :converted node in plot ComputeGraph"
+    converted_node = attr.outputs[:converted]
+    conv_edge = converted_node.parent
+
+    # Create split node: :converted → f → :_converted_split
+    @assert !haskey(attr.outputs, :_converted_split) "splice_converted! already applied to this plot"
+    map!(f, attr, :converted, :_converted_split)
+    split_node = attr.outputs[:_converted_split]
+    split_edge = split_node.parent
+
+    # Find the destructure edge (produces :polygon, :arg1, etc.)
+    other_deps = [e for e in conv_edge.dependents if e !== split_edge]
+    @assert length(other_deps) == 1 "Expected exactly 1 other dependent on conversion edge (the destructure edge), got $(length(other_deps))"
+    destr_edge = only(other_deps)
+    @assert !isassigned(destr_edge.typed_edge) "Destructure edge TypedEdge already created — splice_converted! must be called before the plot is rendered"
+
+    # Rewire: destructure reads from split_node instead of converted_node
+    idx = findfirst(n -> n === converted_node, destr_edge.inputs)
+    @assert !isnothing(idx) "Destructure edge does not have :converted as input"
+    destr_edge.inputs[idx] = split_node
+
+    # Fix dependency chain
+    filter!(e -> e !== destr_edge, conv_edge.dependents)
+    push!(split_edge.dependents, destr_edge)
 end
 
 # XXX: should depend on source and dest projections
