@@ -16,7 +16,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [compat]
 Aqua = "0.8.7"
 AxisKeysExtra = "0.1.11"
-CairoMakie = "0.13"
+CairoMakie = "0.15"
 CompatHelperLocal = "0.1.26"
 PyFormattedStrings = "0.1.12"
 TestItemRunner = "1"
