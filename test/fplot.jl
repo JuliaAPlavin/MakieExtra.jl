@@ -212,13 +212,29 @@ end
     @test current_axis().yscale[] == log10
 end
 
-@testitem "categorical" begin
+@testitem "categorical x/y" begin
     using Accessors
 
     axplot(lines)(FPlot(1:10, string, (@o _^2), color=sqrt))
     @test current_axis().xlabel[] == "string"
 
     axplot(lines)(FPlot(1:10, string, (@o _^2), color=(@o _ > 5 ? :blue : :red)))
+end
+
+@testitem "AsCategorical" begin
+    using Accessors
+
+    data = [(x=1, y=2, category=:a), (x=2, y=3, category=:a), (x=3, y=1, category=:b), (x=4, y=4, category=:b)]
+
+    # basic usage
+    fplt = FPlot(data, (@o _.x), (@o _.y), color=AsCategorical(@o _.category))
+    fig, ax, plt = axplot(scatter)(fplt)
+    @test fig isa Figure
+
+    # with custom label
+    fplt = FPlot(data, (@o _.x), (@o _.y), color=AsCategorical((@o _.category), label=uppercase ∘ string))
+    fig, ax, plt = axplot(scatter)(fplt)
+    @test fig isa Figure
 end
 
 @testitem "unitful" begin

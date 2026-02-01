@@ -3,25 +3,45 @@ Makie.used_attributes(T::Type{<:Plot}, _, fplt::FPlot) = Makie.used_attributes(T
 
 Makie.convert_arguments(ct::Type{<:AbstractPlot}, data, X::FPlot; kwargs...) = Makie.convert_arguments(ct, (@set X.data = data); kwargs...)
 
+
+_lab_to_textprops(x) = string(x) => (;)
+_lab_to_textprops(x::AbstractString) = x => (;)
+_lab_to_textprops(x::Pair) = x
+
 function Makie.convert_arguments(ct::Type{<:AbstractPlot}, X::FPlot; reorder_args=true, kwargs...)
     @assert !isnothing(X.data)
-    pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
-        getval(X.data, f) |> convert_to_categorical_if_needed
-    end
-    anames = Makie.attribute_names(ct)
-    pkws_keys = Tuple(keys(X.kwargfuncs) ∩ anames)
-    pkws = map(NamedTuple{pkws_keys}(pkws_keys), X.kwargfuncs[pkws_keys]) do k, f
-        getval(X.data, k, f)
-    end
-    pkws_extra = @p pairs(X.kwargfuncs) collect flatmap(((k,v),) -> extra_plot_kwargs(k, v))
-    pkws_attrs = if haskey(X.kwargfuncs, :_attrs)
-        @assert :_attrs ∉ anames
-        vals = getval(X.data, nothing, X.kwargfuncs._attrs)
-        getproperties(StructArray(vals))
-    else
-        (;)
-    end
-    pspec = Makie.to_plotspec(ct, pargs; pkws..., pkws_extra..., pkws_attrs..., kwargs...)
+	categ_kwargfuncs = filter(f -> f isa AsCategorical, X.kwargfuncs)
+	if !isempty(categ_kwargfuncs)
+		categ_kwargfunc = only(categ_kwargfuncs)
+		map(group_vg(categ_kwargfunc.f, X.data) |> collect) do gr
+			curX = @p let
+				X
+				@set __.data = value(gr)
+				@delete __[keys(categ_kwargfuncs)]
+			end
+			lab = categ_kwargfunc.label(key(gr))
+			labtext, labprops = _lab_to_textprops(lab)
+			convert_arguments(ct, curX; reorder_args, label="$(labtext)" => labprops, kwargs...)
+		end
+	else
+	    pargs = map(argfuncs_for_plotargs(ct, X; reorder_args, kwargs...)) do f
+	        getval(X.data, f) |> convert_to_categorical_if_needed
+	    end
+	    anames = Makie.attribute_names(ct)
+	    pkws_keys = Tuple(keys(X.kwargfuncs) ∩ anames)
+	    pkws = map(NamedTuple{pkws_keys}(pkws_keys), X.kwargfuncs[pkws_keys]) do k, f
+	        getval(X.data, k, f)
+	    end
+	    pkws_extra = @p pairs(X.kwargfuncs) collect flatmap(((k,v),) -> extra_plot_kwargs(k, v))
+	    pkws_attrs = if haskey(X.kwargfuncs, :_attrs)
+	        @assert :_attrs ∉ anames
+	        vals = getval(X.data, nothing, X.kwargfuncs._attrs)
+	        getproperties(StructArray(vals))
+	    else
+	        (;)
+	    end
+	    pspec = Makie.to_plotspec(ct, pargs; pkws..., pkws_extra..., pkws_attrs..., kwargs...)
+	end
 end
 
 # disambiguation:

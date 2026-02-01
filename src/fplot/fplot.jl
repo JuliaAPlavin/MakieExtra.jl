@@ -86,6 +86,14 @@ function Base.merge(fplta::FPlot, fpltb::FPlot)
     return FPlot(data, argfuncs, kwargfuncs, axis)
 end
 
+
+@kwdef struct AsCategorical
+    f
+    label = identity
+end
+AsCategorical(f; kwargs...) = AsCategorical(; f, kwargs...)
+
+
 include("axfuncs.jl")
 include("makieconvert.jl")
 include("axisorder.jl")
