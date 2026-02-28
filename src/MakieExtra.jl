@@ -220,11 +220,6 @@ macro rich(expr)
     Expr(:call, :rich, esc.(expr.args)...)
 end
 
-# https://github.com/MakieOrg/Makie.jl/issues/4393
-Base.:*(x::Makie.RichText, y::AbstractString) = rich(x, y)
-Base.:*(x::AbstractString, y::Makie.RichText) = rich(x, y)
-Base.:*(x::Makie.RichText, y::Makie.RichText) = rich(x, y)
-
 
 boundingbox2d(args...) = Rect2(boundingbox(args...))
 
