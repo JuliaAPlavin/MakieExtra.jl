@@ -408,20 +408,11 @@ if @isdefined Annotation
     Makie.convert_arguments(::Type{<:Annotation}, v1::VecTypes{2}, v2::AbstractVector{<:VecTypes{2}}) = convert_arguments(Annotation, v1, only(v2))
 end
 
-# https://github.com/MakieOrg/Makie.jl/pull/5037
-function Makie.closest_index_inexact(sliderrange, value::Number)
-	_, selected_i = findmin(sliderrange) do val
-		abs(val - value)
-	end
-    return selected_i
-end
-
-
 full_bbox(block::Union{GridPosition,GridSubposition}) = full_bbox(Makie.get_layout!(block))
 function full_bbox(block)
     bbox = block.layoutobservables.computedbbox[]
     prot = block.layoutobservables.protrusions[]
-    
+
     # RectSides has fields: left, right, bottom, top
     x_min = minimum(bbox)[1] - prot.left
     y_min = minimum(bbox)[2] - prot.bottom
@@ -433,7 +424,7 @@ function full_bbox(block)
         y_min -= pad
         y_max += pad
     end
-    
+
     return Rect2f(Point2f(x_min, y_min), Vec2f(x_max - x_min, y_max - y_min))
 end
 
