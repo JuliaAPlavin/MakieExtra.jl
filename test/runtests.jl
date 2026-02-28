@@ -589,9 +589,9 @@ end
 end
 
 @testitem "geoaxis" begin
-    # smoke test only
     using GeoMakie
     using MakieExtra.IntervalSets
+    using MakieExtra.GeometryBasics: MultiPolygon
     import CairoMakie
 
     MakieExtra.GeoAxis_radians!()
@@ -600,15 +600,25 @@ end
 	fig = Figure()
 	ax = GeoAxis(fig[1,1], dest="+proj=moll")
 
-	lines!(map(x->(x/50, x/1000), 1:20:1000))
-	poly!([
+	lp = lines!(ax, map(x->(x/50, x/1000), 1:20:1000))
+	pp_vec = poly!(ax, [
 		Rect(0±0.2, 0.5±0.1),
 		Rect(3±0.2, -0.5±0.1),
 	])
-	poly!(Rect(3±0.2, 0.5±0.1))
-	poly!(Circle(Point2(-3.1, 0), 0.1))
+	pp_cross = poly!(ax, Rect(3±0.2, 0.5±0.1))
+	pp_circle = poly!(ax, Circle(Point2(-3.1, 0), 0.1))
 
     colorbuffer(fig)
+
+    # verify splitting is used in the rendered plots
+    @test count(p -> any(isnan, p), lp[1][]) > 0
+    @test pp_cross[1][] isa MultiPolygon
+    @test length(pp_cross[1][].polygons) == 2
+    @test pp_vec[1][] isa AbstractVector{<:MultiPolygon}
+    @test length(pp_vec[1][][1].polygons) == 1  # Rect(0±0.2, ...) doesn't cross boundary
+    @test length(pp_vec[1][][2].polygons) == 2  # Rect(3±0.2, ...) crosses π
+    @test pp_circle[1][] isa MultiPolygon
+    @test length(pp_circle[1][].polygons) == 2
 end
 
 @testitem "geoaxis splitting" begin

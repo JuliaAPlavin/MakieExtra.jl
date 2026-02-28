@@ -25,7 +25,7 @@ function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly})
 	# XXX the only change from GeoMakie, this added:
     if MakieExtra.GEOMAKIE_SPLITWRAP[]
 		splice_converted!(plot) do converted
-			only(postprocess_plotargs(axis, typeof(plot), converted))
+			postprocess_plotargs(axis, typeof(plot), converted...)
 		end
     end
 
