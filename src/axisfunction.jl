@@ -3,7 +3,7 @@ for plotf in (
         :stairs, :stem,
         :errorbars, :rangebars, :band,
         :barplot,
-        :linesglow, :bandstroke)
+        :linesglow)
     plotf_excl = Symbol(plotf, :!)
     fullname_excl = isdefined(Makie, plotf) ? :(Makie.$plotf_excl) : :($(@__MODULE__).$plotf_excl)
     

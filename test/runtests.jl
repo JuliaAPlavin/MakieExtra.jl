@@ -216,21 +216,6 @@ end
     textwithbox!((0, 0), text="Some of My Text", space=:pixel, poly=(;padding=Rect(0±3, 0±3), color=:red))
 end
 
-@testitem "bandstroke" begin
-    using MakieExtra.IntervalSets
-    using CairoMakie
-
-    fig = Figure()
-
-    bandstroke(fig[1,1], [1,2,3], [1..2, 3..4, 5..6])
-    bandstroke(fig[1,2], [1,2,3], [1..2, 3..4, 5..6], strokecolor=:red, strokewidth=2)
-    bandstroke(fig[1,3], 0..5, x -> x±1, strokewidth=2)
-    bandstroke(fig[1,4], FPlot(1:5, identity, x->x..x+1), strokecolor=:red, strokewidth=2)
-    ax, plt = bandstroke(fig[1,5], FPlot(1:5, identity, x->x..x+1, strokecolor=Ref(:red)), strokewidth=2)
-
-    colorbuffer(fig)
-end
-
 @testitem "markers" begin
     scatter(rand(30), rand(30), marker=marker_lw(:vline, 0.5), markersize=30)
     scatter(rand(30), rand(30), marker=marker_lw(:hline, 0.5), markersize=30)
