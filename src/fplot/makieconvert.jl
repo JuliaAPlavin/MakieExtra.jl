@@ -48,9 +48,11 @@ end
 Makie.convert_arguments(ct::Type{<:Makie.Text}, fplt::FPlot) = @invoke convert_arguments(ct::Type{<:AbstractPlot}, fplt)
 
 @inline getval(data, f) = getval(data, nothing, f)
+@inline getval(data, k, f::Symbol) =
+	k ∈ (:color, :colormap, :direction) ? f :  # attributes that commonly have Symbol values – for them, interpret Symbol as actual value, not property accessor
+	map(f, data)
 @inline getval(data, k, f) =
     isempty(methods(f)) ? f :
-	k ∈ (:colormap, :direction) ? f :
     k == :inspector_label ? (self, i, p) -> f(data[i]) :
     k == :inspector_hover ? (self, p, i, _...) -> f(data[i]) :
     map(f, data)
