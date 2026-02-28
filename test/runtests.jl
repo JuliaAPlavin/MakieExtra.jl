@@ -1,6 +1,6 @@
 using TestItems
 using TestItemRunner
-@run_package_tests filter=ti -> occursin("colorbuffer", ti.name)
+@run_package_tests
 
 @testitem "scales, ticks" begin
     using PyFormattedStrings
