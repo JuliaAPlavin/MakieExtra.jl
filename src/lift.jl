@@ -1,10 +1,10 @@
 ### https://github.com/MakieOrg/Makie.jl/pull/3915
 
 # mimick Observables.jl map() signature to forward directly:
-lift(f, arg::Makie.AbstractObservable, args...; kwargs...) = map(f, arg, args...; kwargs...)
+lift(f, arg::Union{Makie.AbstractObservable, Makie.ComputePipeline.Computed}, args...; kwargs...) = map(f, arg, args...; kwargs...)
 # handle the general case:
 function lift(f, args...; kwargs...)
-    if !any(a -> isa(a, Makie.AbstractObservable), args)
+    if !any(a -> isa(a, Makie.AbstractObservable) || isa(a, Makie.ComputePipeline.Computed), args)
         # there are no observables
         f(args...)
     else
