@@ -51,7 +51,7 @@ end
 keep_attrs(plt::Type{<:Plot}, kwargs, args...) = kwargs[collect(
     keys(kwargs) ∩ (
         Makie.attribute_names(plt) ∪
-        Makie.MakieCore.attribute_name_allowlist() ∪
+        Makie.attribute_name_allowlist() ∪
         used_attributes(plt, args...)
     )
 )]
