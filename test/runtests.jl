@@ -739,23 +739,72 @@ end
 end
 
 @testitem "autohide_axlabels" begin
-    fig = Figure()
-    for i in 1:3, j in 1:2
-        ax = Axis(fig[i,j])
-    end
-    autohide_axlabels!(fig[1:3, 1:2])
-    autohide_axlabels!(fig[1:3, 1:1])
-    autohide_axlabels!(fig[3:3, 1:2])
-    autohide_axlabels!(fig[3:3, 1:0])
+    xvis(ax) = (ax.xlabelvisible[], ax.xticksvisible[], ax.xticklabelsvisible[])
+    yvis(ax) = (ax.ylabelvisible[], ax.yticksvisible[], ax.yticklabelsvisible[])
+    VIS = (true, true, true)
+    HID = (false, false, false)
 
+    # 3×2 grid, default positions (y=:left, x=:bottom)
     fig = Figure()
-    for i in 1:3, j in 1:2
-        ax = Axis(fig[1,1][i,j])
-    end
-    autohide_axlabels!(fig[1,1][1:3, 1:2]; hidex=false)
-    autohide_axlabels!(fig[1,1][1:3, 1:1]; hidey=false)
-    autohide_axlabels!(fig[1,1][3:3, 1:2])
-    autohide_axlabels!(fig[1,1][3:3, 1:0])
+    axs = [Axis(fig[i,j]) for i in 1:3, j in 1:2]
+    autohide_axlabels!(fig[1:3, 1:2])
+    # y: col 1 visible (left edge), col 2 hidden (interior-facing :left)
+    @test all(yvis.(axs[:, 1]) .== Ref(VIS))
+    @test all(yvis.(axs[:, 2]) .== Ref(HID))
+    # x: rows 1-2 hidden, row 3 visible (bottom edge)
+    @test all(xvis.(axs[1:2, :]) .== Ref(HID))
+    @test all(xvis.(axs[3, :]) .== Ref(VIS))
+
+    # 1×2 grid (single row) — x-labels should stay visible
+    fig = Figure()
+    axs = [Axis(fig[1,j]) for j in 1:2]
+    autohide_axlabels!(fig[1:1, 1:2])
+    @test all(xvis.(axs) .== Ref(VIS))
+    # y: col 1 visible, col 2 hidden
+    @test yvis(axs[1]) == VIS
+    @test yvis(axs[2]) == HID
+
+    # 3×1 grid (single column) — y-labels should stay visible
+    fig = Figure()
+    axs = [Axis(fig[i,1]) for i in 1:3]
+    autohide_axlabels!(fig[1:3, 1:1])
+    @test all(yvis.(axs) .== Ref(VIS))
+    # x: rows 1-2 hidden, row 3 visible
+    @test all(xvis.(axs[1:2]) .== Ref(HID))
+    @test xvis(axs[3]) == VIS
+
+    # 2×2 grid, yaxisposition=:right — right col keeps y-labels
+    fig = Figure()
+    axs = [Axis(fig[i,j], yaxisposition=:right) for i in 1:2, j in 1:2]
+    autohide_axlabels!(fig[1:2, 1:2])
+    @test all(yvis.(axs[:, 1]) .== Ref(HID))
+    @test all(yvis.(axs[:, 2]) .== Ref(VIS))
+
+    # 2×2 grid, xaxisposition=:top — top row keeps x-labels
+    fig = Figure()
+    axs = [Axis(fig[i,j], xaxisposition=:top) for i in 1:2, j in 1:2]
+    autohide_axlabels!(fig[1:2, 1:2])
+    @test all(xvis.(axs[1, :]) .== Ref(VIS))
+    @test all(xvis.(axs[2, :]) .== Ref(HID))
+
+    # hidex=false: only y-labels hidden, x-labels untouched
+    fig = Figure()
+    axs = [Axis(fig[i,j]) for i in 1:3, j in 1:2]
+    autohide_axlabels!(fig[1:3, 1:2]; hidex=false)
+    @test all(xvis.(axs) .== Ref(VIS))
+    @test all(yvis.(axs[:, 1]) .== Ref(VIS))
+    @test all(yvis.(axs[:, 2]) .== Ref(HID))
+
+    # hidey=false: only x-labels hidden, y-labels untouched
+    fig = Figure()
+    axs = [Axis(fig[i,j]) for i in 1:3, j in 1:2]
+    autohide_axlabels!(fig[1:3, 1:2]; hidey=false)
+    @test all(yvis.(axs) .== Ref(VIS))
+    @test all(xvis.(axs[1:2, :]) .== Ref(HID))
+    @test all(xvis.(axs[3, :]) .== Ref(VIS))
+
+    # empty ranges — no-op, shouldn't error
+    autohide_axlabels!(fig[1:3, 1:0])
 end
 
 @testitem "link_colormap" begin
