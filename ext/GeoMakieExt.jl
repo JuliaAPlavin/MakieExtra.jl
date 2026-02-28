@@ -121,30 +121,27 @@ function split_curve(data::AbstractVector{<:Point2}; rng::Interval, closed::Bool
 	end
 
 	I = eachindex(data)
-	if closed
-		ixs = findall(i -> is_wrap(data[i], data[mod(i + 1, I)]), I)
-		isempty(ixs) && return [data]
-		parts = map(ixs .+ 1, circshift(ixs, -1)) do a, b
-			wrap_part(data, a, b; rng)
-		end
-	else
-		ixs = findall(i -> is_wrap(data[i], data[i + 1]), I[begin:end-1])
-		isempty(ixs) && return [data]
-		start_ixs = [firstindex(data); ixs .+ 1]
-		end_ixs = [ixs; lastindex(data)]
-		map(start_ixs, end_ixs) do a, b
-			wrap_part(data, a, b; rng)
+	segments = [eltype(data)[]]
+
+	# Iterate edges: n-1 for open, n for closed (includes closing edge)
+	for i in (closed ? I : I[begin:end-1])
+		j = closed ? mod(i + 1, I) : i + 1
+		push!(last(segments), data[i])
+		if is_wrap(data[i], data[j])
+			push!(last(segments), point_at_wrap(data[i], data[j]; rng))
+			push!(segments, [point_at_wrap(data[j], data[i]; rng)])
 		end
 	end
-end
 
-function wrap_part(data, a::Int, b::Int; rng::Interval)
-	I = eachindex(data)
-	a, b = mod.((a-1, b+1), Ref(I))
-	part = a < b ? data[a:b] : @views [data[a:end]; data[begin:b]]
-	part[1] = point_at_wrap(part[2], part[1]; rng)
-	part[end] = point_at_wrap(part[end-1], part[end]; rng)
-	return part
+	if closed
+		# Merge: last segment (after final wrap) connects to first (before first wrap)
+		length(segments) > 1 && prepend!(segments[1], pop!(segments))
+	else
+		push!(last(segments), data[end])
+	end
+
+	length(segments) == 1 && return [data]
+	return segments
 end
 
 function point_at_wrap(a::T, b::T; rng::Interval) where {T<:Point2}
