@@ -487,23 +487,81 @@ end
     @test isequal(mouse_position_obs(current_axis(); key=Makie.Mouse.right)[]::StaticVector, [NaN, NaN])
 end
 
-@testitem "transform" begin
-    using MakieExtra: rel2data, data2rel
 
-    # smoke test only
-    fig,ax,plt = scatter(randn(100); axis=(;xscale=log10))
+@testitem "spacemix" begin
+    using MakieExtra: CoordSpace, InSpace, spacemix
+    using MakieExtra.Spaces: data, rel
 
-    scatter!(@lift (10, 0) .+ $(rel2data(ax, :y, (0, 0.5))))
-    scatter!(@lift (0, 1) .+ $(rel2data(ax, :x, (0.5, 0))))
+    # --- Construction and arithmetic ---
+    @test CoordSpace(:data) == CoordSpace(:data)
+    @test 10data == InSpace(10, CoordSpace(:data))
+    @test 0.5rel == InSpace(0.5, CoordSpace(:relative))
 
-    scatter!(@lift (10, 0 + $(rel2data(ax, :y, 0.5))))
-    scatter!(@lift (0 + $(rel2data(ax, :x, 0.5)), 1))
+    # Scaling
+    @test 2 * (5data) == 10data
+    @test (5data) * 2 == 10data
 
-    scatter!(space=:relative, @lift $(data2rel(ax, :x, (10, 0))) .+ (0, 0.5))
-    scatter!(space=:relative, @lift $(data2rel(ax, :y, (0, 1))) .+ (0.5, 0))
+    # Same-space addition
+    @test 10data + 5data == 15data
+    @test 10data - 3data == 7data
+    @test 0.5rel + 0.1rel == 0.6rel
 
-    scatter!(space=:relative, @lift ($(data2rel(ax, :x, 10)) + 0, 0.5))
-    scatter!(space=:relative, @lift (0.5, $(data2rel(ax, :y, 1)) + 0))
+    # Cross-space addition is disallowed
+    @test_throws ArgumentError 10data + 0.5rel
+
+    # Real + InSpace (bare Real treated as data-space)
+    @test 100 + 5data == 105data
+    @test 0.1rel + 0.2rel == InSpace(0.1 + 0.2, CoordSpace(:relative))
+
+    # Negation
+    @test -5data == InSpace(-5, CoordSpace(:data))
+
+    # --- Display ---
+    @test string(10data) == "10data"
+    @test string(0.5rel) == "0.5relative"
+
+    # --- spacemix value tests ---
+    fig, ax, plt = scatter(randn(100); axis=(; xscale=log10))
+
+    # Pure data-space: no conversion, exact values
+    @test spacemix(ax, (data=10,), (data=5,))[] == Point2(10.0, 5.0)
+    @test spacemix(ax, 10data, 5data)[] == Point2(10.0, 5.0)
+    @test spacemix(ax, 10, 5)[] == Point2(10.0, 5.0)
+
+    # Relative 0 and 1 map to axis limits
+    lims = ax.finallimits[]
+    xmin, ymin = minimum(lims)
+    xmax, ymax = maximum(lims)
+    @test spacemix(ax, (relative=0,), (relative=0,))[] ≈ Point2(xmin, ymin) rtol=1e-4
+    @test spacemix(ax, (relative=1,), (relative=1,))[] ≈ Point2(xmax, ymax) rtol=1e-4
+    @test spacemix(ax, 0rel, 0rel)[] ≈ Point2(xmin, ymin) rtol=1e-4
+    @test spacemix(ax, 1rel, 1rel)[] ≈ Point2(xmax, ymax) rtol=1e-4
+
+    # Relative 0.5 maps to midpoint (in transformed space for log axis)
+    mid = spacemix(ax, (relative=0.5,), (relative=0.5,))[]
+    @test mid[2] ≈ (ymin + ymax) / 2
+    # x is log-scaled: midpoint in screen = geometric mean in data
+    @test mid[1] ≈ sqrt(xmin * xmax) rtol=0.01
+
+    # Calling conventions: 2-arg NamedTuple, 1-arg NamedTuple, InSpace all agree
+    r_nt2 = spacemix(ax, (data=10,), (relative=0.5,))[]
+    r_nt1 = spacemix(ax, (data=10, relative=0.5))[]
+    r_is  = spacemix(ax, 10data, 0.5rel)[]
+    r_bare = spacemix(ax, 10, (relative=0.5,))[]
+    @test r_nt2 == r_nt1
+    @test r_nt2 ≈ r_is
+    @test r_nt2 ≈ r_bare
+    @test r_nt2[1] == 10.0
+    @test r_nt2[2] ≈ (ymin + ymax) / 2
+
+    # target=:relative roundtrip: data→rel→data should preserve values
+    r_rel = spacemix(ax, (data=10,), (data=5,); target=:relative)[]
+    r_back = spacemix(ax, (relative=r_rel[1],), (relative=r_rel[2],))[]
+    @test r_back ≈ Point2(10.0, 5.0) rtol=1e-6
+
+    # Plot calls (smoke test)
+    scatter!(spacemix(ax, 10data, 0.5rel))
+    scatter!(space=:relative, spacemix(ax, (data=10,), (relative=0.5,); target=:relative))
 end
 
 @testitem "func2type" begin
