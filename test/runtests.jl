@@ -679,6 +679,45 @@ end
     @test length(pp_circle[1][].polygons) == 2
 end
 
+@testitem "geoaxis fplot" begin
+    using GeoMakie
+    using MakieExtra.IntervalSets
+    using MakieExtra.GeometryBasics: MultiPolygon
+    import CairoMakie
+
+    MakieExtra.GeoAxis_radians!()
+    MakieExtra.GeoAxis_splitwrap!()
+
+    fig = Figure()
+    ax = GeoAxis(fig[1,1], dest="+proj=moll")
+
+    lp = lines!(ax, FPlot(map(x->(x/50, x/1000), 1:20:1000), identity))
+    pp_vec = poly!(ax, FPlot([
+        Rect(0±0.2, 0.5±0.1),
+        Rect(3±0.2, -0.5±0.1),
+    ], identity))
+    pp_cross = poly!(ax, FPlot([Rect(3±0.2, 0.5±0.1)], identity))
+    pp_circle = poly!(ax, FPlot([Circle(Point2(-3.1, 0), 0.1)], identity))
+
+    colorbuffer(fig)
+
+    # Access child plots inside PlotList
+    lp_child = only(lp.plots)
+    pp_vec_child = only(pp_vec.plots)
+    pp_cross_child = only(pp_cross.plots)
+    pp_circle_child = only(pp_circle.plots)
+
+    # verify splitting is used in the rendered plots
+    @test count(p -> any(isnan, p), lp_child[1][]) > 0
+    @test pp_vec_child[1][] isa AbstractVector{<:MultiPolygon}
+    @test length(pp_vec_child[1][][1].polygons) == 1  # Rect(0±0.2, ...) doesn't cross boundary
+    @test length(pp_vec_child[1][][2].polygons) == 2  # Rect(3±0.2, ...) crosses π
+    @test pp_cross_child[1][] isa AbstractVector{<:MultiPolygon}
+    @test length(pp_cross_child[1][][1].polygons) == 2
+    @test pp_circle_child[1][] isa AbstractVector{<:MultiPolygon}
+    @test length(pp_circle_child[1][][1].polygons) == 2
+end
+
 @testitem "geoaxis splitting" begin
     import GeoMakie
     using GeoMakie: GeoAxis

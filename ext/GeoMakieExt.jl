@@ -46,6 +46,48 @@ function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly})
     return plot
 end
 
+function Makie.plot!(axis::GeoAxis, plot::Makie.PlotList)
+    source = pop!(plot.kw, :source, axis.source)
+    transformfunc = lift(GeoMakie.create_transform, axis.dest, source)
+
+    trans = Makie.Transformation(transformfunc; get(plot.kw, :transformation, Attributes())...)
+    plot.kw[:transformation] = trans
+
+    reset_limits = to_value(pop!(plot.kw, :reset_limits, true))
+
+    # PlotList reads :converted directly (not through the destructure edge),
+    # so splice_converted! alone doesn't help. We splice AND redirect :converted
+    # to point to the transformed node, so the PlotList recipe picks up split data.
+    if MakieExtra.GEOMAKIE_SPLITWRAP[]
+        splice_converted!(plot) do converted
+            map(c -> _transform_plotspecs(axis, c), converted)
+        end
+        plot.attributes.outputs[:converted] = plot.attributes.outputs[:_converted_split]
+    end
+
+    Makie.plot!(axis.scene, plot)
+
+    if reset_limits
+        Makie.needs_tight_limits(plot) && Makie.tightlimits!(axis)
+        if Makie.is_open_or_any_parent(axis.scene)
+            Makie.reset_limits!(axis)
+        end
+    end
+
+    return plot
+end
+
+_transform_plotspecs(axis, spec::Makie.PlotSpec) = let
+    T = Makie.plottype(spec)
+    if T <: Union{Lines, Poly}
+        split_args = postprocess_plotargs(axis, T, Makie.convert_arguments(T, spec.args...)...)
+        Makie.PlotSpec(T, split_args...; spec.kwargs...)
+    else
+        spec
+    end
+end
+_transform_plotspecs(_, x) = x
+
 # Splice a processing step between :converted and its downstream consumers in the ComputeGraph.
 # Creates :converted → f → :_converted_split, then rewires the destructure edge to read from :_converted_split.
 # Must be called before the plot is added to a scene (before any TypedEdge is created).
