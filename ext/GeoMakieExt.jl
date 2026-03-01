@@ -41,7 +41,7 @@ end
 
 _apply_splitwrap(axis, plot::Union{Lines, Poly}, converted) = postprocess_plotargs(axis, typeof(plot), converted...)
 _apply_splitwrap(axis, ::Makie.PlotList, converted) = map(c -> _transform_plotspecs(axis, c), converted)
-vo
+
 _transform_plotspecs(axis, spec::Makie.PlotSpec) = let
     T = Makie.plottype(spec)
     if T <: Union{Lines, Poly}
