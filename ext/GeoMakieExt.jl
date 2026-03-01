@@ -10,59 +10,21 @@ using MakieExtra.IntervalSets: width
 
 # XXX: copied verbatim from GeoMakie, with one addition (see comment)
 # should upstream somehow
-function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly})
-    # deal with setting the transform_func correctly
+function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly,Makie.PlotList})
     source = pop!(plot.kw, :source, axis.source)
     transformfunc = lift(GeoMakie.create_transform, axis.dest, source)
 
     trans = Makie.Transformation(transformfunc; get(plot.kw, :transformation, Attributes())...)
     plot.kw[:transformation] = trans
 
-    # remove the reset_limits kwarg if there is one, this determines whether to automatically reset limits
-    # on plot insertion
     reset_limits = to_value(pop!(plot.kw, :reset_limits, true))
 
 	# XXX the only change from GeoMakie, this added:
     if MakieExtra.GEOMAKIE_SPLITWRAP[]
 		splice_converted!(plot) do converted
-			postprocess_plotargs(axis, typeof(plot), converted...)
+			_apply_splitwrap(axis, plot, converted)
 		end
-    end
-
-    # actually plot
-    Makie.plot!(axis.scene, plot)
-
-    # reset limits ONLY IF the user has not said otherwise
-    if reset_limits
-        # some area-like plots basically always look better if they cover the whole plot area.
-        # adjust the limit margins in those cases automatically.
-        Makie.needs_tight_limits(plot) && Makie.tightlimits!(axis)
-
-        if Makie.is_open_or_any_parent(axis.scene)
-            Makie.reset_limits!(axis)
-        end
-    end
-
-    return plot
-end
-
-function Makie.plot!(axis::GeoAxis, plot::Makie.PlotList)
-    source = pop!(plot.kw, :source, axis.source)
-    transformfunc = lift(GeoMakie.create_transform, axis.dest, source)
-
-    trans = Makie.Transformation(transformfunc; get(plot.kw, :transformation, Attributes())...)
-    plot.kw[:transformation] = trans
-
-    reset_limits = to_value(pop!(plot.kw, :reset_limits, true))
-
-    # PlotList reads :converted directly (not through the destructure edge),
-    # so splice_converted! alone doesn't help. We splice AND redirect :converted
-    # to point to the transformed node, so the PlotList recipe picks up split data.
-    if MakieExtra.GEOMAKIE_SPLITWRAP[]
-        splice_converted!(plot) do converted
-            map(c -> _transform_plotspecs(axis, c), converted)
-        end
-        plot.attributes.outputs[:converted] = plot.attributes.outputs[:_converted_split]
+		plot.attributes.outputs[:converted] = plot.attributes.outputs[:_converted_split]
     end
 
     Makie.plot!(axis.scene, plot)
@@ -77,6 +39,9 @@ function Makie.plot!(axis::GeoAxis, plot::Makie.PlotList)
     return plot
 end
 
+_apply_splitwrap(axis, plot::Union{Lines, Poly}, converted) = postprocess_plotargs(axis, typeof(plot), converted...)
+_apply_splitwrap(axis, ::Makie.PlotList, converted) = map(c -> _transform_plotspecs(axis, c), converted)
+vo
 _transform_plotspecs(axis, spec::Makie.PlotSpec) = let
     T = Makie.plottype(spec)
     if T <: Union{Lines, Poly}
