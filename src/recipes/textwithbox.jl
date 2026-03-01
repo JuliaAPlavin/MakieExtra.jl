@@ -12,5 +12,19 @@ end
 
 function Makie.plot!(p::TextWithBox)
     attrs = attributes(p)
-    textlabel!(p, attrs, p.position; cornerradius=0, background_color=get(p.poly[], :color, :white), padding=get(p.poly[], :padding, 0), text_align=p.align)
+    # TextLabel prefixes some text-specific attributes with text_
+    textlabel!(p, attrs, p.position;
+        cornerradius=0,
+        background_color=get(p.poly[], :color, :white),
+        padding=get(p.poly[], :padding, 0),
+        text_align=p.align,
+        text_color=p.color,
+        text_rotation=p.rotation,
+        text_glowcolor=p.glowcolor,
+        text_glowwidth=p.glowwidth,
+        text_strokecolor=p.strokecolor,
+        text_strokewidth=p.strokewidth,
+        text_alpha=p.alpha,
+        text_fxaa=p.fxaa,
+    )
 end

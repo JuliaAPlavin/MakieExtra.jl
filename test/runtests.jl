@@ -210,6 +210,20 @@ end
     textwithbox!((0, 0), text="Some of My Text", poly=(;padding=Rect(0±3, 0±3)))
     textwithbox!((0, 0), text="Some of My Text", space=:relative, poly=(;color=:red))
     textwithbox!((0, 0), text="Some of My Text", space=:pixel, poly=(;padding=Rect(0±3, 0±3), color=:red))
+
+    # test that text attributes are forwarded properly
+    p = textwithbox((0, 0), text="Hello", color=:red, fontsize=30)
+    tl = p.plot.plots[1]  # TextLabel
+    @test tl.text_color[] == :red
+    @test tl.fontsize[] == 30
+
+    # test that observables propagate updates
+    alpha_obs = Observable(0.5)
+    p2 = textwithbox((0, 0), text="Hello", alpha=alpha_obs)
+    tl2 = p2.plot.plots[1]
+    @test tl2.text_alpha[] == 0.5
+    alpha_obs[] = 0.8
+    @test tl2.text_alpha[] == 0.8
 end
 
 @testitem "markers" begin
