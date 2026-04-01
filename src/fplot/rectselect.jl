@@ -1,6 +1,6 @@
 @kwdef struct RectSelection <: FPlotAddon
     key = true
-    vals::Observable{Vector{Pair}} = Observable([])
+    vals::Signal = _signal(Pair[])
     poly = (;)
 end
 
@@ -38,7 +38,7 @@ function add!(ax::Axis, rs::RectSelection, fplt::FPlot, ::plt; kwargs...) where 
     hspan!(ax, sel_span(rs, fplt, plt, 2; kwargs...); rs.poly..., xautolimits=false, yautolimits=false)
 
     argfuncs = argfuncs_for_xy(plt, fplt; kwargs...)
-    isrecting = Observable(false)
+    isrecting = Ref(false)
     on(events(ax).mousebutton, priority=100) do evt
         try
             if evt.button == Mouse.left

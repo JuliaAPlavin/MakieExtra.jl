@@ -9,7 +9,7 @@ Turn a set of checkboxes into radiobuttons:
 The selected index is stored in the `selix::Observable` field of the returned object.
 """
 function radiobuttons(cbs::Checkbox...; cb_attributes=(roundness=1, checkmark=Circle, checkmarksize=0.3))
-	selix = Observable{Int}(findonly(cb -> cb.checked[], cbs))
+	selix = _signal(Int, findonly(cb -> cb.checked[], cbs))
 	for (i, cb) in enumerate(cbs)
 		for (k, v) in pairs(cb_attributes)
 			setproperty!(cb, k, v)
@@ -29,7 +29,7 @@ function radiobuttons(cbs::Checkbox...; cb_attributes=(roundness=1, checkmark=Ci
 end
 
 function radiobuttons(ps::Pair{Checkbox,Button}...; cb_attributes=(roundness=1, checkmark=Circle, checkmarksize=0.3))
-	selix = Observable{Int}(findonly(((cb,_),) -> cb.checked[], ps))
+	selix = _signal(Int, findonly(((cb,_),) -> cb.checked[], ps))
 	for (i, (cb, btn)) in enumerate(ps)
 		for (k, v) in pairs(cb_attributes)
 			setproperty!(cb, k, v)

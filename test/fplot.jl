@@ -435,24 +435,24 @@ end
 
     @test isequal(cursor_vals(DataCursor(), FPlot(nothing, (@o _.a), (@o _.b)), Scatter, 1) |> to_value, [NaN])
     @test isequal(cursor_vals(DataCursor(
-        vals=Observable([(@o _.a) => 123])
+        vals=MakieExtra._signal([(@o _.a) => 123])
     ), FPlot(nothing, (@o _.a), (@o _.b)), Scatter, 1) |> to_value, [123])
     @test isequal(cursor_vals(DataCursor(
-        vals=Observable([(@o _.a) => 123])
+        vals=MakieExtra._signal([(@o _.a) => 123])
     ), FPlot(nothing, (@o _.a), (@o _.b)), Scatter, 2) |> to_value, [NaN])
 
     @test isequal(cursor_vals(DataCursor(
-        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+        vals=MakieExtra._signal([(@o _.a) => 123, (@o _.b) => 456])
     ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 1) |> to_value, [123])
     @test isequal(cursor_vals(DataCursor(
-        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+        vals=MakieExtra._signal([(@o _.a) => 123, (@o _.b) => 456])
     ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2) |> to_value, [NaN])
 
     @test isequal(cursor_vals(DataCursor(
-        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+        vals=MakieExtra._signal([(@o _.a) => 123, (@o _.b) => 456])
     ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 1; direction=:x) |> to_value, [NaN])
     @test isequal(cursor_vals(DataCursor(
-        vals=Observable([(@o _.a) => 123, (@o _.b) => 456])
+        vals=MakieExtra._signal([(@o _.a) => 123, (@o _.b) => 456])
     ), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2; direction=:x) |> to_value, [456])
 end
 
@@ -464,26 +464,26 @@ end
         sel_ints(RectSelection(), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
         (NaN..NaN, NaN..NaN))
     @test isequal(
-        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5])), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
+        sel_ints(RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..5])), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
         (2..5, NaN..NaN))
     @test isequal(
-        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
+        sel_ints(RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Scatter) |> to_value,
         (2..5, 10..12))
     @test isequal(
-        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist) |> to_value,
+        sel_ints(RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist) |> to_value,
         [2..5])
     @test isequal(
-        sel_ints(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist; direction=:x) |> to_value,
+        sel_ints(RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist; direction=:x) |> to_value,
         [NaN..NaN, 10..12])
 
     @test isequal(
-        sel_span(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 1) |> to_value,
+        sel_span(RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 1) |> to_value,
         2..5)
     @test isequal(
-        sel_span(RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2) |> to_value,
+        sel_span(RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..5, (@o _.b) => 10..12])), FPlot(nothing, (@o _.a), (@o _.b)), Hist, 2) |> to_value,
         NaN..NaN)
 
-    rs = RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 12..10]))
+    rs = RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..5, (@o _.b) => 12..10]))
     @test to_value(normalized_selints(rs)) == [(@o _.a) => 2..5, (@o _.b) => 10..12]
     data = [(a=1, b=2, c="x"), (a=4, b=5, c="y"), (a=4, b=11, c="z"), (a=5, b=10, c="w"), (a=6, b=10, c="v")]
     @test selected_data(data, rs) |> to_value == [(a=4, b=11, c="z"), (a=5, b=10, c="w")]
@@ -491,7 +491,7 @@ end
     @test map(is_selected, mdata) == [false, false, false, true, true]
     @test issetequal(map(x -> x[(:a,:b,:c)], mdata), data)
 
-    rs = RectSelection(vals=Observable([]))
+    rs = RectSelection(vals=MakieExtra._signal([]))
     @test to_value(normalized_selints(rs)) == []
     data = [(a=1, b=2, c="x"), (a=4, b=5, c="y"), (a=4, b=11, c="z"), (a=5, b=10, c="w"), (a=6, b=10, c="v")]
     @test selected_data(data, rs) |> to_value == data
@@ -499,7 +499,7 @@ end
     @test map(is_selected, mdata) |> all
     @test map(x -> x[(:a,:b,:c)], mdata) == data
 
-    rs = RectSelection(vals=Observable([(@o _.a) => 2..2, (@o _.b) => 12..12]))
+    rs = RectSelection(vals=MakieExtra._signal([(@o _.a) => 2..2, (@o _.b) => 12..12]))
     @test to_value(normalized_selints(rs)) == [(@o _.a) => 2..2, (@o _.b) => 12..12]
     data = [(a=1, b=2, c="x"), (a=4, b=5, c="y"), (a=4, b=11, c="z"), (a=5, b=10, c="w"), (a=6, b=10, c="v")]
     @test selected_data(data, rs) |> to_value == data
