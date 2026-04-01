@@ -161,4 +161,22 @@ function point_at_wrap(a::T, b::T; rng::Interval) where {T<:Point2}
 	)
 end
 
+function MakieExtra.mouse_position_obs(ax::GeoAxis; key=true, priority=10, consume=true, hold=true)
+    emptypoint = Point2(NaN, NaN)
+    res = MakieExtra._signal(emptypoint)
+    scene = Makie.parent_scene(ax)
+    onany(events(scene).mouseposition, events(scene).mousebutton; priority) do _...
+        if is_mouseinside(ax) && ispressed(scene, key)
+            projected = mouseposition(ax)
+            res[] = ax.inv_transform_func[](Point2f(projected))  # the only difference from generic method
+            consume && return Consume()
+        else
+            if !hold && res[] != emptypoint
+                res[] = emptypoint
+            end
+        end
+    end
+    return res
+end
+
 end

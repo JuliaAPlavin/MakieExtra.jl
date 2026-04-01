@@ -237,7 +237,7 @@ boundingbox2d(args...) = Rect2(boundingbox(args...))
 
 
 # see https://github.com/MakieOrg/Makie.jl/issues/4107 and https://github.com/MakieOrg/Makie.jl/issues/4291
-function mouse_position_obs(ax::Axis; key=true, priority=10, consume=true, hold=true)
+function mouse_position_obs(ax; key=true, priority=10, consume=true, hold=true)
     emptypoint = Point2(NaN, NaN)
     res = _signal(emptypoint)
     scene = Makie.parent_scene(ax)
