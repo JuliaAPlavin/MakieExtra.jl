@@ -22,7 +22,14 @@ function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::Unio
     common_kws = (;)
     if hasproperty(fplt₀, :color) && color_isnumeric
         colorrange = @oget fplt₀.colorrange extrema(fplt₀.color.attrs.limit) extrema(fplt₀.color, fplt₀.data)
-        common_kws = (;colorrange)
+        common_kws = @insert common_kws.colorrange = colorrange
+        cs = @oget fplt₀.colorscale fplt₀.color.attrs.scale
+        isnothing(cs) || (common_kws = @insert common_kws.colorscale = (cs isa Ref ? cs[] : cs))
+        for k in (:colormap, :lowclip, :highclip, :nan_color)
+            hasproperty(fplt₀, k) || continue
+            v = getproperty(fplt₀, k)
+            common_kws = @insert common_kws[k] = (v isa Ref ? v[] : v)
+        end
     end
     if any(f -> f isa ToAes && f.aes == :row, fplt₀.argfuncs)
         ix = findonly(f -> f isa ToAes && f.aes == :row, fplt₀.argfuncs)
@@ -70,11 +77,15 @@ function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::Unio
 
     if hasproperty(fplt, :color) && get(legend, :color, true) && color_isnumeric
         Label(gl[:,end+1][1,1], shortlabel(fplt.color))
-        kws = (;)
-        if hasproperty(fplt, :colormap)
-            kws = (;kws..., colormap=getval(nothing, :colormap, fplt.colormap))
+        cb_kws = (;)
+        for (k, v) in pairs(common_kws)
+            if k == :colorscale
+                cb_kws = @insert cb_kws.scale = v
+            elseif k in (:colormap, :colorrange, :lowclip, :highclip)
+                cb_kws = @insert cb_kws[k] = v
+            end
         end
-        Colorbar(gl[:,end][2,1]; colorrange, kws...)
+        Colorbar(gl[:,end][2,1]; cb_kws...)
     end
 end
 
