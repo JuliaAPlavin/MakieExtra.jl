@@ -484,26 +484,26 @@ end
         NaN..NaN)
 
     rs = RectSelection(vals=Observable([(@o _.a) => 2..5, (@o _.b) => 12..10]))
-    @test to_value(normalized_selints(rs)::Observable) == [(@o _.a) => 2..5, (@o _.b) => 10..12]
+    @test to_value(normalized_selints(rs)) == [(@o _.a) => 2..5, (@o _.b) => 10..12]
     data = [(a=1, b=2, c="x"), (a=4, b=5, c="y"), (a=4, b=11, c="z"), (a=5, b=10, c="w"), (a=6, b=10, c="v")]
-    @test selected_data(data, rs)::Observable |> to_value == [(a=4, b=11, c="z"), (a=5, b=10, c="w")]
-    mdata = mark_selected_data(data, rs)::Observable |> to_value
+    @test selected_data(data, rs) |> to_value == [(a=4, b=11, c="z"), (a=5, b=10, c="w")]
+    mdata = mark_selected_data(data, rs) |> to_value
     @test map(is_selected, mdata) == [false, false, false, true, true]
     @test issetequal(map(x -> x[(:a,:b,:c)], mdata), data)
 
     rs = RectSelection(vals=Observable([]))
-    @test to_value(normalized_selints(rs)::Observable) == []
+    @test to_value(normalized_selints(rs)) == []
     data = [(a=1, b=2, c="x"), (a=4, b=5, c="y"), (a=4, b=11, c="z"), (a=5, b=10, c="w"), (a=6, b=10, c="v")]
-    @test selected_data(data, rs)::Observable |> to_value == data
-    mdata = mark_selected_data(data, rs)::Observable |> to_value
+    @test selected_data(data, rs) |> to_value == data
+    mdata = mark_selected_data(data, rs) |> to_value
     @test map(is_selected, mdata) |> all
     @test map(x -> x[(:a,:b,:c)], mdata) == data
 
     rs = RectSelection(vals=Observable([(@o _.a) => 2..2, (@o _.b) => 12..12]))
-    @test to_value(normalized_selints(rs)::Observable) == [(@o _.a) => 2..2, (@o _.b) => 12..12]
+    @test to_value(normalized_selints(rs)) == [(@o _.a) => 2..2, (@o _.b) => 12..12]
     data = [(a=1, b=2, c="x"), (a=4, b=5, c="y"), (a=4, b=11, c="z"), (a=5, b=10, c="w"), (a=6, b=10, c="v")]
-    @test selected_data(data, rs)::Observable |> to_value == data
-    mdata = mark_selected_data(data, rs)::Observable |> to_value
+    @test selected_data(data, rs) |> to_value == data
+    mdata = mark_selected_data(data, rs) |> to_value
     @test map(is_selected, mdata) |> all
     @test map(x -> x[(:a,:b,:c)], mdata) == data
 end

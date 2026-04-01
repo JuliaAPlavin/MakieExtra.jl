@@ -13,6 +13,11 @@ struct FPlot
 end
 @batteries FPlot
 
+is_fplot_like(::FPlot) = true
+is_fplot_like(::Observable{<:FPlot}) = true
+is_fplot_like(::MyObservables.AbstractNode{<:FPlot}) = true
+is_fplot_like(_) = false
+
 FPlot(data, argfuncs...; axis::NamedTuple=(;), kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs), axis)
 
 FPlot(fplt::FPlot, args...; data=nothing, axis=(;), kwargs...) = FPlot(something(data, fplt.data), merge(fplt.argfuncs, args), merge(fplt.kwargfuncs, kwargs), merge(fplt.axis, axis))

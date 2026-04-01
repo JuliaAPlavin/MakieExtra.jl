@@ -77,8 +77,8 @@ function axis_attributes(ct, X::FPlot, kwargs)
 end
 
 
-function axis_attributes(ct, X::Observable{<:FPlot}, kwargs) 
-    result_obs = @lift let
+function axis_attributes(ct, X::Union{Observable{<:FPlot}, MyObservables.AbstractNode{<:FPlot}}, kwargs)
+    result_node = @lift let
         afuncs = argfuncs_for_xy(ct, $X; kwargs...)
         merge_non_nothing(
             merge_axis_kwargs(
@@ -87,12 +87,13 @@ function axis_attributes(ct, X::Observable{<:FPlot}, kwargs)
             ),
             $X.axis,
         )
-    end::Any
-    result = map(Observable{Any}, result_obs[])::NamedTuple
-    on(result_obs) do new_attrs
-        for (k, v) in pairs(new_attrs)
-            result[k][] = v
-        end
     end
-    return result
+    initial = MyObservables.peek(result_node)::NamedTuple
+    ks = keys(initial)
+    rt = MyObservables.runtime(result_node)
+    NamedTuple{ks}(map(ks) do k
+        computed(rt) do
+            getproperty(result_node[], k)
+        end
+    end)
 end

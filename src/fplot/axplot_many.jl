@@ -15,7 +15,7 @@ function axplot_many(plotf, fplt::FPlot; kwargs...)
     fig
 end
 
-function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::Union{Observable{<:FPlot},FPlot}; legend=(;), linkxaxes=true, linkyaxes=true)
+function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf, fplt::Union{Observable{<:FPlot},MyObservables.AbstractNode{<:FPlot},FPlot}; legend=(;), linkxaxes=true, linkyaxes=true)
     gl = GridLayout(pos)
 	fplt₀ = to_value(fplt)
 	color_isnumeric = hasproperty(fplt₀, :color) && fplt₀.color(first(fplt₀.data)) isa Number
