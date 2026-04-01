@@ -12,7 +12,7 @@ using MakieExtra.IntervalSets: width
 # should upstream somehow
 function Makie.plot!(axis::GeoAxis, plot::Union{Lines,Poly,Makie.PlotList})
     source = pop!(plot.kw, :source, axis.source)
-    transformfunc = lift(GeoMakie.create_transform, axis.dest, source)
+    transformfunc = Makie.lift(GeoMakie.create_transform, axis.dest, source)
 
     trans = Makie.Transformation(transformfunc; get(plot.kw, :transformation, Attributes())...)
     plot.kw[:transformation] = trans
