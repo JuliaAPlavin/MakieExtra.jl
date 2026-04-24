@@ -15,8 +15,8 @@ function (axp::Axplot)(pos::Union{GridPosition, GridSubposition}, args...; axis=
 
     axplt = axp.plotf(pos, args...; kwargs..., axis)
     ax = axplt.axis
-    if any(a -> a isa Union{FPlot,Observable{<:FPlot}}, args)
-        fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
+    if any(is_fplot_like, args)
+        fplt = filteronly(is_fplot_like, args) |> to_value
         for w in axp.widgets
             add!(ax, w, fplt, axplt.plot; kwargs...)
         end
@@ -39,16 +39,20 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
     keys_toset_after = Set([:xscale, :yscale, :zscale, :xticks, :yticks, :zticks])
     for (k, v) in pairs(axis)
         k ∈ keys_toset_after && continue
-        if v isa Observable
+        if v isa MyObservables.AbstractNode
+            effect!(MyObservables.runtime(v)) do
+                getproperty(ax, k)[] = v[]
+            end
+        elseif v isa Observable
             map!(identity, getproperty(ax, k), v)
         else
             getproperty(ax, k)[] = v
         end
     end
-    
+
     plt = axp.plotf(ax, args...; kwargs...)
-    if any(a -> a isa Union{FPlot,Observable{<:FPlot}}, args)
-        fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
+    if any(is_fplot_like, args)
+        fplt = filteronly(is_fplot_like, args) |> to_value
         for w in axp.widgets
             add!(ax, w, fplt, plt; kwargs...)
         end
@@ -56,7 +60,11 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
 
     for (k, v) in pairs(axis)
         k ∈ keys_toset_after || continue
-        if v isa Observable
+        if v isa MyObservables.AbstractNode
+            effect!(MyObservables.runtime(v)) do
+                getproperty(ax, k)[] = v[]
+            end
+        elseif v isa Observable
             map!(identity, getproperty(ax, k), v)
         else
             getproperty(ax, k)[] = v

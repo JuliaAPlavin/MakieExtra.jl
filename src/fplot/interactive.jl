@@ -2,7 +2,7 @@ abstract type FPlotAddon end
 
 with_widgets(plotf, ws) = function (args...; kwargs...)
     plt = plotf(args...; kwargs...)
-    fplt = filteronly(a -> a isa Union{FPlot,Observable{<:FPlot}}, args) |> to_value
+    fplt = filteronly(is_fplot_like, args) |> to_value
     ax = if hasproperty(plt, :axis)
         plt.axis
     elseif !isempty(args) && args[1] isa Axis

@@ -10,10 +10,10 @@ end
     fig = Figure()
     @test_throws ErrorException Slider₊(fig[1,1], range=0:10, label="Test")
     val, sl = Slider₊(fig[1,1:2], range=0:10, label="Test")
-    @test (val::Observable)[] == 5
+    @test val[] == 5
     @test sl isa Slider
     val, = Slider₊(fig[1,1:3], range=0.1:-2:-10, label="Test")
-    @test (val::Observable)[] == -3.9
+    @test val[] == -3.9
 end
 
 @testitem "checkbox₊" begin
@@ -33,6 +33,5 @@ end
         (@o _.a) => (;range=0:10),
         (@o _.b[2]) => (;range=0:10, label="B2", startvalue=7),
     )
-    @test obj isa Observable
     @test obj[] == (a=1, b=(2, 7))
 end
