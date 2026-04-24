@@ -19,7 +19,7 @@ using StructHelpers
 import Makie: plotfunc, plotfunc!, func2type
 using KwdefHelpers
 using MyObservables
-using MyObservables: @lift, lift, linked
+using MyObservables: @lift, lift, linked, Signal
 
 using Makie: Text
 @reexport using Makie
@@ -53,6 +53,12 @@ is_observable_like(::Makie.AbstractObservable) = true
 is_observable_like(::Makie.ComputePipeline.Computed) = true
 is_observable_like(::MyObservables.AbstractNode) = true
 is_observable_like(_) = false
+
+_signal(args...) = signal(MyObservables._GLOBAL_RT[], args...)
+
+_to_signal(x::MyObservables.AbstractNode) = x
+_to_signal(x::Observable) = from_obs(x)
+_to_signal(x) = _signal(x)
 
 
 include("scales.jl")
@@ -233,7 +239,7 @@ boundingbox2d(args...) = Rect2(boundingbox(args...))
 # see https://github.com/MakieOrg/Makie.jl/issues/4107 and https://github.com/MakieOrg/Makie.jl/issues/4291
 function mouse_position_obs(ax::Axis; key=true, priority=10, consume=true, hold=true)
     emptypoint = Point2(NaN, NaN)
-    res = Observable(emptypoint)
+    res = _signal(emptypoint)
     scene = Makie.parent_scene(ax)
     onany(events(scene).mouseposition, events(scene).mousebutton; priority) do _...
         if is_mouseinside(ax) && ispressed(scene, key)
