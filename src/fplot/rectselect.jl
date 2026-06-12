@@ -1,6 +1,6 @@
 @kwdef struct RectSelection <: FPlotAddon
     key = true
-    vals::Signal = _signal(Pair[])
+    vals::Observable{Vector{Pair}} = Observable([])
     poly = (;)
 end
 

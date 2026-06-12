@@ -1,12 +1,12 @@
 @kwdef struct InteractivePoints <: MakieExtra.FPlotAddon
-    data::MyObservables.AbstractNode
+    data::Observable
     add_key = Keyboard.a
     delete_key = Keyboard.d
     drag_key = Mouse.left
     priority::Int = 100
 end
 
-InteractivePoints(data; kwargs...) = InteractivePoints(; data = _to_signal(data), kwargs...)
+InteractivePoints(data; kwargs...) = InteractivePoints(; data = convert(Observable, data), kwargs...)
 
 function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...)
     dragging_ix = Ref{Any}(nothing)
@@ -24,11 +24,13 @@ function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...
             end
             if ispressed(ax, Exclusively(rs.add_key))
 				mpos = _mouseposition(ax)
-                rs.data[] = @insert last($(rs.data[])) = construct(eltype(rs.data[]), fplt[1] => mpos[1], fplt[2] => mpos[2])
+                push!(rs.data[], construct(eltype(rs.data[]), fplt[1] => mpos[1], fplt[2] => mpos[2]))
+                notify(rs.data)
                 return Consume()
             elseif ispressed(ax, Exclusively(rs.delete_key))
                 if !isnothing(closest_ix)
-                    rs.data[] = @delete $(rs.data[])[closest_ix]
+                    deleteat!(rs.data[], closest_ix)
+                    notify(rs.data)
                     return Consume()
                 end
             elseif ispressed(ax, Exclusively(rs.drag_key))
@@ -36,7 +38,8 @@ function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...
                     dragging_ix[] = closest_ix
 					elt = rs.data[][dragging_ix[]]
 					mpos = _mouseposition(ax)
-                    rs.data[] = @set $(rs.data[])[dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
+                    rs.data[][dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
+                    notify(rs.data)
                 end
                 return Consume()
             else
@@ -56,7 +59,8 @@ function add!(ax::Axis, rs::InteractivePoints, fplt::FPlot, plt::Plot; kwargs...
             try
 				elt = rs.data[][dragging_ix[]]
 				mpos = _mouseposition(ax)
-                rs.data[] = @set $(rs.data[])[dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
+				rs.data[][dragging_ix[]] = setall(elt, fplt[1] ++ fplt[2], mpos)
+                notify(rs.data)
             catch ex
                 @error "While updating dragged point" exc=(ex, catch_backtrace())
                 rethrow()

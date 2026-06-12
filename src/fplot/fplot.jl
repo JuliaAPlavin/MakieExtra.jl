@@ -15,7 +15,6 @@ end
 
 is_fplot_like(::FPlot) = true
 is_fplot_like(::Observable{<:FPlot}) = true
-is_fplot_like(::MyObservables.AbstractNode{<:FPlot}) = true
 is_fplot_like(_) = false
 
 FPlot(data, argfuncs...; axis::NamedTuple=(;), kwargsfuncs...) = FPlot(data, argfuncs, NamedTuple(kwargsfuncs), axis)

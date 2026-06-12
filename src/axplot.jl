@@ -39,11 +39,7 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
     keys_toset_after = Set([:xscale, :yscale, :zscale, :xticks, :yticks, :zticks])
     for (k, v) in pairs(axis)
         k ∈ keys_toset_after && continue
-        if v isa MyObservables.AbstractNode
-            effect!(MyObservables.runtime(v)) do
-                getproperty(ax, k)[] = v[]
-            end
-        elseif v isa Observable
+        if v isa Observable
             map!(identity, getproperty(ax, k), v)
         else
             getproperty(ax, k)[] = v
@@ -60,11 +56,7 @@ function (axp::Axplot)(ax::Axis, args...; axis=(;), kwargs...)
 
     for (k, v) in pairs(axis)
         k ∈ keys_toset_after || continue
-        if v isa MyObservables.AbstractNode
-            effect!(MyObservables.runtime(v)) do
-                getproperty(ax, k)[] = v[]
-            end
-        elseif v isa Observable
+        if v isa Observable
             map!(identity, getproperty(ax, k), v)
         else
             getproperty(ax, k)[] = v

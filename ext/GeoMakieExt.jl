@@ -163,7 +163,7 @@ end
 
 function MakieExtra.mouse_position_obs(ax::GeoAxis; key=true, priority=10, consume=true, hold=true)
     emptypoint = Point2(NaN, NaN)
-    res = MakieExtra._signal(emptypoint)
+    res = Observable(emptypoint)
     scene = Makie.parent_scene(ax)
     onany(events(scene).mouseposition, events(scene).mousebutton; priority) do _...
         if is_mouseinside(ax) && ispressed(scene, key)

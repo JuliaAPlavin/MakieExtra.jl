@@ -1,6 +1,6 @@
 @kwdef struct DataCursor <: FPlotAddon
     key = Keyboard.c
-    vals::Signal = _signal(Pair[])
+    vals::Observable{Vector{Pair}} = Observable([])
     lines = (;)
 end
 

@@ -41,9 +41,5 @@ function Checkbox₊(pos; label, startvalue=false, kwargs...)
 	end
 end
 
-_slider_value_bidi_obs(sl::Slider) = let
-	sl_node = from_obs(sl.value)
-	linked(runtime(sl_node); set=v -> set_close_to!(sl, v)) do
-		sl_node[]
-	end
-end
+_slider_value_bidi_obs(sl::Slider) =
+	lift_getset(() -> sl.value[], v -> set_close_to!(sl, v), sl.value)

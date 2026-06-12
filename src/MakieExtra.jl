@@ -18,8 +18,6 @@ using DataManipulation.StructArrays
 using StructHelpers
 import Makie: plotfunc, plotfunc!, func2type
 using KwdefHelpers
-using MyObservables
-using MyObservables: @lift, lift, linked, Signal
 
 using Makie: Text
 @reexport using Makie
@@ -32,13 +30,15 @@ export
     marker_lw,
     to_x_attrs, to_y_attrs, to_xy_attrs,
     multiplot, multiplot!,
+    changes,
     FPlot, AxFunc, AsCategorical,
     DataCursor, RectSelection, InteractivePoints, with_widgets, is_selected, selected_data, mark_selected_data,
     axplot,
     @rich,
+    obsmap,
     mouse_position_obs,
     intervals, dilate, erode, boundingbox2d,
-    @lift, lift,
+    liftT,
     offset_texts_auto_1d!,
     autohide_axlabels!,
     link_colormap!, link_legend!,
@@ -49,18 +49,7 @@ export
 
 filter_keys(pred, d::Dict) = Dict(k => v for (k, v) in pairs(d) if pred(k))
 
-is_observable_like(::Makie.AbstractObservable) = true
-is_observable_like(::Makie.ComputePipeline.Computed) = true
-is_observable_like(::MyObservables.AbstractNode) = true
-is_observable_like(_) = false
-
-_signal(args...) = signal(MyObservables._GLOBAL_RT[], args...)
-
-_to_signal(x::MyObservables.AbstractNode) = x
-_to_signal(x::Observable) = from_obs(x)
-_to_signal(x) = _signal(x)
-
-
+include("lift.jl")
 include("scales.jl")
 include("ticks.jl")
 include("axplot.jl")
@@ -80,6 +69,7 @@ include("ui/radiobuttons.jl")
 include("ui/labeledwidgets.jl")
 include("ui/slidergridobj.jl")
 include("layout.jl")
+include("observables.jl")
 include("linking.jl")
 include("spaces.jl")
 
@@ -236,10 +226,21 @@ end
 boundingbox2d(args...) = Rect2(boundingbox(args...))
 
 
+function obsmap(x::Observable, xvals, res::Observable)
+    xval₀ = x[]
+    result = map(xvals) do x_
+        x[] = x_
+        return res[]
+    end
+    x[] = xval₀
+    return result
+end
+
+
 # see https://github.com/MakieOrg/Makie.jl/issues/4107 and https://github.com/MakieOrg/Makie.jl/issues/4291
 function mouse_position_obs(ax; key=true, priority=10, consume=true, hold=true)
     emptypoint = Point2(NaN, NaN)
-    res = _signal(emptypoint)
+    res = Observable(emptypoint)
     scene = Makie.parent_scene(ax)
     onany(events(scene).mouseposition, events(scene).mousebutton; priority) do _...
         if is_mouseinside(ax) && ispressed(scene, key)
@@ -290,7 +291,7 @@ function autohide_axlabels!(pos; hidex=true, hidey=true)
 end
 
 
-Makie.Record(obs::Union{Observable, MyObservables.AbstractNode}, iter::AbstractVector; kwargs...) = Record(current_figure(), obs, iter; kwargs...)
+Makie.Record(obs::Observable, iter::AbstractVector; kwargs...) = Record(current_figure(), obs, iter; kwargs...)
 Makie.Record(func::Function, iter::AbstractVector; kwargs...) = Record(func, current_figure(), iter; kwargs...)
 
 
@@ -308,13 +309,30 @@ function _mouseposition(ax::Axis)
                          Makie.inverse_transform(ax.yscale[])(pos[2]))
 end
 
+# https://github.com/JuliaGizmos/Observables.jl/pull/115
+"""
+     changes(obs::AbstractObservable)
+
+Returns an `Observable` that only forwards `obs` updates when its value changes.
+"""
+function changes(obs::Makie.AbstractObservable{T}) where {T}
+    # could just be:
+    # map(identity, obs, ignore_equal_values=true)
+    # but this could narrow the Observable type from T
+
+    result = Observable{T}(obs[], ignore_equal_values=true)
+    map!(identity, result, obs)
+    return result
+end
+
+
 # XXX: hack, ignore kwargs that Makie erroneously propagates
 # this is very low-specificity method that should only trigger when no kwargs-accepting methods exist
 # this method is relied upon in, for example, VLBIPlots.jl
 Makie.convert_arguments(args...; kwargs...) = isempty(kwargs) ? throw(MethodError(convert_arguments, args)) : convert_arguments(args...)
 
 
-Makie.Record(figlike::Figure, obs::Union{Observable, MyObservables.AbstractNode}, iter::AbstractVector; kw_args...) =
+Makie.Record(figlike::Figure, obs::Observable, iter::AbstractVector; kw_args...) =
     Record(figlike, iter; kw_args...) do i
         obs[] = i
     end

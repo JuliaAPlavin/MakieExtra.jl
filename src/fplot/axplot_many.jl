@@ -151,13 +151,13 @@ end
 
 """
 Build the per-cell `FPlot`. Static input applies the transform eagerly;
-`Observable`/`AbstractNode` input is lifted so the cell's structure (`subs`,
+`Observable` input is lifted so the cell's structure (`subs`,
 `pred`) stays frozen at construction while `data` and other attrs flow through
 reactively.
 """
 build_cell_fplt(fplt::FPlot, subs, pred) = apply_cell_transform(fplt, subs, pred)
-build_cell_fplt(fplt::Union{Observable,MyObservables.AbstractNode}, subs, pred) =
-    MyObservables.lift(FPlot, f -> apply_cell_transform(f, subs, pred), fplt)
+build_cell_fplt(fplt::Observable, subs, pred) =
+    liftT(f -> apply_cell_transform(f, subs, pred), FPlot, fplt)
 
 
 "Combine row/col data-filter predicates with logical AND; `nothing` means no filter on that side."
@@ -306,7 +306,7 @@ extract_axis(r::Tuple) = extract_axis(r[1])
     axplot_many(pos,  plotf, fplt; legend=(;), linkxaxes=true, linkyaxes=true)
 
 Build a 2-D grid of `axplot`-style subplots from one `FPlot` (or
-`Observable`/`AbstractNode` thereof). Each grid axis (`row`, `col`) is driven
+`Observable` thereof). Each grid axis (`row`, `col`) is driven
 by either a kwarg-facet (`fplt.col` / `fplt.row`) or one or more `ToAes(:row,
 …)` / `ToAes(:col, …)` markers among `fplt`'s argfuncs/kwargfuncs (multiple
 markers on the same axis run as a parallel zip). Each cell receives an
@@ -320,7 +320,7 @@ own `Figure`; the positional form embeds into `pos` and reports
 
 See `axplot_many_design.md` for the full semantics.
 """
-function axplot_many(plotf, fplt::Union{FPlot,Observable{<:FPlot},MyObservables.AbstractNode{<:FPlot}};
+function axplot_many(plotf, fplt::Union{FPlot,Observable{<:FPlot}};
                     legend=(;), linkxaxes::Bool=true, linkyaxes::Bool=true)
     fig = Figure()
     inner = _axplot_many_inner(fig[1, 1], plotf, fplt; legend, linkxaxes, linkyaxes)
@@ -329,7 +329,7 @@ function axplot_many(plotf, fplt::Union{FPlot,Observable{<:FPlot},MyObservables.
 end
 
 function axplot_many(pos::Union{GridPosition,GridSubposition}, plotf,
-                    fplt::Union{FPlot,Observable{<:FPlot},MyObservables.AbstractNode{<:FPlot}};
+                    fplt::Union{FPlot,Observable{<:FPlot}};
                     legend=(;), linkxaxes::Bool=true, linkyaxes::Bool=true)
     inner = _axplot_many_inner(pos, plotf, fplt; legend, linkxaxes, linkyaxes)
     return (; figure=nothing, inner...)
