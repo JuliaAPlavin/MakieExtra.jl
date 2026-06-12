@@ -66,7 +66,17 @@ end
 _symlog_ticks(::Makie.Automatic) = BaseMulTicks()
 _symlog_ticks(x) = x
 
-_symlog_formatter(::Makie.Automatic) = Base.Broadcast.BroadcastFunction(x -> Makie.showoff_minus([x])[])
+# plain (non-scientific) shortest-decimal label with ASCII hyphen replaced by the unicode minus sign.
+# Mirrors what Makie's removed `showoff_minus` did per element, via the same `Base.Ryu` engine Makie now vendors.
+function _plain_minus(x::Real)
+    isfinite(x) || return string(x)
+    iszero(x) && return "0"
+    _, e10 = Base.Ryu.reduce_shortest(Float64(x))
+    s = Base.Ryu.writefixed(Float64(x), max(0, -e10))
+    startswith(s, '-') ? "−" * s[2:end] : s
+end
+
+_symlog_formatter(::Makie.Automatic) = Base.Broadcast.BroadcastFunction(_plain_minus)
 _symlog_formatter(x) = x
 
 
